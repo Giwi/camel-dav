@@ -1,4 +1,4 @@
-package org.giwi.camel.sardine;
+package org.giwi.camel.dav;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultProducer;
@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 /**
  * The Sardine producer.
  */
-public class SardineProducer extends DefaultProducer {
-    private static final transient Logger LOG = LoggerFactory.getLogger(SardineProducer.class);
-    private SardineEndpoint endpoint;
+public class DavProducer extends DefaultProducer {
+    private static final transient Logger LOG = LoggerFactory.getLogger(DavProducer.class);
+    private DavEndpoint endpoint;
 
-    public SardineProducer(SardineEndpoint endpoint) {
+    public DavProducer(DavEndpoint endpoint) {
         super(endpoint);
         this.endpoint = endpoint;
     }

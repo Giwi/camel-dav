@@ -15,7 +15,15 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
-
+<repositories>
+     <repository>
+        <id>sardine-google-svn-repo</id>
+        <snapshots> <enabled>true</enabled> </snapshots>
+        <name>Sardine maven repo at Google Code</name>
+        <url>http://sardine.googlecode.com/svn/maven/</url>
+     </repository>
+  </repositories>
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -49,7 +57,14 @@
       <version>2.10.2</version>
       <scope>test</scope>
     </dependency>
+  
+    <dependency>
+      <groupId>com.googlecode.sardine</groupId>
+      <artifactId>sardine</artifactId>
+      <version>314</version>
+    </dependency>
   </dependencies>
+  
 
   <build>
     <defaultGoal>install</defaultGoal>
