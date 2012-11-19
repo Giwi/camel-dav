@@ -22,7 +22,7 @@ import org.apache.camel.util.FileUtil;
  * Base class for remote file consumers.
  */
 public abstract class RemoteFileConsumer<T> extends GenericFileConsumer<T> {
-	protected boolean loggedIn;
+	protected boolean loggedIn = true;
 
 	public RemoteFileConsumer(RemoteFileEndpoint<T> endpoint, Processor processor, RemoteFileOperations<T> operations) {
 		super(endpoint, processor, operations);
@@ -41,48 +41,18 @@ public abstract class RemoteFileConsumer<T> extends GenericFileConsumer<T> {
 
 	@Override
 	protected boolean prePollCheck() throws Exception {
-		if (log.isTraceEnabled()) {
-			log.trace("prePollCheck on " + getEndpoint().getConfiguration().remoteServerInformation());
-		}
-		try {
-			if (getEndpoint().getMaximumReconnectAttempts() > 0) {
-				// only use recoverable if we are allowed any re-connect attempts
-				recoverableConnectIfNecessary();
-			} else {
-				connectIfNecessary();
-			}
-		} catch (Exception e) {
-			loggedIn = false;
-
-			// login failed should we thrown exception
-			if (getEndpoint().getConfiguration().isThrowExceptionOnConnectFailed()) {
-				throw e;
-			}
-		}
-
-		if (!loggedIn) {
-			String message = "Cannot connect/login to: " + remoteServer() + ". Will skip this poll.";
-			log.warn(message);
-			return false;
-		}
-
+		// noop
 		return true;
 	}
 
 	@Override
 	protected void postPollCheck() {
-		if (log.isTraceEnabled()) {
-			log.trace("postPollCheck on " + getEndpoint().getConfiguration().remoteServerInformation());
-		}
-		if (getEndpoint().isDisconnect()) {
-			log.trace("postPollCheck disconnect from: {}", getEndpoint());
-			disconnect();
-		}
+		// noop
 	}
 
 	@Override
 	protected void processExchange(Exchange exchange) {
-		// mark the exchange to be processed synchronously as the ftp client is not thread safe
+		// mark the exchange to be processed synchronously as the dav client is not thread safe
 		// and we must execute the callbacks in the same thread as this consumer
 		exchange.setProperty(Exchange.UNIT_OF_WORK_PROCESS_SYNC, Boolean.TRUE);
 		super.processExchange(exchange);
@@ -95,7 +65,6 @@ public abstract class RemoteFileConsumer<T> extends GenericFileConsumer<T> {
 	@Override
 	protected void doStop() throws Exception {
 		super.doStop();
-		disconnect();
 	}
 
 	protected void disconnect() {
@@ -103,21 +72,7 @@ public abstract class RemoteFileConsumer<T> extends GenericFileConsumer<T> {
 	}
 
 	protected void recoverableConnectIfNecessary() throws Exception {
-		try {
-			connectIfNecessary();
-		} catch (Exception e) {
-			if (log.isDebugEnabled()) {
-				log.debug("Could not connect to: " + getEndpoint() + ". Will try to recover.", e);
-			}
-			loggedIn = false;
-		}
-
-		// recover by re-creating operations which should most likely be able to recover
-		if (!loggedIn) {
-			log.debug("Trying to recover connection to: {} with a fresh client.", getEndpoint());
-			setOperations(getEndpoint().createRemoteFileOperations());
-			connectIfNecessary();
-		}
+		// noop
 	}
 
 	protected void connectIfNecessary() throws IOException {
@@ -133,7 +88,7 @@ public abstract class RemoteFileConsumer<T> extends GenericFileConsumer<T> {
 
 	@Override
 	protected boolean isMatched(GenericFile<T> file, String doneFileName) {
-		// ftp specific as we need to cater for stepwise
+		// dav specific as we need to cater for stepwise
 		if (getEndpoint().getConfiguration().isStepwise()) {
 			// stepwise enabled, so done file should always be without path
 			doneFileName = FileUtil.stripPath(doneFileName);

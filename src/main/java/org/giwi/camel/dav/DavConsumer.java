@@ -21,13 +21,14 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 
 	public DavConsumer(RemoteFileEndpoint<DavResource> endpoint, Processor processor, RemoteFileOperations<DavResource> fileOperations) {
 		super(endpoint, processor, fileOperations);
-		endpointPath = endpoint.getConfiguration().getDirectory();
-		LOG.info(endpointPath);
+		endpointPath = endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory();
+		LOG.info("endpointPath : " + endpointPath);
 	}
 
 	@Override
 	protected boolean pollDirectory(String fileName, List<GenericFile<DavResource>> fileList, int depth) {
 		String currentDir = null;
+		LOG.debug(fileName);
 		if (isStepwise()) {
 			// must remember current dir so we stay in that directory after the poll
 			currentDir = operations.getCurrentDirectory();
@@ -54,7 +55,7 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 	}
 
 	protected boolean doPollDirectory(String absolutePath, String dirName, List<GenericFile<DavResource>> fileList, int depth) {
-		log.trace("doPollDirectory from absolutePath: {}, dirName: {}", absolutePath, dirName);
+		log.debug("doPollDirectory from absolutePath: {}, dirName: {}", absolutePath, dirName);
 
 		depth++;
 
@@ -88,12 +89,12 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		}
 
 		for (DavResource file : files) {
-
+			log.info("found : " + file.getName());
 			// check if we can continue polling in files
 			if (!canPollMoreFiles(fileList)) {
 				return false;
 			}
-
+			// TODO gérer la récursivité
 			if (file.isDirectory()) {
 				RemoteFile<DavResource> remote = asRemoteFile(absolutePath, file);
 				if (endpoint.isRecursive() && isValidFile(remote, true) && depth < endpoint.getMaxDepth()) {
@@ -141,27 +142,35 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		// create a pseudo absolute name
 		String dir = FileUtil.stripTrailingSeparator(absolutePath);
 		String absoluteFileName = FileUtil.stripLeadingSeparator(dir + "/" + file.getName());
-		// if absolute start with a leading separator otherwise let it be relative
-		if (absolute) {
-			absoluteFileName = "/" + absoluteFileName;
+		answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + "/" + dir + "/" + file.getName());
+		if (dir.equals(file.getName())) {
+			absoluteFileName = FileUtil.stripLeadingSeparator(file.getName());
+			answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + "/" + file.getName());
+			// // if absolute start with a leading separator otherwise let it be relative
+			// if (absolute) {
+			// absoluteFileName = "/" + absoluteFileName;
+			// }
 		}
-		answer.setAbsoluteFilePath(absoluteFileName);
 
 		// the relative filename, skip the leading endpoint configured path
 		String relativePath = ObjectHelper.after(absoluteFileName, endpointPath);
+		if (relativePath == null) {
+			relativePath = ".";
+		}
+
 		// skip leading /
 		relativePath = FileUtil.stripLeadingSeparator(relativePath);
-		answer.setRelativeFilePath(relativePath);
+		answer.setRelativeFilePath(file.getName());
 
 		// the file name should be the relative path
-		answer.setFileName(answer.getRelativeFilePath());
+		answer.setFileName(file.getName());
 
 		return answer;
 	}
 
 	private boolean isStepwise() {
 		RemoteFileConfiguration config = (RemoteFileConfiguration) endpoint.getConfiguration();
-		return config.isStepwise();
+		return false; // config.isStepwise();
 	}
 
 	@Override
