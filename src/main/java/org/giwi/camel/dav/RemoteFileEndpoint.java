@@ -113,7 +113,7 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	protected void afterPropertiesSet() throws Exception {
 		RemoteFileConfiguration config = getConfiguration();
 		ObjectHelper.notEmpty(config.getHost(), "host");
-		ObjectHelper.notEmpty(config.getProtocol(), "protocol");
+		// ObjectHelper.notEmpty(config.getProtocol(), "protocol");
 	}
 
 	@Override

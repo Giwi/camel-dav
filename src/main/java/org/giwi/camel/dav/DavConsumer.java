@@ -7,6 +7,8 @@ import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.URISupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.googlecode.sardine.DavResource;
 
@@ -14,12 +16,13 @@ import com.googlecode.sardine.DavResource;
  * The Sardine consumer.
  */
 public class DavConsumer extends RemoteFileConsumer<DavResource> {
-
+	private static final transient Logger LOG = LoggerFactory.getLogger(DavConsumer.class);
 	protected String endpointPath;
 
 	public DavConsumer(RemoteFileEndpoint<DavResource> endpoint, Processor processor, RemoteFileOperations<DavResource> fileOperations) {
 		super(endpoint, processor, fileOperations);
 		endpointPath = endpoint.getConfiguration().getDirectory();
+		LOG.info(endpointPath);
 	}
 
 	@Override

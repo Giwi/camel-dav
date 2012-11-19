@@ -12,7 +12,8 @@ import java.net.URI;
 public class DavConfiguration extends RemoteFileConfiguration {
 
 	public DavConfiguration() {
-		setProtocol("ftp");
+		setProtocol("http");
+		setPort(80);
 	}
 
 	public DavConfiguration(URI uri) {
@@ -22,5 +23,11 @@ public class DavConfiguration extends RemoteFileConfiguration {
 	@Override
 	protected void setDefaultPort() {
 		setPort(80);
+	}
+
+	@Override
+	protected void setDefaultProtocol() {
+		setProtocol("http");
+
 	}
 }

@@ -5,6 +5,8 @@ import org.apache.camel.FailedToCreateProducerException;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileConfiguration;
 import org.apache.camel.component.file.GenericFileProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.googlecode.sardine.DavResource;
 import com.googlecode.sardine.Sardine;
@@ -15,12 +17,14 @@ import com.googlecode.sardine.SardineFactory;
  */
 public class DavEndpoint<T extends DavResource> extends RemoteFileEndpoint<DavResource> {
 	protected Sardine davClient;
+	private static final transient Logger LOG = LoggerFactory.getLogger(DavEndpoint.class);
 
 	public DavEndpoint() {
 	}
 
 	public DavEndpoint(String uri, RemoteFileComponent<DavResource> component, RemoteFileConfiguration configuration) {
 		super(uri, component, configuration);
+		LOG.info(uri);
 	}
 
 	@Override

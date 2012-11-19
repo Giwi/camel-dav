@@ -3,6 +3,7 @@
  */
 package org.giwi.camel.dav;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,9 +13,11 @@ import java.io.OutputStream;
 import java.util.List;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.component.file.FileComponent;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileEndpoint;
+import org.apache.camel.component.file.GenericFileExist;
 import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.IOHelper;
@@ -48,7 +51,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean deleteFile(String name) throws GenericFileOperationFailedException {
 		try {
-			client.delete(name);
+			client.delete("http://" + name);
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -58,7 +61,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean existsFile(String name) throws GenericFileOperationFailedException {
 		try {
-			client.exists(name);
+			client.exists("http://" + name);
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -68,7 +71,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean renameFile(String from, String to) throws GenericFileOperationFailedException {
 		try {
-			client.move(from, to);
+			client.move("http://" + from, "http://" + to);
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -78,8 +81,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean buildDirectory(String directory, boolean absolute) throws GenericFileOperationFailedException {
 		// TODO : gérer le côté absolute (pas la vodka)
+		log.info(directory);
 		try {
-			client.createDirectory(directory);
+			client.createDirectory("http://" + directory);
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -99,8 +103,135 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public boolean storeFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
-		// TODO Auto-generated method stub
-		return false;
+		// must normalize name first
+		name = endpoint.getConfiguration().normalizePath(name);
+
+		log.trace("storeFile({})", name);
+
+		boolean answer = false;
+		String currentDir = null;
+		String path = FileUtil.onlyPath(name);
+		String targetName = name;
+
+		try {
+			if (path != null && endpoint.getConfiguration().isStepwise()) {
+				// must remember current dir so we stay in that directory after the write
+				currentDir = getCurrentDirectory();
+
+				// change to path of name
+				changeCurrentDirectory(path);
+
+				// the target name should be without path, as we have changed directory
+				targetName = FileUtil.stripPath(name);
+			}
+
+			// store the file
+			answer = doStoreFile(name, targetName, exchange);
+		} finally {
+			// change back to current directory if we changed directory
+			if (currentDir != null) {
+				changeCurrentDirectory(currentDir);
+			}
+		}
+
+		return answer;
+	}
+
+	private boolean doStoreFile(String name, String targetName, Exchange exchange) throws GenericFileOperationFailedException {
+		log.trace("doStoreFile({})", targetName);
+
+		// if an existing file already exists what should we do?
+		if (endpoint.getFileExist() == GenericFileExist.Ignore || endpoint.getFileExist() == GenericFileExist.Fail || endpoint.getFileExist() == GenericFileExist.Move) {
+			boolean existFile = existsFile(targetName);
+			if (existFile && endpoint.getFileExist() == GenericFileExist.Ignore) {
+				// ignore but indicate that the file was written
+				log.trace("An existing file already exists: {}. Ignore and do not override it.", name);
+				return true;
+			} else if (existFile && endpoint.getFileExist() == GenericFileExist.Fail) {
+				throw new GenericFileOperationFailedException("File already exist: " + name + ". Cannot write new file.");
+			} else if (existFile && endpoint.getFileExist() == GenericFileExist.Move) {
+				// move any existing file first
+				doMoveExistingFile(name, targetName);
+			}
+		}
+
+		InputStream is = null;
+		if (exchange.getIn().getBody() == null) {
+			// Do an explicit test for a null body and decide what to do
+			if (endpoint.isAllowNullBody()) {
+				log.trace("Writing empty file.");
+				is = new ByteArrayInputStream(new byte[] {});
+			} else {
+				throw new GenericFileOperationFailedException("Cannot write null body to file: " + name);
+			}
+		}
+
+		try {
+			if (is == null) {
+				is = exchange.getIn().getMandatoryBody(InputStream.class);
+			}
+			log.trace("Client storeFile: {}", targetName);
+			log.info(endpoint.getConfiguration().remoteServerInformation() + "/" + name);
+			client.put(endpoint.getConfiguration().remoteServerInformation() + "/" + name, is);
+			return true;
+		} catch (IOException e) {
+			throw new GenericFileOperationFailedException(e.getMessage(), e);
+		} catch (InvalidPayloadException e) {
+			throw new GenericFileOperationFailedException("Cannot store file: " + name, e);
+		} finally {
+			IOHelper.close(is, "store: " + name, log);
+		}
+	}
+
+	/**
+	 * Moves any existing file due fileExists=Move is in use.
+	 */
+	private void doMoveExistingFile(String name, String targetName) throws GenericFileOperationFailedException {
+		// need to evaluate using a dummy and simulate the file first, to have access to all the file attributes
+		// create a dummy exchange as Exchange is needed for expression evaluation
+		// we support only the following 3 tokens.
+		Exchange dummy = endpoint.createExchange();
+		// we only support relative paths for the ftp component, so dont provide any parent
+		String parent = null;
+		String onlyName = FileUtil.stripPath(targetName);
+		dummy.getIn().setHeader(Exchange.FILE_NAME, targetName);
+		dummy.getIn().setHeader(Exchange.FILE_NAME_ONLY, onlyName);
+		dummy.getIn().setHeader(Exchange.FILE_PARENT, parent);
+
+		String to = endpoint.getMoveExisting().evaluate(dummy, String.class);
+		// we only support relative paths for the ftp component, so strip any leading paths
+		to = FileUtil.stripLeadingSeparator(to);
+		// normalize accordingly to configuration
+		to = endpoint.getConfiguration().normalizePath(to);
+		if (ObjectHelper.isEmpty(to)) {
+			throw new GenericFileOperationFailedException("moveExisting evaluated as empty String, cannot move existing file: " + name);
+		}
+
+		// do we have a sub directory
+		String dir = FileUtil.onlyPath(to);
+		if (dir != null) {
+			// ensure directory exists
+			buildDirectory(dir, false);
+		}
+
+		// deal if there already exists a file
+		if (existsFile(to)) {
+			if (endpoint.isEagerDeleteTargetFile()) {
+				log.trace("Deleting existing file: {}", to);
+				try {
+					client.delete("http://" + to);
+				} catch (IOException e) {
+					throw new GenericFileOperationFailedException("Cannot delete file: " + to, e);
+				}
+			} else {
+				throw new GenericFileOperationFailedException("Cannot moved existing file from: " + name + " to: " + to + " as there already exists a file: " + to);
+			}
+		}
+
+		log.trace("Moving existing file: {} to: {}", name, to);
+		if (!renameFile(targetName, to)) {
+			throw new GenericFileOperationFailedException("Cannot rename file from: " + name + " to: " + to);
+		}
 	}
 
 	@Override
@@ -123,14 +254,17 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public List<DavResource> listFiles() throws GenericFileOperationFailedException {
-		// TODO Auto-generated method stub
+		// noop
 		return null;
 	}
 
 	@Override
 	public List<DavResource> listFiles(String path) throws GenericFileOperationFailedException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return client.list("http://" + path);
+		} catch (IOException e) {
+			throw new GenericFileOperationFailedException(e.getMessage(), e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -158,10 +292,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			}
 
 			log.trace("Client retrieveFile: {}", remoteName);
-			InputStream is = client.get(remoteName);
+			InputStream is = client.get("http://" + remoteName);
+			IOHelper.copyAndCloseInput(is, os);
 			result = true;
-			// result = client.get(remoteName, os);
-
 			// change back to current directory
 			if (endpoint.getConfiguration().isStepwise()) {
 				changeCurrentDirectory(currentDir);
@@ -243,8 +376,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			}
 
 			log.trace("Client retrieveFile: {}", remoteName);
-			// result = client.retrieveFile(remoteName, os);
 			InputStream is = client.get(remoteName);
+			IOHelper.copyAndCloseInput(is, os);
 			result = true;
 			// change back to current directory
 			if (endpoint.getConfiguration().isStepwise()) {

@@ -49,9 +49,9 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	@Override
 	public void configure(URI uri) {
 		super.configure(uri);
-		setProtocol(uri.getScheme());
+		// setProtocol(uri.getScheme());
 		setDefaultPort();
-
+		setDefaultProtocol();
 		// UserInfo can contain both username and password as: user:pwd@ftpserver
 		// see: http://en.wikipedia.org/wiki/URI_scheme
 		String username = uri.getUserInfo();
@@ -71,11 +71,13 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 		setPort(uri.getPort());
 	}
 
+	protected abstract void setDefaultProtocol();
+
 	/**
 	 * Returns human readable server information for logging purpose
 	 */
 	public String remoteServerInformation() {
-		return protocol + "://" + (username != null ? username : "anonymous") + "@" + host + ":" + getPort();
+		return protocol + "://" + host + ":" + getPort();
 	}
 
 	protected abstract void setDefaultPort();
