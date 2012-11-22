@@ -137,15 +137,16 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 
 		// absolute or relative path
 		boolean absolute = FileUtil.hasLeadingSeparator(absolutePath);
-		answer.setAbsolute(absolute);
+		answer.setAbsolute(true);
 
 		// create a pseudo absolute name
 		String dir = FileUtil.stripTrailingSeparator(absolutePath);
 		String absoluteFileName = FileUtil.stripLeadingSeparator(dir + "/" + file.getName());
-		answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + "/" + dir + "/" + file.getName());
+		answer.setAbsoluteFilePath(file.getName()); // file.getName());
+
 		if (dir.equals(file.getName())) {
 			absoluteFileName = FileUtil.stripLeadingSeparator(file.getName());
-			answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + "/" + file.getName());
+			answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + file.getName());
 			// // if absolute start with a leading separator otherwise let it be relative
 			// if (absolute) {
 			// absoluteFileName = "/" + absoluteFileName;

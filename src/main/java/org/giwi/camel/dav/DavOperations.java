@@ -51,7 +51,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean deleteFile(String name) throws GenericFileOperationFailedException {
 		try {
-			client.delete(endpoint.getConfiguration().remoteServerInformation() + "/" + name);
+			client.delete(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(name));
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -61,7 +61,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean existsFile(String name) throws GenericFileOperationFailedException {
 		try {
-			client.exists(endpoint.getConfiguration().remoteServerInformation() + "/" + name);
+			client.exists(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(name));
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -71,7 +71,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean renameFile(String from, String to) throws GenericFileOperationFailedException {
 		try {
-			client.move(endpoint.getConfiguration().remoteServerInformation() + "/" + from, endpoint.getConfiguration().remoteServerInformation() + "/" + to);
+			client.move(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(from), endpoint
+					.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(to));
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -81,14 +82,17 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean buildDirectory(String directory, boolean absolute) throws GenericFileOperationFailedException {
 		// TODO : à résoudre !!!
-		// pourquoi http:/localhost:80/webdav1/http:/localhost:80/webdav1/.camel ???
-		directory = endpoint.getConfiguration().remoteServerInformation() + "/" + ObjectHelper.after(directory, "/");
-		log.info(directory);
-		try {
-			client.createDirectory(directory);
-		} catch (IOException e) {
-			throw new GenericFileOperationFailedException(e.getMessage(), e);
+		if (!existsFile(directory)) {
+			// pourquoi http:/localhost:80/webdav1/http:/localhost:80/webdav1/.camel ???
+			directory = endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + ObjectHelper.after(directory, "/");
+			log.info(directory);
+			try {
+				client.createDirectory(directory);
+			} catch (IOException e) {
+				throw new GenericFileOperationFailedException(e.getMessage(), e);
+			}
 		}
+
 		return true;
 	}
 
@@ -220,7 +224,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			if (endpoint.isEagerDeleteTargetFile()) {
 				log.trace("Deleting existing file: {}", to);
 				try {
-					client.delete(endpoint.getConfiguration().remoteServerInformation() + "/" + to);
+					client.delete(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(to));
 				} catch (IOException e) {
 					throw new GenericFileOperationFailedException("Cannot delete file: " + to, e);
 				}
@@ -295,7 +299,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			}
 
 			log.trace("Client retrieveFile: {}", remoteName);
-			InputStream is = client.get(name);
+			InputStream is = client.get(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + name);
 			IOHelper.copyAndCloseInput(is, os);
 			result = true;
 			// change back to current directory
