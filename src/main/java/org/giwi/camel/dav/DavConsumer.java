@@ -95,25 +95,27 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 				return false;
 			}
 			// TODO gérer la récursivité
-			if (file.isDirectory()) {
-				RemoteFile<DavResource> remote = asRemoteFile(absolutePath, file);
-				if (endpoint.isRecursive() && isValidFile(remote, true) && depth < endpoint.getMaxDepth()) {
-					// recursive scan and add the sub files and folders
-					String subDirectory = file.getName();
-					String path = absolutePath + "/" + subDirectory;
-					boolean canPollMore = pollSubDirectory(path, subDirectory, fileList, depth);
-					if (!canPollMore) {
-						return false;
+			if (!file.getName().equalsIgnoreCase(endpoint.getConfiguration().getDirectory()) && !file.getName().equalsIgnoreCase(dirName)) {
+				if (file.isDirectory()) {
+					RemoteFile<DavResource> remote = asRemoteFile(absolutePath, file);
+					if (endpoint.isRecursive() && isValidFile(remote, true) && depth < endpoint.getMaxDepth()) {
+						// recursive scan and add the sub files and folders
+						String subDirectory = file.getName();
+						String path = absolutePath + "/" + subDirectory;
+						boolean canPollMore = pollSubDirectory(path, subDirectory, fileList, depth);
+						if (!canPollMore) {
+							return false;
+						}
 					}
-				}
-			} else {
-				RemoteFile<DavResource> remote = asRemoteFile(absolutePath, file);
-				if (isValidFile(remote, false) && depth >= endpoint.getMinDepth()) {
-					if (isInProgress(remote)) {
-						log.trace("Skipping as file is already in progress: {}", remote.getFileName());
-					} else {
-						// matched file so add
-						fileList.add(remote);
+				} else {
+					RemoteFile<DavResource> remote = asRemoteFile(absolutePath, file);
+					if (isValidFile(remote, false) && depth >= endpoint.getMinDepth()) {
+						if (isInProgress(remote)) {
+							log.trace("Skipping as file is already in progress: {}", remote.getFileName());
+						} else if (remote != null) {
+							// matched file so add
+							fileList.add(remote);
+						}
 					}
 				}
 			}
@@ -141,26 +143,28 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 
 		// create a pseudo absolute name
 		String dir = FileUtil.stripTrailingSeparator(absolutePath);
-		String absoluteFileName = FileUtil.stripLeadingSeparator(dir + "/" + file.getName());
-		answer.setAbsoluteFilePath(file.getName()); // file.getName());
+		String absoluteFileName = FileUtil.stripLeadingSeparator(dir.replaceAll(endpoint.getConfiguration().getDirectory(), "") + "/" + file.getName());
+		answer.setAbsoluteFilePath(absoluteFileName); // file.getName());
 
-		if (dir.equals(file.getName())) {
-			absoluteFileName = FileUtil.stripLeadingSeparator(file.getName());
-			answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + file.getName());
-			// // if absolute start with a leading separator otherwise let it be relative
-			// if (absolute) {
-			// absoluteFileName = "/" + absoluteFileName;
-			// }
-		}
+		// if (dir.equals(file.getName()) || "camel".equalsIgnoreCase(file.getName())) {
+		//
+		// return null;
+		// absoluteFileName = FileUtil.stripLeadingSeparator(file.getName());
+		// answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + file.getName());
+		// // if absolute start with a leading separator otherwise let it be relative
+		// if (absolute) {
+		// absoluteFileName = "/" + absoluteFileName;
+		// }
+		// }
 
 		// the relative filename, skip the leading endpoint configured path
-		String relativePath = ObjectHelper.after(absoluteFileName, endpointPath);
-		if (relativePath == null) {
-			relativePath = ".";
-		}
+		// String relativePath = ObjectHelper.after(absoluteFileName, endpointPath);
+		// if (relativePath == null) {
+		// relativePath = ".";
+		// }
 
 		// skip leading /
-		relativePath = FileUtil.stripLeadingSeparator(relativePath);
+		// relativePath = FileUtil.stripLeadingSeparator(relativePath);
 		answer.setRelativeFilePath(file.getName());
 
 		// the file name should be the relative path
