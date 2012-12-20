@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.camel.Exchange;
@@ -70,8 +71,14 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean renameFile(String from, String to) throws GenericFileOperationFailedException {
 		try {
-			client.move(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(from), endpoint
-					.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(to));
+			log.info("renameFile from " + from + " to : " + to);
+			if (!to.contains(endpoint.getConfiguration().remoteServerInformation())) {
+				to = endpoint.getConfiguration().remoteServerInformation() + "/" + FileUtil.stripLeadingSeparator(to);
+			}
+			log.info("renameFile from " + FileUtil.stripLeadingSeparator(from.replace(endpoint.getConfiguration().remoteServerInformation(), "")) + " to : " + to);
+			client.move(
+					FileUtil.stripLeadingSeparator(endpoint.getConfiguration().remoteServerInformation()) + "/"
+							+ FileUtil.stripLeadingSeparator(from.replace(endpoint.getConfiguration().remoteServerInformation(), "")), FileUtil.stripLeadingSeparator(to));
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -190,6 +197,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	 * Moves any existing file due fileExists=Move is in use.
 	 */
 	private void doMoveExistingFile(String name, String targetName) throws GenericFileOperationFailedException {
+		log.info("doMoveExistingFile name=" + name + " targetName=" + targetName);
 		// need to evaluate using a dummy and simulate the file first, to have access to all the file attributes
 		// create a dummy exchange as Exchange is needed for expression evaluation
 		// we support only the following 3 tokens.
@@ -265,8 +273,16 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public List<DavResource> listFiles(String path) throws GenericFileOperationFailedException {
 		try {
-			log.info(endpoint.getConfiguration().remoteServerInformation() + "/" + path);
-			return client.list(endpoint.getConfiguration().remoteServerInformation() + "/" + path);
+			List<DavResource> response = new ArrayList<DavResource>();
+			log.info("listFiles " + endpoint.getConfiguration().remoteServerInformation() + "/" + path);
+			List<DavResource> resources = client.list(endpoint.getConfiguration().remoteServerInformation() + "/" + path);
+			for (DavResource res : resources) {
+				log.info("found : " + res);
+				if (!endpoint.getConfiguration().getInitialDirectory().equals(FileUtil.stripLeadingSeparator(res.getName()))) {
+					response.add(res);
+				}
+			}
+			return response;
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -297,7 +313,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			}
 
 			log.trace("Client retrieveFile: {}", remoteName);
-			InputStream is = client.get(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + name);
+			InputStream is = client.get(endpoint.getConfiguration().remoteServerInformation() + "/" + name);
 			IOHelper.copyAndCloseInput(is, os);
 			result = true;
 			// change back to current directory

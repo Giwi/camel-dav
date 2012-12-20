@@ -24,15 +24,14 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	private String host;
 	private int port;
 	private String password;
-	private boolean binary;
-	private boolean passiveMode;
 	private int connectTimeout = 10000;
 	private int timeout = 30000;
 	private int soTimeout;
 	private boolean throwExceptionOnConnectFailed;
-	private String siteCommand;
 	private boolean stepwise = true;
 	private PathSeparator separator = PathSeparator.Auto;
+	private String remoteServerInformation;
+	private String initialDirectory;
 
 	public RemoteFileConfiguration() {
 	}
@@ -69,6 +68,9 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 
 		setHost(uri.getHost());
 		setPort(uri.getPort());
+		remoteServerInformation = protocol + "://" + host + ":" + getPort() + "/" + getDirectory();
+		initialDirectory = getDirectory();
+		setDirectory("");
 	}
 
 	protected abstract void setDefaultProtocol();
@@ -77,7 +79,7 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	 * Returns human readable server information for logging purpose
 	 */
 	public String remoteServerInformation() {
-		return protocol + "://" + host + ":" + getPort();
+		return remoteServerInformation;
 	}
 
 	protected abstract void setDefaultPort();
@@ -123,26 +125,6 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 
 	public void setUsername(String username) {
 		this.username = username;
-	}
-
-	public boolean isBinary() {
-		return binary;
-	}
-
-	public void setBinary(boolean binary) {
-		this.binary = binary;
-	}
-
-	public boolean isPassiveMode() {
-		return passiveMode;
-	}
-
-	/**
-	 * Sets passive mode connections. <br/>
-	 * Default is active mode connections.
-	 */
-	public void setPassiveMode(boolean passiveMode) {
-		this.passiveMode = passiveMode;
 	}
 
 	public int getConnectTimeout() {
@@ -198,22 +180,6 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 		this.throwExceptionOnConnectFailed = throwExceptionOnConnectFailed;
 	}
 
-	public String getSiteCommand() {
-		return siteCommand;
-	}
-
-	/**
-	 * Sets optional site command(s) to be executed after successful login.
-	 * <p/>
-	 * Multiple site commands can be separated using a new line character (\n).
-	 * 
-	 * @param siteCommand
-	 *            the site command(s).
-	 */
-	public void setSiteCommand(String siteCommand) {
-		this.siteCommand = siteCommand;
-	}
-
 	public boolean isStepwise() {
 		return stepwise;
 	}
@@ -262,6 +228,21 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 			// windows style
 			return path.replace('/', '\\');
 		}
+	}
+
+	/**
+	 * @return the initialDirectory
+	 */
+	public String getInitialDirectory() {
+		return initialDirectory;
+	}
+
+	/**
+	 * @param initialDirectory
+	 *            the initialDirectory to set
+	 */
+	public void setInitialDirectory(String initialDirectory) {
+		this.initialDirectory = initialDirectory;
 	}
 
 }

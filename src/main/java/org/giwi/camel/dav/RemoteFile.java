@@ -69,4 +69,16 @@ public class RemoteFile<T> extends GenericFile<T> implements Cloneable {
 		remoteResult.setHostname(remoteSource.getHostname());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("RemoteFile [hostname=").append(hostname).append(", getRelativeFilePath()=").append(getRelativeFilePath()).append(", getFileName()=").append(getFileName())
+				.append(", getAbsoluteFilePath()=").append(getAbsoluteFilePath()).append(", getFileNameOnly()=").append(getFileNameOnly()).append("]");
+		return builder.toString();
+	}
+
 }

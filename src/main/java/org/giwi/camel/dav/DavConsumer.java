@@ -21,14 +21,14 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 
 	public DavConsumer(RemoteFileEndpoint<DavResource> endpoint, Processor processor, RemoteFileOperations<DavResource> fileOperations) {
 		super(endpoint, processor, fileOperations);
-		endpointPath = endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory();
+		endpointPath = endpoint.getConfiguration().remoteServerInformation();
 		LOG.info("endpointPath : " + endpointPath);
 	}
 
 	@Override
 	protected boolean pollDirectory(String fileName, List<GenericFile<DavResource>> fileList, int depth) {
 		String currentDir = null;
-		LOG.debug(fileName);
+		LOG.debug("pollDirectory : " + fileName);
 		if (isStepwise()) {
 			// must remember current dir so we stay in that directory after the poll
 			currentDir = operations.getCurrentDirectory();
@@ -132,6 +132,11 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		answer.setFileNameOnly(file.getName());
 		answer.setFileLength(file.getContentLength());
 		answer.setDirectory(file.isDirectory());
+		answer.setFileName(file.getName());
+		answer.setRelativeFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).getDirectory() + "/" + file.getName());
+		answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + "/" + answer.getRelativeFilePath());
+		System.out.println(answer);
+
 		if (file.getCreation() != null) {
 			answer.setLastModified(file.getCreation().getTime());
 		}

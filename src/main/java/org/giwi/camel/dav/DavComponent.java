@@ -22,15 +22,10 @@ public class DavComponent<T extends DavResource> extends RemoteFileComponent<Dav
 	@Override
 	protected GenericFileEndpoint<DavResource> buildFileEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
 		String baseUri = getBaseUri(uri);
-
 		// lets make sure we create a new configuration as each endpoint can customize its own version
 		// must pass on baseUri to the configuration (see above)
 		DavConfiguration config = new DavConfiguration(new URI(baseUri));
-
 		DavEndpoint<DavResource> answer = new DavEndpoint<DavResource>(uri, this, config);
-		// extractAndSetFtpClientConfigParameters(parameters, answer);
-		// extractAndSetFtpClientParameters(parameters, answer);
-
 		return answer;
 	}
 
@@ -49,7 +44,5 @@ public class DavComponent<T extends DavResource> extends RemoteFileComponent<Dav
 	@Override
 	protected void afterPropertiesSet(GenericFileEndpoint<DavResource> endpoint) throws Exception {
 		// noop
-
 	}
-
 }
