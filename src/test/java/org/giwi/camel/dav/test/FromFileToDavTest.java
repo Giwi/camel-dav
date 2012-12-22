@@ -12,16 +12,15 @@ package org.giwi.camel.dav.test;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
 /**
  * @version
  */
-public class FromFileToFtpTest extends CamelTestSupport {
+public class FromFileToDavTest extends AbstractDavTest {
 
 	protected String getFtpUrl() {
-		return "dav://localhost:80/webdav?consumer.initialDelay=3000";
+		return DAV_URL + "?consumer.initialDelay=3000";
 	}
 
 	@Test

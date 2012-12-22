@@ -51,6 +51,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public boolean deleteFile(String name) throws GenericFileOperationFailedException {
+		log.info("deleteFile : " + name);
 		try {
 			client.delete(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(name));
 		} catch (IOException e) {
@@ -61,6 +62,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public boolean existsFile(String name) throws GenericFileOperationFailedException {
+		log.info("existsFile : " + name);
 		try {
 			return client.exists(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(name));
 		} catch (IOException e) {
@@ -88,6 +90,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean buildDirectory(String directory, boolean absolute) throws GenericFileOperationFailedException {
 		// TODO : à résoudre !!! : http:/localhost:80/webdav1/camel/camel but must be camel/camel
+		log.info("buildDirectory : " + directory + ", absolute : " + absolute);
 		if (!existsFile(directory)) {
 			directory = endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + ObjectHelper.after(directory, "/");
 			log.info(directory);
@@ -103,6 +106,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public boolean retrieveFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
+		log.info("retrieveFile : " + name);
 		if (ObjectHelper.isNotEmpty(endpoint.getLocalWorkDirectory())) {
 			// local work directory is configured so we should store file content as files in this local directory
 			return retrieveFileToFileInLocalWorkDirectory(name, exchange);
@@ -114,9 +118,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public boolean storeFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
+		log.info("storeFile : " + name);
 		// must normalize name first
 		name = endpoint.getConfiguration().normalizePath(name);
-
+		log.info("storeFile normalized : " + name);
 		log.trace("storeFile({})", name);
 
 		boolean answer = false;
@@ -149,7 +154,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	}
 
 	private boolean doStoreFile(String name, String targetName, Exchange exchange) throws GenericFileOperationFailedException {
-		log.trace("doStoreFile({})", targetName);
+		log.info("doStoreFile({})", targetName);
 
 		// if an existing file already exists what should we do?
 		if (endpoint.getFileExist() == GenericFileExist.Ignore || endpoint.getFileExist() == GenericFileExist.Fail || endpoint.getFileExist() == GenericFileExist.Move) {
@@ -247,20 +252,21 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public String getCurrentDirectory() throws GenericFileOperationFailedException {
-		// TODO Auto-generated method stub
+		// noop
+		log.info("noop");
 		return "***";
 	}
 
 	@Override
 	public void changeCurrentDirectory(String path) throws GenericFileOperationFailedException {
-		// TODO Auto-generated method stub
-
+		// noop
+		log.info("noop");
 	}
 
 	@Override
 	public void changeToParentDirectory() throws GenericFileOperationFailedException {
-		// TODO Auto-generated method stub
-
+		// noop
+		log.info("noop");
 	}
 
 	@Override
@@ -290,6 +296,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@SuppressWarnings("unchecked")
 	private boolean retrieveFileToStreamInBody(String name, Exchange exchange) throws GenericFileOperationFailedException {
+		log.info("retrieveFileToStreamInBody({})", name);
 		OutputStream os = null;
 		boolean result = false;
 		try {
@@ -332,6 +339,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@SuppressWarnings("unchecked")
 	private boolean retrieveFileToFileInLocalWorkDirectory(String name, Exchange exchange) throws GenericFileOperationFailedException {
+		log.info("retrieveFileToFileInLocalWorkDirectory({})", name);
 		File temp;
 		File local = new File(FileUtil.normalizePath(endpoint.getLocalWorkDirectory()));
 		OutputStream os;

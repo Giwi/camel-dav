@@ -14,20 +14,18 @@ import java.io.File;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
 /**
  * @version
  */
-public class FromFileToDavDefaultRootRenameStrategyTest extends CamelTestSupport {
-	protected static final String DAV_ROOT_DIR = "/var/www/web1/web";
+public class FromFileToDavDefaultRootRenameStrategyTest extends AbstractDavTest {
 
 	/*
 	 * This is our poll we want to test (no folder specified). Uses the rename strategy
 	 */
 	private String getFtpPollingUrl() {
-		return "dav://localhost:80/webdav?delete=true&delay=1000&initialDelay=1500&readLock=rename";
+		return DAV_URL + "?delete=true&delay=1000&initialDelay=1500&readLock=rename";
 	}
 
 	@Test
