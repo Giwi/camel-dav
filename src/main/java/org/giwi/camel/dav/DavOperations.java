@@ -89,13 +89,19 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public boolean buildDirectory(String directory, boolean absolute) throws GenericFileOperationFailedException {
-		// TODO : à résoudre !!! : http:/localhost:80/webdav1/camel/camel but must be camel/camel
 		log.info("buildDirectory : " + directory + ", absolute : " + absolute);
 		if (!existsFile(directory)) {
-			directory = endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + ObjectHelper.after(directory, "/");
-			log.info(directory);
 			try {
-				client.createDirectory(directory);
+				String[] dirs = directory.split("/");
+				StringBuilder dirToBuild = new StringBuilder();
+				for (String dir : dirs) {
+					if ("" != dir.trim()) {
+						dirToBuild.append(dir).append("/");
+						log.info("buildDirectory : " + dirToBuild);
+						client.createDirectory(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/"
+								+ FileUtil.stripTrailingSeparator(dirToBuild.toString()));
+					}
+				}
 			} catch (IOException e) {
 				throw new GenericFileOperationFailedException(e.getMessage(), e);
 			}
