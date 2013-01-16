@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.camel.Exchange;
@@ -46,14 +47,13 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public void setEndpoint(GenericFileEndpoint<DavResource> endpoint) {
 		this.endpoint = (RemoteFileEndpoint<DavResource>) endpoint;
-
 	}
 
 	@Override
 	public boolean deleteFile(String name) throws GenericFileOperationFailedException {
 		log.info("deleteFile : " + name);
 		try {
-			client.delete(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(name));
+			client.delete(endpoint.getConfiguration().remoteServerInformation() + "/" + FileUtil.stripLeadingSeparator(name));
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -64,7 +64,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	public boolean existsFile(String name) throws GenericFileOperationFailedException {
 		log.info("existsFile : " + name);
 		try {
-			return client.exists(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(name));
+			return client.exists(endpoint.getConfiguration().remoteServerInformation() + "/" + FileUtil.stripLeadingSeparator(name));
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -90,21 +90,22 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean buildDirectory(String directory, boolean absolute) throws GenericFileOperationFailedException {
 		log.info("buildDirectory : " + directory + ", absolute : " + absolute);
-		if (!existsFile(directory)) {
-			try {
-				String[] dirs = directory.split("/");
-				StringBuilder dirToBuild = new StringBuilder();
-				for (String dir : dirs) {
-					if ("" != dir.trim()) {
-						dirToBuild.append(dir).append("/");
-						log.info("buildDirectory : " + dirToBuild);
-						client.createDirectory(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/"
-								+ FileUtil.stripTrailingSeparator(dirToBuild.toString()));
+		String[] dirs = directory.split("/");
+		StringBuilder dirToBuild = new StringBuilder();
+		for (String dir : dirs) {
+
+			if ("" != dir.trim() && !Arrays.asList(endpoint.getConfiguration().getInitialDirectory().split("/")).contains(dir)) {
+				dirToBuild.append(dir).append("/");
+				log.info("buildDirectory : " + dirToBuild);
+				try {
+					if (!existsFile(dirToBuild.toString())) {
+						client.createDirectory(endpoint.getConfiguration().remoteServerInformation() + "/" + FileUtil.stripTrailingSeparator(dirToBuild.toString()));
 					}
+				} catch (IOException e) {
+					throw new GenericFileOperationFailedException(e.getMessage(), e);
 				}
-			} catch (IOException e) {
-				throw new GenericFileOperationFailedException(e.getMessage(), e);
 			}
+
 		}
 
 		return true;
@@ -241,7 +242,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			if (endpoint.isEagerDeleteTargetFile()) {
 				log.trace("Deleting existing file: {}", to);
 				try {
-					client.delete(endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getDirectory() + "/" + FileUtil.stripLeadingSeparator(to));
+					client.delete(endpoint.getConfiguration().remoteServerInformation() + "/" + FileUtil.stripLeadingSeparator(to));
 				} catch (IOException e) {
 					throw new GenericFileOperationFailedException("Cannot delete file: " + to, e);
 				}
@@ -286,11 +287,11 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	public List<DavResource> listFiles(String path) throws GenericFileOperationFailedException {
 		try {
 			List<DavResource> response = new ArrayList<DavResource>();
-			log.info("listFiles " + endpoint.getConfiguration().remoteServerInformation() + "/" + path);
+			log.info("listFiles " + endpoint.getConfiguration().remoteServerInformation() + "/" + endpoint.getConfiguration().getInitialDirectory() + "/" + path);
 			List<DavResource> resources = client.list(endpoint.getConfiguration().remoteServerInformation() + "/" + path);
 			for (DavResource res : resources) {
 				log.info("found : " + res);
-				if (!endpoint.getConfiguration().getInitialDirectory().equals(FileUtil.stripLeadingSeparator(res.getName()))) {
+				if (!endpoint.getConfiguration().getInitialDirectory().equals(FileUtil.stripLeadingSeparator(res.getPath()))) {
 					response.add(res);
 				}
 			}

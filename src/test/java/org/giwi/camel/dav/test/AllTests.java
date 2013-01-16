@@ -12,7 +12,7 @@ import org.junit.runners.Suite;
  */
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ FromFileToDavDeleteTest.class, FromFileToDavTest.class, FileToDavTempFileNameTest.class, FromFileToDavDefaultRootRenameStrategyTest.class, })
+@Suite.SuiteClasses({ FromFileToDavDeleteTest.class, FromFileToDavTest.class, FileToDavTempFileNameTest.class, FromFileToDavDefaultRootRenameStrategyTest.class, FromDavAsyncProcessTest.class })
 public class AllTests {
 
 }

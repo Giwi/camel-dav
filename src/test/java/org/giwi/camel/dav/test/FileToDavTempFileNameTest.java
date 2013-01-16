@@ -29,7 +29,7 @@ public class FileToDavTempFileNameTest extends AbstractDavTest {
 		template.sendBodyAndHeader("file:src/main/data", "Hello World", Exchange.FILE_NAME, "sub/hello.txt");
 
 		assertTrue(notify.matchesMockWaitTime());
-
+		Thread.sleep(1000);
 		File file = new File(DAV_ROOT_DIR + "/sub/hello.txt");
 		assertTrue("File should exists " + file, file.exists());
 	}

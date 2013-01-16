@@ -12,6 +12,7 @@ package org.giwi.camel.dav.test;
 
 import java.io.File;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
@@ -21,16 +22,10 @@ import org.junit.Test;
  */
 public class FromFileToDavDefaultRootRenameStrategyTest extends AbstractDavTest {
 
-	/*
-	 * This is our poll we want to test (no folder specified). Uses the rename strategy
-	 */
-	private String getFtpPollingUrl() {
-		return DAV_URL + "?delete=true&delay=1000&initialDelay=1500&readLock=rename";
-	}
-
 	@Test
 	public void testFromFileToDav() throws Exception {
-		File expectedOnDavServer = new File(DAV_ROOT_DIR + "/logo.jpg");
+		File expectedOnDavServer = new File(DAV_ROOT_DIR + "/hello.txt");
+		template.sendBodyAndHeader("file:" + DAV_ROOT_DIR, "Hello World", Exchange.FILE_NAME, "hello.txt");
 		// the poller won't start for 1.5 seconds, so we check to make sure the file
 		// is there first check 1 - is the file there (default root location)
 		assertTrue(expectedOnDavServer.exists());
@@ -41,7 +36,7 @@ public class FromFileToDavDefaultRootRenameStrategyTest extends AbstractDavTest 
 		assertMockEndpointsSatisfied();
 
 		// give our mock a chance to delete the file
-		Thread.sleep(250);
+		Thread.sleep(1000);
 
 		// assert the file is NOT there now
 		assertTrue(!expectedOnDavServer.exists());
@@ -52,7 +47,7 @@ public class FromFileToDavDefaultRootRenameStrategyTest extends AbstractDavTest 
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getFtpPollingUrl()).to("mock:result");
+				from(DAV_URL + "?delete=true&delay=1000&initialDelay=1500&readLock=rename").to("mock:result");
 			}
 		};
 	}

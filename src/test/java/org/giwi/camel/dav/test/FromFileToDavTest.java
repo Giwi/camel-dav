@@ -19,16 +19,13 @@ import org.junit.Test;
  */
 public class FromFileToDavTest extends AbstractDavTest {
 
-	protected String getFtpUrl() {
-		return DAV_URL + "?consumer.initialDelay=3000";
-	}
-
 	@Test
-	public void testFromFileToFtp() throws Exception {
+	public void testFromFileToDav() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMessageCount(2);
 
 		assertMockEndpointsSatisfied();
+		Thread.sleep(1000);
 	}
 
 	@Override
@@ -36,8 +33,8 @@ public class FromFileToDavTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getFtpUrl()).to("mock:result");
-				from("file:src/main/data?noop=true&consumer.delay=3000").to(getFtpUrl());
+				from(DAV_URL + "?consumer.initialDelay=3000").to("mock:result");
+				from("file:src/main/data?noop=true&consumer.delay=3000").to(DAV_URL + "?consumer.initialDelay=3000");
 			}
 		};
 	}
