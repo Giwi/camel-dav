@@ -78,7 +78,6 @@ public class FromDavAsyncProcessTest extends AbstractDavTest {
 					} catch (InterruptedException e) {
 						// ignore
 					}
-
 					exchange.getIn().setHeader("foo", 123);
 					callback.done(false);
 				}
