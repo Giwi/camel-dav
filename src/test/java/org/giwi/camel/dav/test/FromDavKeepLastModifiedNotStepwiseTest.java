@@ -11,12 +11,13 @@
 package org.giwi.camel.dav.test;
 
 /**
- * Unit test to test filter option.
+ * Unit test to test keepLastModified option.
  */
-public class FromDavFilterNotStepwiseTest extends FromDavFilterTest {
+public class FromDavKeepLastModifiedNotStepwiseTest extends FromDavKeepLastModifiedTest {
 
 	@Override
 	protected String getDavUrl() {
-		return DAV_URL + "/filter?filter=#myFilter&stepwise=false";
+		return DAV_URL + "/keep?noop=true&stepwise=false";
 	}
+
 }

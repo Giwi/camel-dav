@@ -1,5 +1,6 @@
 package org.giwi.camel.dav;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.camel.Processor;
@@ -127,18 +128,28 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		return true;
 	}
 
+	/**
+	 * Fixes the path separator to be according to the protocol
+	 */
+	protected String normalizePathToProtocol(String path) {
+		if (ObjectHelper.isEmpty(path)) {
+			return path;
+		}
+		path = path.replace('/', File.separatorChar);
+		path = path.replace('\\', File.separatorChar);
+		return path;
+	}
+
 	private RemoteFile<DavResource> asRemoteFile(String absolutePath, DavResource file) {
 		RemoteFile<DavResource> answer = new RemoteFile<DavResource>();
-
 		answer.setEndpointPath(endpointPath);
 		answer.setFile(file);
 		answer.setFileNameOnly(file.getName());
 		answer.setFileLength(file.getContentLength());
 		answer.setDirectory(file.isDirectory());
-		answer.setFileName(file.getName());
-		answer.setRelativeFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).getDirectory() + "/" + file.getName());
-		answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + "/" + answer.getRelativeFilePath());
-		System.out.println(answer);
+		answer.setRelativeFilePath(getRelativePath(file));
+		answer.setFileName(normalizePathToProtocol(answer.getRelativeFilePath() + file.getName()));
+		answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + "/" + FileUtil.stripLeadingSeparator(answer.getFileName()));
 
 		if (file.getCreation() != null) {
 			answer.setLastModified(file.getCreation().getTime());
@@ -146,17 +157,15 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		answer.setHostname(((RemoteFileConfiguration) endpoint.getConfiguration()).getHost());
 
 		// absolute or relative path
-		boolean absolute = FileUtil.hasLeadingSeparator(absolutePath);
-		answer.setAbsolute(true);
-
-		// create a pseudo absolute name
-		String dir = FileUtil.stripTrailingSeparator(absolutePath);
-		String absoluteFileName = FileUtil.stripLeadingSeparator(dir.replaceAll(endpoint.getConfiguration().getDirectory(), "") + "/" + file.getName());
-		answer.setAbsoluteFilePath(absoluteFileName); // file.getName());
-
-		// if (dir.equals(file.getName()) || "camel".equalsIgnoreCase(file.getName())) {
+		// boolean absolute = FileUtil.hasLeadingSeparator(absolutePath);
+		// answer.setAbsolute(true);
 		//
-		// return null;
+		// // create a pseudo absolute name
+		// String dir = FileUtil.stripTrailingSeparator(absolutePath);
+		// String absoluteFileName = FileUtil.stripLeadingSeparator(dir.replaceAll(endpoint.getConfiguration().getDirectory(), "") + "/" + FileUtil.stripLeadingSeparator(file.getName()));
+		// answer.setAbsoluteFilePath(absoluteFileName); // file.getName());
+		//
+		// if (dir.equals(file.getName()) || "camel".equalsIgnoreCase(file.getName())) {
 		// absoluteFileName = FileUtil.stripLeadingSeparator(file.getName());
 		// answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + file.getName());
 		// // if absolute start with a leading separator otherwise let it be relative
@@ -164,21 +173,35 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		// absoluteFileName = "/" + absoluteFileName;
 		// }
 		// }
-
-		// the relative filename, skip the leading endpoint configured path
+		//
+		// // the relative filename, skip the leading endpoint configured path
 		// String relativePath = ObjectHelper.after(absoluteFileName, endpointPath);
 		// if (relativePath == null) {
 		// relativePath = ".";
 		// }
-
-		// skip leading /
+		//
+		// // skip leading /
 		// relativePath = FileUtil.stripLeadingSeparator(relativePath);
-		answer.setRelativeFilePath(file.getName());
-
-		// the file name should be the relative path
-		answer.setFileName(file.getName());
-
+		// answer.setRelativeFilePath(FileUtil.stripLeadingSeparator(file.getName()));
+		//
+		// // // the file name should be the relative path
+		// answer.setFileName(file.getName());
+		// System.out.println(answer);
+		System.out.println(answer);
 		return answer;
+	}
+
+	private String getRelativePath(DavResource file) {
+		String relativefileName = FileUtil.stripLeadingSeparator(file.getPath().replaceFirst(((RemoteFileConfiguration) endpoint.getConfiguration()).getInitialDirectory(), ""));
+		int lastSep = relativefileName.lastIndexOf('/');
+		System.out.println(relativefileName);
+		if (file.isDirectory()) {
+			return relativefileName;
+		} else if (lastSep == -1) {
+			return "";
+		}
+
+		return relativefileName.substring(0, lastSep + 1);
 	}
 
 	private boolean isStepwise() {

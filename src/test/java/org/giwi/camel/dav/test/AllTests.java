@@ -23,8 +23,13 @@ import org.junit.runners.Suite;
 	FromDavFilterTest.class,
 	FromFileToDavDefaultRootRenameStrategyTest.class,
 	FromFileToDavDeleteTest.class,
-	FromFileToDavTest.class
-	
+	FromFileToDavTest.class,
+	FromDavKeepLastModifiedTest.class,
+	FromDavKeepLastModifiedNotStepwiseTest.class,
+	FromDavMoveFileAbsoluteFolderRecursiveTest.class,
+	FromDavMoveFileAbsoluteFolderRecursiveNotStepwiseTest.class,
+	FromDavMoveFileTest.class,
+	FromDavMoveFileNotStepwiseTest.class
 	})
 public class AllTests {
 

@@ -11,12 +11,12 @@
 package org.giwi.camel.dav.test;
 
 /**
- * Unit test to test filter option.
+ * Unit test based on end user problem with SFTP on Windows
  */
-public class FromDavFilterNotStepwiseTest extends FromDavFilterTest {
+public class FromDavMoveFileAbsoluteFolderRecursiveNotStepwiseTest extends FromDavMoveFileAbsoluteFolderRecursiveTest {
 
 	@Override
 	protected String getDavUrl() {
-		return DAV_URL + "/filter?filter=#myFilter&stepwise=false";
+		return DAV_URL + "/movefile?recursive=true&move=/.done/${file:name}.old&initialDelay=2500&delay=5000&stepwise=false";
 	}
 }

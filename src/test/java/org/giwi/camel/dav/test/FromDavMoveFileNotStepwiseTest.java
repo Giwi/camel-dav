@@ -11,12 +11,13 @@
 package org.giwi.camel.dav.test;
 
 /**
- * Unit test to test filter option.
+ * Unit test to test both consumer.moveNamePrefix and consumer.moveNamePostfix options.
  */
-public class FromDavFilterNotStepwiseTest extends FromDavFilterTest {
+public class FromDavMoveFileNotStepwiseTest extends FromDavMoveFileTest {
 
 	@Override
 	protected String getDavUrl() {
-		return DAV_URL + "/filter?filter=#myFilter&stepwise=false";
+		return DAV_URL + "/movefile?move=done/sub2/${file:name}.old&consumer.delay=5000&stepwise=false";
 	}
+
 }
