@@ -29,7 +29,9 @@ import org.junit.runners.Suite;
 	FromDavMoveFileAbsoluteFolderRecursiveTest.class,
 	FromDavMoveFileAbsoluteFolderRecursiveNotStepwiseTest.class,
 	FromDavMoveFileTest.class,
-	FromDavMoveFileNotStepwiseTest.class
+	FromDavMoveFileNotStepwiseTest.class,
+	FromDavMoveFilePostfixTest.class,
+	FromDavMoveFilePostfixNotStepwiseTest.class
 	})
 public class AllTests {
 

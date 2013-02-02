@@ -10,19 +10,23 @@
  */
 package org.giwi.camel.dav.test;
 
+import java.io.File;
+
+import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.camel.Producer;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test based on end user problem with SFTP on Windows
+ * Unit test to test consumer.moveNamePostfix option.
  */
-public class FromDavMoveFileAbsoluteFolderRecursiveTest extends AbstractDavTest {
+public class FromDavMoveFilePostfixTest extends AbstractDavTest {
 
 	protected String getDavUrl() {
-		return DAV_URL + "/movefile?recursive=true" + "&move=/.done/${file:name}.old&initialDelay=2500&delay=5000";
+		return DAV_URL + "/movefile?move=${file:name}.old&consumer.delay=5000";
 	}
 
 	@Override
@@ -35,18 +39,28 @@ public class FromDavMoveFileAbsoluteFolderRecursiveTest extends AbstractDavTest 
 	@Test
 	public void testPollFileAndShouldBeMoved() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/hello.txt.old");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/bye/bye.txt.old");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/goodday/goodday.txt.old");
+		mock.expectedMessageCount(1);
+		mock.expectedBodiesReceived("Hello World this file will be moved");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/hello.txt.old");
 
 		mock.assertIsSatisfied();
 	}
 
 	private void prepareDavServer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "bye/bye.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "goodday/goodday.txt");
+		// prepares the FTP Server by creating a file on the server that we want to unit
+		// test that we can pool and store as a local file
+		Endpoint endpoint = context.getEndpoint(getDavUrl());
+		Exchange exchange = endpoint.createExchange();
+		exchange.getIn().setBody("Hello World this file will be moved");
+		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+		Producer producer = endpoint.createProducer();
+		producer.start();
+		producer.process(exchange);
+		producer.stop();
+
+		// assert file is created
+		File file = new File(DAV_ROOT_DIR + "/movefile/hello.txt");
+		assertTrue("The file should exists", file.exists());
 	}
 
 	@Override

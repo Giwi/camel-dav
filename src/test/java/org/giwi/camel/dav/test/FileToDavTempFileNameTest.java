@@ -23,7 +23,7 @@ import org.junit.Test;
 public class FileToDavTempFileNameTest extends AbstractDavTest {
 
 	@Test
-	public void testFileToFtp() throws Exception {
+	public void testFileToDav() throws Exception {
 		NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
 
 		template.sendBodyAndHeader("file:src/main/data", "Hello World", Exchange.FILE_NAME, "sub/hello.txt");

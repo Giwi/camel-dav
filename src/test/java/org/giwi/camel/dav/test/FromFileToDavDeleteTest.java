@@ -24,7 +24,7 @@ import org.junit.Test;
 public class FromFileToDavDeleteTest extends AbstractDavTest {
 
 	@Test
-	public void testFromFileToFtpDelete() throws Exception {
+	public void testFromFileToDavDelete() throws Exception {
 		NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
 
 		MockEndpoint mock = getMockEndpoint("mock:result");

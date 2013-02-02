@@ -33,7 +33,7 @@ public class FromDavMoveFileTest extends AbstractDavTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		prepareFtpServer();
+		prepareDavServer();
 	}
 
 	@Test
@@ -46,7 +46,7 @@ public class FromDavMoveFileTest extends AbstractDavTest {
 		mock.assertIsSatisfied();
 	}
 
-	private void prepareFtpServer() throws Exception {
+	private void prepareDavServer() throws Exception {
 		// prepares the FTP Server by creating a file on the server that we want to unit
 		// test that we can pool and store as a local file
 		Endpoint endpoint = context.getEndpoint(getDavUrl());
