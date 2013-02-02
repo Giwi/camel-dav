@@ -31,7 +31,9 @@ import org.junit.runners.Suite;
 	FromDavMoveFileTest.class,
 	FromDavMoveFileNotStepwiseTest.class,
 	FromDavMoveFilePostfixTest.class,
-	FromDavMoveFilePostfixNotStepwiseTest.class
+	FromDavMoveFilePostfixNotStepwiseTest.class,
+	FromDavMoveFilePrefixTest.class,
+	FromDavMoveFilePrefixNotStepwiseTest.class,
 	})
 public class AllTests {
 
