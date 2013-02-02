@@ -3,6 +3,7 @@ package org.giwi.camel.dav;
 import java.net.URI;
 
 import org.apache.camel.component.file.GenericFileConfiguration;
+import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.ObjectHelper;
 
 /**
@@ -32,6 +33,7 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	private PathSeparator separator = PathSeparator.Auto;
 	private String remoteServerInformation;
 	private String initialDirectory;
+	private String hostPath;
 
 	public RemoteFileConfiguration() {
 	}
@@ -68,8 +70,10 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 
 		setHost(uri.getHost());
 		setPort(uri.getPort());
-		remoteServerInformation = protocol + "://" + host + ":" + getPort() + "/" + getDirectory();
+		hostPath = protocol + "://" + host + ":" + getPort() + "/";
+		remoteServerInformation = hostPath + FileUtil.stripTrailingSeparator(getDirectory()) + "/";
 		initialDirectory = getDirectory();
+
 		setDirectory("");
 	}
 
@@ -78,7 +82,7 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	/**
 	 * Returns human readable server information for logging purpose
 	 */
-	public String remoteServerInformation() {
+	public String getRemoteServerInformation() {
 		return remoteServerInformation;
 	}
 
@@ -216,19 +220,19 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	 *            the given path
 	 * @return the normalized path
 	 */
-	public String normalizePath(String path) {
-		if (ObjectHelper.isEmpty(path) || separator == PathSeparator.Auto) {
-			return path;
-		}
-
-		if (separator == PathSeparator.UNIX) {
-			// unix style
-			return path.replace('\\', '/');
-		} else {
-			// windows style
-			return path.replace('/', '\\');
-		}
-	}
+	// public String normalizePath(String path) {
+	// if (ObjectHelper.isEmpty(path) || separator == PathSeparator.Auto) {
+	// return path;
+	// }
+	//
+	// if (separator == PathSeparator.UNIX) {
+	// // unix style
+	// return path.replace('\\', '/');
+	// } else {
+	// // windows style
+	// return path.replace('/', '\\');
+	// }
+	// }
 
 	/**
 	 * @return the initialDirectory
@@ -243,6 +247,21 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	 */
 	public void setInitialDirectory(String initialDirectory) {
 		this.initialDirectory = initialDirectory;
+	}
+
+	/**
+	 * @return the hostPath
+	 */
+	public String getHostPath() {
+		return hostPath;
+	}
+
+	/**
+	 * @param hostPath
+	 *            the hostPath to set
+	 */
+	public void setHostPath(String hostPath) {
+		this.hostPath = hostPath;
 	}
 
 }

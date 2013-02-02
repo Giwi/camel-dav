@@ -1,6 +1,5 @@
 package org.giwi.camel.dav;
 
-import java.io.File;
 import java.util.List;
 
 import org.apache.camel.Processor;
@@ -8,8 +7,6 @@ import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.URISupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.googlecode.sardine.DavResource;
 
@@ -17,13 +14,12 @@ import com.googlecode.sardine.DavResource;
  * The Sardine consumer.
  */
 public class DavConsumer extends RemoteFileConsumer<DavResource> {
-	private static final transient Logger LOG = LoggerFactory.getLogger(DavConsumer.class);
 	protected String endpointPath;
 
 	public DavConsumer(RemoteFileEndpoint<DavResource> endpoint, Processor processor, RemoteFileOperations<DavResource> fileOperations) {
 		super(endpoint, processor, fileOperations);
-		endpointPath = endpoint.getConfiguration().remoteServerInformation();
-		LOG.info("endpointPath : " + endpointPath);
+		endpointPath = endpoint.getConfiguration().getRemoteServerInformation();
+		log.info("endpointPath : " + endpointPath);
 		if (endpoint.isAutoCreate()) {
 			operations.buildDirectory(endpoint.getConfiguration().getInitialDirectory(), true);
 		}
@@ -32,7 +28,7 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 	@Override
 	protected boolean pollDirectory(String fileName, List<GenericFile<DavResource>> fileList, int depth) {
 		String currentDir = null;
-		LOG.debug("pollDirectory : " + fileName);
+		log.debug("pollDirectory : " + fileName);
 		if (isStepwise()) {
 			// must remember current dir so we stay in that directory after the poll
 			currentDir = operations.getCurrentDirectory();
@@ -93,12 +89,13 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		}
 
 		for (DavResource file : files) {
-			log.info("found : " + file.getName());
+			if (log.isInfoEnabled()) {
+				log.info("found : " + file.getName());
+			}
 			// check if we can continue polling in files
 			if (!canPollMoreFiles(fileList)) {
 				return false;
 			}
-			// TODO gérer la récursivité
 			if (!file.getName().equalsIgnoreCase(endpoint.getConfiguration().getDirectory()) && !file.getName().equalsIgnoreCase(dirName)) {
 				if (file.isDirectory()) {
 					RemoteFile<DavResource> remote = asRemoteFile(absolutePath, file);
@@ -131,14 +128,14 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 	/**
 	 * Fixes the path separator to be according to the protocol
 	 */
-	protected String normalizePathToProtocol(String path) {
-		if (ObjectHelper.isEmpty(path)) {
-			return path;
-		}
-		path = path.replace('/', File.separatorChar);
-		path = path.replace('\\', File.separatorChar);
-		return path;
-	}
+	// protected String normalizePathToProtocol(String path) {
+	// if (ObjectHelper.isEmpty(path)) {
+	// return path;
+	// }
+	// path = path.replace('/', File.separatorChar);
+	// path = path.replace('\\', File.separatorChar);
+	// return path;
+	// }
 
 	private RemoteFile<DavResource> asRemoteFile(String absolutePath, DavResource file) {
 		RemoteFile<DavResource> answer = new RemoteFile<DavResource>();
@@ -148,59 +145,28 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		answer.setFileLength(file.getContentLength());
 		answer.setDirectory(file.isDirectory());
 		answer.setRelativeFilePath(getRelativePath(file));
-		answer.setFileName(normalizePathToProtocol(answer.getRelativeFilePath() + file.getName()));
-		answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + "/" + FileUtil.stripLeadingSeparator(answer.getFileName()));
-
+		answer.setFileName(answer.getRelativeFilePath() + file.getName());
+		// answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).getRemoteServerInformation() + "/" + FileUtil.stripLeadingSeparator(answer.getFileName()));
+		answer.setAbsoluteFilePath(answer.getRelativeFilePath() + file.getName());
 		if (file.getCreation() != null) {
 			answer.setLastModified(file.getCreation().getTime());
 		}
-		answer.setHostname(((RemoteFileConfiguration) endpoint.getConfiguration()).getHost());
-
-		// absolute or relative path
-		// boolean absolute = FileUtil.hasLeadingSeparator(absolutePath);
-		// answer.setAbsolute(true);
-		//
-		// // create a pseudo absolute name
-		// String dir = FileUtil.stripTrailingSeparator(absolutePath);
-		// String absoluteFileName = FileUtil.stripLeadingSeparator(dir.replaceAll(endpoint.getConfiguration().getDirectory(), "") + "/" + FileUtil.stripLeadingSeparator(file.getName()));
-		// answer.setAbsoluteFilePath(absoluteFileName); // file.getName());
-		//
-		// if (dir.equals(file.getName()) || "camel".equalsIgnoreCase(file.getName())) {
-		// absoluteFileName = FileUtil.stripLeadingSeparator(file.getName());
-		// answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).remoteServerInformation() + file.getName());
-		// // if absolute start with a leading separator otherwise let it be relative
-		// if (absolute) {
-		// absoluteFileName = "/" + absoluteFileName;
-		// }
-		// }
-		//
-		// // the relative filename, skip the leading endpoint configured path
-		// String relativePath = ObjectHelper.after(absoluteFileName, endpointPath);
-		// if (relativePath == null) {
-		// relativePath = ".";
-		// }
-		//
-		// // skip leading /
-		// relativePath = FileUtil.stripLeadingSeparator(relativePath);
-		// answer.setRelativeFilePath(FileUtil.stripLeadingSeparator(file.getName()));
-		//
-		// // // the file name should be the relative path
-		// answer.setFileName(file.getName());
-		// System.out.println(answer);
-		System.out.println(answer);
+		// answer.setHostname(((RemoteFileConfiguration) endpoint.getConfiguration()).getHost());
+		answer.setHostname("");
+		if (log.isDebugEnabled()) {
+			log.debug("found : " + answer);
+		}
 		return answer;
 	}
 
 	private String getRelativePath(DavResource file) {
 		String relativefileName = FileUtil.stripLeadingSeparator(file.getPath().replaceFirst(((RemoteFileConfiguration) endpoint.getConfiguration()).getInitialDirectory(), ""));
 		int lastSep = relativefileName.lastIndexOf('/');
-		System.out.println(relativefileName);
 		if (file.isDirectory()) {
 			return relativefileName;
 		} else if (lastSep == -1) {
 			return "";
 		}
-
 		return relativefileName.substring(0, lastSep + 1);
 	}
 

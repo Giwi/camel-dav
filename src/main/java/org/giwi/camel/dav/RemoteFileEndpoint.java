@@ -152,7 +152,7 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	 * Returns human readable server information for logging purpose
 	 */
 	public String remoteServerInformation() {
-		return ((RemoteFileConfiguration) configuration).remoteServerInformation();
+		return ((RemoteFileConfiguration) configuration).getRemoteServerInformation();
 	}
 
 	@Override
