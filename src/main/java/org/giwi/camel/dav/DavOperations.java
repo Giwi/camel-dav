@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.camel.Exchange;
@@ -111,6 +112,30 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		return true;
 	}
 
+	public void initComponent(String path) {
+		String[] dirs = path.split("/");
+		for (String dir : dirs) {
+			log.info("buildDirectory 2 : " + dir);
+		}
+		StringBuilder dirToBuild = new StringBuilder();
+		for (int i = 1; i < dirs.length; i++) {
+			String dir = dirs[i];
+			if (!"".equals(dir.trim())) {
+				dirToBuild.append(dir).append("/");
+				log.info("buildDirectory : " + dirToBuild);
+				try {
+					if (!existsFile(endpoint.getConfiguration().getHostPath() + dirs[0] + "/" + dirToBuild.toString())) {
+						log.info("buildDirectory : " + endpoint.getConfiguration().getHostPath() + dirs[0] + "/" + dirToBuild.toString());
+						client.createDirectory(endpoint.getConfiguration().getHostPath() + dirs[0] + "/" + dirToBuild.toString());
+					}
+				} catch (IOException e) {
+					throw new GenericFileOperationFailedException(e.getMessage(), e);
+				}
+			}
+
+		}
+	}
+
 	@Override
 	public boolean buildDirectory(String directory, boolean absolute) throws GenericFileOperationFailedException {
 		// WTF ?!? http:/localhost:80/webdav/ in directory
@@ -126,15 +151,14 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			log.info("buildDirectory 2 : " + dir);
 		}
 		StringBuilder dirToBuild = new StringBuilder();
-		for (String dir2 : dirs) {
-			String dir = dir2;
-			if (!"".equals(dir.trim())) {
+		for (String dir : dirs) {
+			if (!"".equals(dir.trim()) && !Arrays.asList(endpoint.getConfiguration().getInitialDirectory().split("/")).contains(dir)) {
 				dirToBuild.append(dir).append("/");
 				log.info("buildDirectory : " + dirToBuild);
 				try {
-					if (!existsFile(endpoint.getConfiguration().getHostPath() + dirToBuild.toString())) {
+					if (!existsFile(endpoint.getConfiguration().getRemoteServerInformation() + dirToBuild.toString())) {
 						log.info("buildDirectory : " + dirToBuild);
-						client.createDirectory(endpoint.getConfiguration().getHostPath() + dirToBuild.toString());
+						client.createDirectory(endpoint.getConfiguration().getRemoteServerInformation() + dirToBuild.toString());
 					}
 				} catch (IOException e) {
 					throw new GenericFileOperationFailedException(e.getMessage(), e);
@@ -142,8 +166,6 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			}
 
 		}
-		// }
-
 		return true;
 	}
 

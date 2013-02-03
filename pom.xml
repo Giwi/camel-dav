@@ -4,12 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.giwi.camel</groupId>
-  <artifactId>camel-sardine</artifactId>
+  <artifactId>camel-dav</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
 
-  <name>Camel Sardine Component</name>
-  <url>https://github.com/BreizhBeans/camel-sardine</url>
+  <name>Camel Dav Component</name>
+  <url>https://github.com/BreizhBeans/camel-dav</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

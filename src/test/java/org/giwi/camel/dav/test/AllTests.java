@@ -38,6 +38,8 @@ import org.junit.runners.Suite;
 	FromDavMoveFileRecursiveNotStepwiseTest.class,
 	FromDavMoveFileToHiddenFolderRecursiveTest.class,
 	FromDavMoveFileToHiddenFolderRecursiveNotStepwiseTest.class,
+	FromDavNoEndpointPathRelativeMoveToAbsoluteTest.class,
+	FromDavNoEndpointPathRelativeMoveToAbsoluteNotStepwiseTest.class
 	})
 public class AllTests {
 

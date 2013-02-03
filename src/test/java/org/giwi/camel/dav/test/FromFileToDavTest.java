@@ -10,6 +10,7 @@
  */
 package org.giwi.camel.dav.test;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
@@ -23,6 +24,7 @@ public class FromFileToDavTest extends AbstractDavTest {
 	public void testFromFileToDav() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMessageCount(2);
+		template.sendBodyAndHeader("file:src/main/data", "Hello World", Exchange.FILE_NAME, "hello.txt");
 
 		assertMockEndpointsSatisfied();
 		Thread.sleep(1000);

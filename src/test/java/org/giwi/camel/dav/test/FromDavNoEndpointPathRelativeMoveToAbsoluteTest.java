@@ -10,59 +10,43 @@
  */
 package org.giwi.camel.dav.test;
 
-import java.io.File;
-
-import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.camel.Producer;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test to test delete option.
+ * @version
  */
-public class FromDavDeleteFileTest extends AbstractDavTest {
+public class FromDavNoEndpointPathRelativeMoveToAbsoluteTest extends AbstractDavTest {
 
 	protected String getDavUrl() {
-		return DAV_URL + "/deletefile?delete=true";
+		return DAV_URL + "?recursive=true&move=/.done/${file:name}&initialDelay=2500&delay=5000";
 	}
 
 	@Override
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
-		// prepares the FTP Server by creating a file on the server that we want to unit
-		// test that we can pool and store as a local file
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World this file will be deleted");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-
-		// assert file is created
-
-		assertTrue("The file should exists", file.exists());
+		prepareDavServer();
 	}
 
 	@Test
-	public void testPollFileAndShouldBeDeleted() throws Exception {
+	public void testPollFileAndShouldBeMoved() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedBodiesReceived("Hello World this file will be deleted");
+		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/sub/bye.txt");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/sub/sub2/goodday.txt");
 
 		mock.assertIsSatisfied();
+	}
 
-		Thread.sleep(500);
-
-		// assert the file is deleted
-		File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
-		assertFalse("The file should have been deleted", file.exists());
+	private void prepareDavServer() throws Exception {
+		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
+		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "sub/bye.txt");
+		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "sub/sub2/goodday.txt");
 	}
 
 	@Override

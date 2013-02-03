@@ -35,6 +35,7 @@ public class FromDavKeepLastModifiedTest extends AbstractDavTest {
 		File initialDir = new File(DAV_ROOT_DIR + "/keep");
 		if (!initialDir.exists()) {
 			initialDir.mkdirs();
+			Runtime.getRuntime().exec("chmod -R 777 " + initialDir.getParentFile().getAbsolutePath());
 		}
 		template.sendBodyAndHeader(getDavUrl(), "Hello World", "CamelFileName", "hello.txt");
 	}

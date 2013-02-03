@@ -21,9 +21,9 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		super(endpoint, processor, fileOperations);
 		endpointPath = endpoint.getConfiguration().getRemoteServerInformation();
 		log.info("endpointPath : " + endpointPath);
-		// if (endpoint.isAutoCreate()) {
-		operations.buildDirectory(endpoint.getConfiguration().getInitialDirectory(), true);
-		// }
+		if (endpoint.isAutoCreate()) {
+			((DavOperations) operations).initComponent(endpoint.getConfiguration().getInitialDirectory());
+		}
 	}
 
 	@Override

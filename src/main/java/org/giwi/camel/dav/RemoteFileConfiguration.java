@@ -69,7 +69,7 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 
 		setHost(uri.getHost());
 		setPort(uri.getPort());
-		hostPath = protocol + "://" + host + ":" + getPort() + "/" + getDirectory().split("/")[0] + "/";
+		hostPath = protocol + "://" + host + ":" + getPort() + "/"; // + getDirectory().split("/")[0] + "/";
 		remoteServerInformation = protocol + "://" + host + ":" + getPort() + "/" + getDirectory() + "/";
 		initialDirectory = getDirectory();
 

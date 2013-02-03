@@ -36,17 +36,17 @@ public class FromDavMoveFileToHiddenFolderRecursiveTest extends AbstractDavTest 
 	public void testPollFileAndShouldBeMoved() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/bye.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/goodday.txt");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/hello.txt");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/sub/.done/bye.txt");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/sub/.done/goodday.txt");
 
 		mock.assertIsSatisfied();
 	}
 
 	private void prepareDavServer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "bye/bye.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "goodday/goodday.txt");
+		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "sub/hello.txt");
+		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "sub/bye/bye.txt");
+		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "sub/goodday/goodday.txt");
 	}
 
 	@Override
