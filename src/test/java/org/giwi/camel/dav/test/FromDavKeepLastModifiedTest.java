@@ -32,6 +32,10 @@ public class FromDavKeepLastModifiedTest extends AbstractDavTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
+		File initialDir = new File(DAV_ROOT_DIR + "/keep");
+		if (!initialDir.exists()) {
+			initialDir.mkdirs();
+		}
 		template.sendBodyAndHeader(getDavUrl(), "Hello World", "CamelFileName", "hello.txt");
 	}
 

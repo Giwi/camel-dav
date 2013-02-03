@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.camel.Exchange;
@@ -51,35 +50,49 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public boolean deleteFile(String name) throws GenericFileOperationFailedException {
+		name = sanitizeWithHost(name);
 		if (log.isInfoEnabled()) {
-			log.info("deleteFile : " + sanitizePath(name));
+			log.info("deleteFile : " + name);
 		}
 		try {
-			client.delete(endpoint.getConfiguration().getRemoteServerInformation() + sanitizePath(name));
+			client.delete(name);
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
 		return true;
 	}
 
+	/**
+	 * @param name
+	 * @return
+	 */
 	private String sanitizePath(String name) {
 		// WTF : INFO deleteFile : http://localhost:80/webdav/movefile//http:/localhost:80/webdav/movefile/.done/goodday.txt
-		String wrongPath = endpoint.getConfiguration().getRemoteServerInformation().replaceAll("//", "/");
-		System.out.println(wrongPath);
-		name = name.replaceAll(wrongPath, "");
-		// http://localhost:80/webdav/movefile//http:/localhost:80/webdav/.done/hello.txt
-		System.out.println(name);
-		name = name.replaceAll(wrongPath.substring(0, FileUtil.stripTrailingSeparator(wrongPath).lastIndexOf('/')), "");
+		name = name.replaceAll("http:/" + endpoint.getConfiguration().getHost(), "http://" + endpoint.getConfiguration().getHost()).replaceAll(
+				endpoint.getConfiguration().getRemoteServerInformation(), "");
 		return FileUtil.stripLeadingSeparator(name);
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	private String sanitizeWithHost(String name) {
+		name = sanitizePath(name);
+		if (!name.startsWith(endpoint.getConfiguration().getHostPath())) {
+			name = endpoint.getConfiguration().getRemoteServerInformation() + name;
+		}
+		return name;
 	}
 
 	@Override
 	public boolean existsFile(String name) throws GenericFileOperationFailedException {
+		name = sanitizeWithHost(name);
 		if (log.isInfoEnabled()) {
-			log.info("existsFile : " + sanitizePath(name));
+			log.info("existsFile : " + name);
 		}
 		try {
-			return client.exists(endpoint.getConfiguration().getRemoteServerInformation() + sanitizePath(name));
+			return client.exists(name);
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		}
@@ -88,17 +101,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean renameFile(String from, String to) throws GenericFileOperationFailedException {
 		try {
-
-			if (!to.contains(endpoint.getConfiguration().getRemoteServerInformation())) {
-				to = endpoint.getConfiguration().getRemoteServerInformation() + sanitizePath(to);
-			}
-			if (!from.contains(endpoint.getConfiguration().getRemoteServerInformation())) {
-				from = endpoint.getConfiguration().getRemoteServerInformation() + sanitizePath(from);
-			}
-			log.info("renameFile 1 from " + from + " to : " + to);
-			// log.info("renameFile 2 from " + from + " to : " + to);
-			// // client.move(
-			// // FileUtil.stripLeadingSeparator(endpoint.getConfiguration().remoteServerInformation()) + "/"
+			to = sanitizeWithHost(to);
+			from = sanitizeWithHost(from);
+			log.info("renameFile from " + from + " to : " + to);
 			client.move(from, to);
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
@@ -109,20 +114,27 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	@Override
 	public boolean buildDirectory(String directory, boolean absolute) throws GenericFileOperationFailedException {
 		// WTF ?!? http:/localhost:80/webdav/ in directory
-		log.info("buildDirectory : " + sanitizePath(directory) + ", absolute : " + absolute);
-		String[] dirs = sanitizePath(directory).split("/");
+		log.info("buildDirectory 1 : " + directory + ", absolute : " + absolute);
+		directory = sanitizeWithHost(directory);
+		// if (!absolute) {
+		// directory = endpoint.getConfiguration().getInitialDirectory() + "/" + directory;
+		// }
+		log.info("buildDirectory 1 : " + directory + ", absolute : " + absolute);
+		directory = directory.replaceAll(endpoint.getConfiguration().getHostPath(), "");
+		String[] dirs = directory.split("/");
 		for (String dir : dirs) {
-			System.out.println(dir);
+			log.info("buildDirectory 2 : " + dir);
 		}
 		StringBuilder dirToBuild = new StringBuilder();
-		for (String dir : dirs) {
-			if (!"".equals(dir.trim()) && !Arrays.asList(endpoint.getConfiguration().getInitialDirectory().split("/")).contains(dir)) {
+		for (String dir2 : dirs) {
+			String dir = dir2;
+			if (!"".equals(dir.trim())) {
 				dirToBuild.append(dir).append("/");
 				log.info("buildDirectory : " + dirToBuild);
 				try {
-					if (!existsFile(dirToBuild.toString())) {
+					if (!existsFile(endpoint.getConfiguration().getHostPath() + dirToBuild.toString())) {
 						log.info("buildDirectory : " + dirToBuild);
-						client.createDirectory(endpoint.getConfiguration().getRemoteServerInformation() + dirToBuild.toString());
+						client.createDirectory(endpoint.getConfiguration().getHostPath() + dirToBuild.toString());
 					}
 				} catch (IOException e) {
 					throw new GenericFileOperationFailedException(e.getMessage(), e);
@@ -130,6 +142,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			}
 
 		}
+		// }
 
 		return true;
 	}

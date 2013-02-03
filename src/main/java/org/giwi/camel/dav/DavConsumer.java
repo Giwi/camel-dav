@@ -2,6 +2,7 @@ package org.giwi.camel.dav;
 
 import java.util.List;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.util.FileUtil;
@@ -20,9 +21,9 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		super(endpoint, processor, fileOperations);
 		endpointPath = endpoint.getConfiguration().getRemoteServerInformation();
 		log.info("endpointPath : " + endpointPath);
-		if (endpoint.isAutoCreate()) {
-			operations.buildDirectory(endpoint.getConfiguration().getInitialDirectory(), true);
-		}
+		// if (endpoint.isAutoCreate()) {
+		operations.buildDirectory(endpoint.getConfiguration().getInitialDirectory(), true);
+		// }
 	}
 
 	@Override
@@ -178,5 +179,20 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 	@Override
 	public String toString() {
 		return "DavConsumer[" + URISupport.sanitizeUri(getEndpoint().getEndpointUri()) + "]";
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.giwi.camel.dav.RemoteFileConsumer#processExchange(org.apache.camel.Exchange)
+	 */
+	@Override
+	protected void processExchange(Exchange exchange) {
+		// mark the exchange to be processed synchronously as the dav client is not thread safe
+		// and we must execute the callbacks in the same thread as this consumer
+		exchange.setProperty(Exchange.UNIT_OF_WORK_PROCESS_SYNC, Boolean.TRUE);
+		exchange.getIn().setHeader("CamelFileParent", "..");
+		// exchange.getIn().getHeader("CamelFileParent", String.class)
+		// .replaceAll("http:/" + ((RemoteFileConfiguration) endpoint.getConfiguration()).getHost(), "http://" + ((RemoteFileConfiguration) endpoint.getConfiguration()).getHost()));
+		super.processExchange(exchange);
 	}
 }

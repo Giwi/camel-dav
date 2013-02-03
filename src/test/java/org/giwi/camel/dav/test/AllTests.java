@@ -35,7 +35,9 @@ import org.junit.runners.Suite;
 	FromDavMoveFilePrefixTest.class,
 	FromDavMoveFilePrefixNotStepwiseTest.class,
 	FromDavMoveFileRecursiveTest.class,
-	FromDavMoveFileRecursiveNotStepwiseTest.class
+	FromDavMoveFileRecursiveNotStepwiseTest.class,
+	FromDavMoveFileToHiddenFolderRecursiveTest.class,
+	FromDavMoveFileToHiddenFolderRecursiveNotStepwiseTest.class,
 	})
 public class AllTests {
 

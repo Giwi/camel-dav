@@ -37,14 +37,10 @@ public class FromDavAsyncProcessTest extends AbstractDavTest {
 		getMockEndpoint("mock:result").expectedMessageCount(2);
 		getMockEndpoint("mock:result").expectedHeaderReceived("foo", 123);
 
-		// the log file should log that all the ftp client work is done in the same thread (fully synchronous)
-		// as the ftp client is not thread safe and must process fully synchronous
-
 		context.startRoute("foo");
 
 		assertMockEndpointsSatisfied();
 
-		// give time for files to be deleted on ftp server
 		Thread.sleep(1000);
 
 		File hello = new File(DAV_ROOT_DIR + "/async/hello.txt");
