@@ -28,11 +28,11 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	private int timeout = 30000;
 	private int soTimeout;
 	private boolean throwExceptionOnConnectFailed;
-	private boolean stepwise = true;
 	private PathSeparator separator = PathSeparator.Auto;
 	private String remoteServerInformation;
 	private String initialDirectory;
 	private String hostPath;
+	private boolean download = true;
 
 	public RemoteFileConfiguration() {
 	}
@@ -183,22 +183,6 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 		this.throwExceptionOnConnectFailed = throwExceptionOnConnectFailed;
 	}
 
-	public boolean isStepwise() {
-		return stepwise;
-	}
-
-	/**
-	 * Sets whether we should stepwise change directories while traversing file structures when downloading files, or as well when uploading a file to a directory.
-	 * <p/>
-	 * You can disable this if you for example are in a situation where you cannot change directory on the FTP server due security reasons.
-	 * 
-	 * @param stepwise
-	 *            whether to use change directory or not
-	 */
-	public void setStepwise(boolean stepwise) {
-		this.stepwise = stepwise;
-	}
-
 	public PathSeparator getSeparator() {
 		return separator;
 	}
@@ -261,6 +245,21 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	 */
 	public void setHostPath(String hostPath) {
 		this.hostPath = hostPath;
+	}
+
+	/**
+	 * @return the download
+	 */
+	public boolean isDownload() {
+		return download;
+	}
+
+	/**
+	 * @param download
+	 *            the download to set
+	 */
+	public void setDownload(boolean download) {
+		this.download = download;
 	}
 
 }

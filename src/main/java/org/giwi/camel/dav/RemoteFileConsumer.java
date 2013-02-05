@@ -12,11 +12,8 @@ package org.giwi.camel.dav;
 
 import java.io.IOException;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileConsumer;
-import org.apache.camel.util.FileUtil;
 
 /**
  * Base class for remote file consumers.
@@ -50,16 +47,16 @@ public abstract class RemoteFileConsumer<T> extends GenericFileConsumer<T> {
 		// noop
 	}
 
-	@Override
-	protected void processExchange(Exchange exchange) {
-		// mark the exchange to be processed synchronously as the dav client is not thread safe
-		// and we must execute the callbacks in the same thread as this consumer
-		exchange.setProperty(Exchange.UNIT_OF_WORK_PROCESS_SYNC, Boolean.TRUE);
-		super.processExchange(exchange);
-	}
+	// @Override
+	// protected void processExchange(Exchange exchange) {
+	// // mark the exchange to be processed synchronously as the dav client is not thread safe
+	// // and we must execute the callbacks in the same thread as this consumer
+	// exchange.setProperty(Exchange.UNIT_OF_WORK_PROCESS_SYNC, Boolean.TRUE);
+	// super.processExchange(exchange);
+	// }
 
 	protected boolean isRetrieveFile() {
-		return getEndpoint().isDownload();
+		return getEndpoint().getConfiguration().isDownload();
 	}
 
 	@Override
@@ -86,14 +83,4 @@ public abstract class RemoteFileConsumer<T> extends GenericFileConsumer<T> {
 		return ((RemoteFileEndpoint<?>) endpoint).remoteServerInformation();
 	}
 
-	@Override
-	protected boolean isMatched(GenericFile<T> file, String doneFileName) {
-		// dav specific as we need to cater for stepwise
-		if (getEndpoint().getConfiguration().isStepwise()) {
-			// stepwise enabled, so done file should always be without path
-			doneFileName = FileUtil.stripPath(doneFileName);
-		}
-
-		return super.isMatched(file, doneFileName);
-	}
 }

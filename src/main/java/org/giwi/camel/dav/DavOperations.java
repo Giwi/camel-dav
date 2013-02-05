@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.camel.Exchange;
@@ -152,13 +151,13 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		}
 		StringBuilder dirToBuild = new StringBuilder();
 		for (String dir : dirs) {
-			if (!"".equals(dir.trim()) && !Arrays.asList(endpoint.getConfiguration().getInitialDirectory().split("/")).contains(dir)) {
+			if (!"".equals(dir.trim())) { // && !Arrays.asList(endpoint.getConfiguration().getInitialDirectory().split("/")).contains(dir)) {
 				dirToBuild.append(dir).append("/");
 				log.info("buildDirectory : " + dirToBuild);
 				try {
-					if (!existsFile(endpoint.getConfiguration().getRemoteServerInformation() + dirToBuild.toString())) {
+					if (!existsFile(endpoint.getConfiguration().getHostPath() + dirToBuild.toString())) {
 						log.info("buildDirectory : " + dirToBuild);
-						client.createDirectory(endpoint.getConfiguration().getRemoteServerInformation() + dirToBuild.toString());
+						client.createDirectory(endpoint.getConfiguration().getHostPath() + dirToBuild.toString());
 					}
 				} catch (IOException e) {
 					throw new GenericFileOperationFailedException(e.getMessage(), e);
@@ -171,6 +170,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public boolean retrieveFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
+		name = sanitizeWithHost(name);
 		log.info("retrieveFile : " + name);
 		if (ObjectHelper.isNotEmpty(endpoint.getLocalWorkDirectory())) {
 			// local work directory is configured so we should store file content as files in this local directory
@@ -183,39 +183,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	@Override
 	public boolean storeFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
-		log.info("storeFile : " + name);
-		// must normalize name first
-		// name = endpoint.getConfiguration().normalizePath(name);
-		// log.info("storeFile normalized : " + name);
 		log.trace("storeFile({})", name);
-
-		boolean answer = false;
-		String currentDir = null;
-		String path = FileUtil.onlyPath(name);
 		String targetName = name;
-
-		try {
-			if (path != null && endpoint.getConfiguration().isStepwise()) {
-				// must remember current dir so we stay in that directory after the write
-				currentDir = getCurrentDirectory();
-
-				// change to path of name
-				changeCurrentDirectory(path);
-
-				// the target name should be without path, as we have changed directory
-				targetName = FileUtil.stripPath(name);
-			}
-
-			// store the file
-			answer = doStoreFile(name, targetName, exchange);
-		} finally {
-			// change back to current directory if we changed directory
-			if (currentDir != null) {
-				changeCurrentDirectory(currentDir);
-			}
-		}
-
-		return answer;
+		// store the file
+		return doStoreFile(name, targetName, exchange);
 	}
 
 	private boolean doStoreFile(String name, String targetName, Exchange exchange) throws GenericFileOperationFailedException {
@@ -367,34 +338,26 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			os = new ByteArrayOutputStream();
 			GenericFile<DavResource> target = (GenericFile<DavResource>) exchange.getProperty(FileComponent.FILE_EXCHANGE_FILE);
 			ObjectHelper.notNull(target, "Exchange should have the " + FileComponent.FILE_EXCHANGE_FILE + " set");
-			target.setBody(os);
 
-			String remoteName = name;
-			String currentDir = null;
-			if (endpoint.getConfiguration().isStepwise()) {
-
-				// change directory to path where the file is to be retrieved
-				// (must do this as some Dav servers cannot retrieve using absolute path)
-				String path = FileUtil.onlyPath(name);
-				if (path != null) {
-					changeCurrentDirectory(path);
-				}
-				// remote name is now only the file name as we just changed directory
-				remoteName = FileUtil.stripPath(name);
-			}
-
+			String remoteName = FileUtil.stripPath(name);
 			log.info("Client retrieveFile: {}", remoteName);
-			InputStream is = client.get(endpoint.getConfiguration().getRemoteServerInformation() + name);
-			DavResource file = client.list(endpoint.getConfiguration().getRemoteServerInformation() + name).get(0);
-			IOHelper.copyAndCloseInput(is, os);
-			exchange.getIn().setHeader(Exchange.FILE_LAST_MODIFIED, file.getModified());
-			exchange.getIn().setHeader(Exchange.FILE_NAME, FileUtil.stripPath(name));
+			if (endpoint.getConfiguration().isDownload()) {
+				target.setBody(os);
+				if (!name.startsWith(endpoint.getConfiguration().getHostPath())) {
+					name = endpoint.getConfiguration().getRemoteServerInformation() + name;
+				}
+				InputStream is = client.get(name);
+				DavResource file = client.list(name).get(0);
+				IOHelper.copyAndCloseInput(is, os);
+
+				exchange.getIn().setHeader(Exchange.FILE_LAST_MODIFIED, file.getModified());
+				log.info("Client retrieveFile: {}", remoteName);
+			} else {
+				exchange.getIn().setBody(null);
+			}
+			exchange.getIn().setHeader(Exchange.FILE_NAME, remoteName);
 			result = true;
 			// change back to current directory
-			if (endpoint.getConfiguration().isStepwise()) {
-				changeCurrentDirectory(currentDir);
-			}
-
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException(e.getMessage(), e);
 		} finally {
@@ -454,31 +417,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			GenericFile<DavResource> target = (GenericFile<DavResource>) exchange.getProperty(FileComponent.FILE_EXCHANGE_FILE);
 			// store the java.io.File handle as the body
 			target.setBody(local);
-
-			String remoteName = name;
-			String currentDir = null;
-			if (endpoint.getConfiguration().isStepwise()) {
-				// remember current directory
-				currentDir = getCurrentDirectory();
-
-				// change directory to path where the file is to be retrieved
-				// (must do this as some FTP servers cannot retrieve using absolute path)
-				String path = FileUtil.onlyPath(name);
-				if (path != null) {
-					changeCurrentDirectory(path);
-				}
-				// remote name is now only the file name as we just changed directory
-				remoteName = FileUtil.stripPath(name);
-			}
-
-			log.trace("Client retrieveFile: {}", remoteName);
-			InputStream is = client.get(remoteName);
+			log.trace("Client retrieveFile: {}", name);
+			InputStream is = client.get(name);
 			IOHelper.copyAndCloseInput(is, os);
 			result = true;
-			// change back to current directory
-			if (endpoint.getConfiguration().isStepwise()) {
-				changeCurrentDirectory(currentDir);
-			}
 
 		} catch (IOException e) {
 			throw new GenericFileOperationFailedException("Cannot create new local work file: " + local);

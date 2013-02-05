@@ -10,28 +10,29 @@
  */
 package org.giwi.camel.dav.test;
 
-import java.io.File;
-
-import org.apache.camel.Exchange;
-import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
 /**
- *
+ * Unit test to verify polling a server with no files to poll.
  */
-public class FileToDavTempFileNameTest extends AbstractDavTest {
+public class FromDavNoFilesTest extends AbstractDavTest {
+
+	private String getDavUrl() {
+		return DAV_URL + "/slowfile?readLock=rename&consumer.delay=2000";
+	}
 
 	@Test
-	public void testFileToDav() throws Exception {
-		NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
+	public void testPoolIn3SecondsButNoFiles() throws Exception {
+		deleteDirectory(DAV_ROOT_DIR + "slowfile");
+		createDirectory(DAV_ROOT_DIR + "slowfile");
+		MockEndpoint mock = getMockEndpoint("mock:result");
+		mock.expectedMessageCount(0);
 
-		template.sendBodyAndHeader("file:src/main/data", "Hello World", Exchange.FILE_NAME, "sub/hello.txt");
+		Thread.sleep(3 * 1000L);
 
-		assertTrue(notify.matchesMockWaitTime());
-		Thread.sleep(1000);
-		File file = new File(DAV_ROOT_DIR + "/sub/hello.txt");
-		assertTrue("File should exists " + file, file.exists());
+		mock.assertIsSatisfied();
 	}
 
 	@Override
@@ -39,7 +40,7 @@ public class FileToDavTempFileNameTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from("file:src/main/data?recursive=true").to(DAV_URL + "?fileName=${file:name}&tempFileName=${file:onlyname}.part");
+				from(getDavUrl()).to("mock:result");
 			}
 		};
 	}

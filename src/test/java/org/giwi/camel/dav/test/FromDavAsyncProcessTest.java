@@ -30,16 +30,10 @@ public class FromDavAsyncProcessTest extends AbstractDavTest {
 
 	@Test
 	public void testDavAsyncProcess() throws Exception {
-		// File initialDir = new File(DAV_ROOT_DIR + "/async");
-		// if (!initialDir.exists()) {
-		// initialDir.mkdirs();
-		// }
 		template.sendBodyAndHeader(getDavUrl(), "Hello World", Exchange.FILE_NAME, "hello.txt");
 		template.sendBodyAndHeader(getDavUrl(), "Bye World", Exchange.FILE_NAME, "bye.txt");
-
 		getMockEndpoint("mock:result").expectedMessageCount(2);
 		getMockEndpoint("mock:result").expectedHeaderReceived("foo", 123);
-
 		context.startRoute("foo");
 
 		assertMockEndpointsSatisfied();
@@ -63,6 +57,10 @@ public class FromDavAsyncProcessTest extends AbstractDavTest {
 		};
 	}
 
+	/**
+	 * @author xavier
+	 * 
+	 */
 	private class MyAsyncProcessor implements AsyncProcessor {
 
 		private final ExecutorService executor = Executors.newSingleThreadExecutor();

@@ -2,11 +2,9 @@ package org.giwi.camel.dav;
 
 import java.util.List;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.util.FileUtil;
-import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.URISupport;
 
 import com.googlecode.sardine.DavResource;
@@ -28,31 +26,13 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 
 	@Override
 	protected boolean pollDirectory(String fileName, List<GenericFile<DavResource>> fileList, int depth) {
-		String currentDir = null;
 		log.debug("pollDirectory : " + fileName);
-		if (isStepwise()) {
-			// must remember current dir so we stay in that directory after the poll
-			currentDir = operations.getCurrentDirectory();
-		}
-
 		// strip trailing slash
-		fileName = FileUtil.stripTrailingSeparator(fileName);
-
-		boolean answer = doPollDirectory(fileName, null, fileList, depth);
-		if (currentDir != null) {
-			operations.changeCurrentDirectory(currentDir);
-		}
-
-		return answer;
+		return doPollDirectory(FileUtil.stripTrailingSeparator(fileName), null, fileList, depth);
 	}
 
 	protected boolean pollSubDirectory(String absolutePath, String dirName, List<GenericFile<DavResource>> fileList, int depth) {
-		boolean answer = doPollDirectory(absolutePath, dirName, fileList, depth);
-		// change back to parent directory when finished polling sub directory
-		if (isStepwise()) {
-			operations.changeToParentDirectory();
-		}
-		return answer;
+		return doPollDirectory(absolutePath, dirName, fileList, depth);
 	}
 
 	protected boolean doPollDirectory(String absolutePath, String dirName, List<GenericFile<DavResource>> fileList, int depth) {
@@ -63,30 +43,18 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		// remove trailing /
 		dirName = FileUtil.stripTrailingSeparator(dirName);
 
-		// compute dir depending on stepwise is enabled or not
-		String dir;
-		if (isStepwise()) {
-			dir = ObjectHelper.isNotEmpty(dirName) ? dirName : absolutePath;
-			operations.changeCurrentDirectory(dir);
-		} else {
-			dir = absolutePath;
-		}
-
-		log.trace("Polling directory: {}", dir);
+		String dir = absolutePath;
+		log.debug("Polling directory: {}", dir);
 		List<DavResource> files;
-		if (isStepwise()) {
-			files = operations.listFiles();
-		} else {
-			files = operations.listFiles(dir);
-		}
+		files = operations.listFiles(dir);
 
 		if (files == null || files.isEmpty()) {
 			// no files in this directory to poll
-			log.trace("No files found in directory: {}", dir);
+			log.debug("No files found in directory: {}", dir);
 			return true;
 		} else {
 			// we found some files
-			log.trace("Found {} in directory: {}", files.size(), dir);
+			log.debug("Found {} in directory: {}", files.size(), dir);
 		}
 
 		for (DavResource file : files) {
@@ -171,28 +139,8 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		return relativefileName.substring(0, lastSep + 1);
 	}
 
-	private boolean isStepwise() {
-		RemoteFileConfiguration config = (RemoteFileConfiguration) endpoint.getConfiguration();
-		return false; // config.isStepwise();
-	}
-
 	@Override
 	public String toString() {
 		return "DavConsumer[" + URISupport.sanitizeUri(getEndpoint().getEndpointUri()) + "]";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.giwi.camel.dav.RemoteFileConsumer#processExchange(org.apache.camel.Exchange)
-	 */
-	@Override
-	protected void processExchange(Exchange exchange) {
-		// mark the exchange to be processed synchronously as the dav client is not thread safe
-		// and we must execute the callbacks in the same thread as this consumer
-		exchange.setProperty(Exchange.UNIT_OF_WORK_PROCESS_SYNC, Boolean.TRUE);
-		exchange.getIn().setHeader("CamelFileParent", "..");
-		// exchange.getIn().getHeader("CamelFileParent", String.class)
-		// .replaceAll("http:/" + ((RemoteFileConfiguration) endpoint.getConfiguration()).getHost(), "http://" + ((RemoteFileConfiguration) endpoint.getConfiguration()).getHost()));
-		super.processExchange(exchange);
 	}
 }

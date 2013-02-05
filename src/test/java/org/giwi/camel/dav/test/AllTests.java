@@ -15,31 +15,26 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({ 
 	FileToDavTempFileNameTest.class,
 	FromDavAsyncProcessTest.class,
-	FromDavDeleteFileNotStepwiseTest.class,
 	FromDavDeleteFileTest.class,
 	FromDavDoNotDeleteFileIfProcessFailsTest.class,
 	FromDavExclusiveReadNoneStrategyTest.class,
-	FromDavFilterNotStepwiseTest.class,
 	FromDavFilterTest.class,
 	FromFileToDavDefaultRootRenameStrategyTest.class,
 	FromFileToDavDeleteTest.class,
 	FromFileToDavTest.class,
 	FromDavKeepLastModifiedTest.class,
-	FromDavKeepLastModifiedNotStepwiseTest.class,
 	FromDavMoveFileAbsoluteFolderRecursiveTest.class,
-	FromDavMoveFileAbsoluteFolderRecursiveNotStepwiseTest.class,
 	FromDavMoveFileTest.class,
-	FromDavMoveFileNotStepwiseTest.class,
 	FromDavMoveFilePostfixTest.class,
-	FromDavMoveFilePostfixNotStepwiseTest.class,
 	FromDavMoveFilePrefixTest.class,
-	FromDavMoveFilePrefixNotStepwiseTest.class,
 	FromDavMoveFileRecursiveTest.class,
-	FromDavMoveFileRecursiveNotStepwiseTest.class,
 	FromDavMoveFileToHiddenFolderRecursiveTest.class,
-	FromDavMoveFileToHiddenFolderRecursiveNotStepwiseTest.class,
 	FromDavNoEndpointPathRelativeMoveToAbsoluteTest.class,
-	FromDavNoEndpointPathRelativeMoveToAbsoluteNotStepwiseTest.class
+	FromDavNoFilesTest.class,
+	FromDavNoopTest.class,
+	FromDavNotDownloadTest.class,
+	FromDavPollFileOnlyTest.class,
+	FromDavPreMoveDeleteTest.class
 	})
 public class AllTests {
 
