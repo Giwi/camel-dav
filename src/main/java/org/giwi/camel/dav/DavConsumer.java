@@ -18,7 +18,9 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 	public DavConsumer(RemoteFileEndpoint<DavResource> endpoint, Processor processor, RemoteFileOperations<DavResource> fileOperations) {
 		super(endpoint, processor, fileOperations);
 		endpointPath = endpoint.getConfiguration().getRemoteServerInformation();
-		log.info("endpointPath : " + endpointPath);
+		if (log.isInfoEnabled()) {
+			log.info("endpointPath : " + endpointPath);
+		}
 		if (endpoint.isAutoCreate()) {
 			((DavOperations) operations).initComponent(endpoint.getConfiguration().getInitialDirectory());
 		}
@@ -26,7 +28,9 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 
 	@Override
 	protected boolean pollDirectory(String fileName, List<GenericFile<DavResource>> fileList, int depth) {
-		log.debug("pollDirectory : " + fileName);
+		if (log.isDebugEnabled()) {
+			log.debug("pollDirectory : " + fileName);
+		}
 		// strip trailing slash
 		return doPollDirectory(FileUtil.stripTrailingSeparator(fileName), null, fileList, depth);
 	}
@@ -36,13 +40,12 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 	}
 
 	protected boolean doPollDirectory(String absolutePath, String dirName, List<GenericFile<DavResource>> fileList, int depth) {
-		log.debug("doPollDirectory from absolutePath: {}, dirName: {}", absolutePath, dirName);
-
+		if (log.isDebugEnabled()) {
+			log.debug("doPollDirectory from absolutePath: {}, dirName: {}", absolutePath, dirName);
+		}
 		depth++;
-
 		// remove trailing /
 		dirName = FileUtil.stripTrailingSeparator(dirName);
-
 		String dir = absolutePath;
 		log.debug("Polling directory: {}", dir);
 		List<DavResource> files;
@@ -50,11 +53,15 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 
 		if (files == null || files.isEmpty()) {
 			// no files in this directory to poll
-			log.debug("No files found in directory: {}", dir);
+			if (log.isDebugEnabled()) {
+				log.debug("No files found in directory: {}", dir);
+			}
 			return true;
 		} else {
 			// we found some files
-			log.debug("Found {} in directory: {}", files.size(), dir);
+			if (log.isDebugEnabled()) {
+				log.debug("Found {} in directory: {}", files.size(), dir);
+			}
 		}
 
 		for (DavResource file : files) {
@@ -81,7 +88,9 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 					RemoteFile<DavResource> remote = asRemoteFile(absolutePath, file);
 					if (isValidFile(remote, false) && depth >= endpoint.getMinDepth()) {
 						if (isInProgress(remote)) {
-							log.trace("Skipping as file is already in progress: {}", remote.getFileName());
+							if (log.isTraceEnabled()) {
+								log.trace("Skipping as file is already in progress: {}", remote.getFileName());
+							}
 						} else if (remote != null) {
 							// matched file so add
 							fileList.add(remote);
@@ -112,16 +121,20 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		answer.setFile(file);
 		answer.setFileNameOnly(file.getName());
 		answer.setFileLength(file.getContentLength());
+
 		answer.setDirectory(file.isDirectory());
-		answer.setRelativeFilePath(getRelativePath(file));
-		answer.setFileName(answer.getRelativeFilePath() + file.getName());
-		// answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).getRemoteServerInformation() + "/" + FileUtil.stripLeadingSeparator(answer.getFileName()));
-		answer.setAbsoluteFilePath(answer.getRelativeFilePath() + file.getName());
+		if (file.isDirectory()) {
+			answer.setRelativeFilePath(getRelativePath(file));
+			answer.setFileName(getRelativePath(file));
+		} else {
+			answer.setRelativeFilePath(getRelativePath(file) + file.getName());
+			answer.setFileName(getRelativePath(file) + file.getName());
+		}
+		answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).getHostPath() + FileUtil.stripLeadingSeparator(file.getPath()));
+		answer.setHostname(((RemoteFileConfiguration) endpoint.getConfiguration()).getHost());
 		if (file.getCreation() != null) {
 			answer.setLastModified(file.getCreation().getTime());
 		}
-		// answer.setHostname(((RemoteFileConfiguration) endpoint.getConfiguration()).getHost());
-		answer.setHostname("");
 		if (log.isDebugEnabled()) {
 			log.debug("found : " + answer);
 		}

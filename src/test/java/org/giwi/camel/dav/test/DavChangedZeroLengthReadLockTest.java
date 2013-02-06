@@ -10,42 +10,37 @@
  */
 package org.giwi.camel.dav.test;
 
-import org.apache.camel.Exchange;
+import java.io.FileOutputStream;
+
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test based on end user problem with SFTP on Windows
+ *
  */
-public class FromDavMoveFileToHiddenFolderRecursiveTest extends AbstractDavTest {
+public class DavChangedZeroLengthReadLockTest extends AbstractDavTest {
 
 	protected String getDavUrl() {
-		return DAV_URL + "?recursive=true&move=${file:parent}/.done/${file:onlyname}&initialDelay=3000&delay=5000";
-	}
-
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
+		return DAV_URL + "/changed?readLock=changed&readLockCheckInterval=1000&readLockMinLength=0&delete=true";
 	}
 
 	@Test
-	public void testPollFileAndShouldBeMoved() throws Exception {
+	public void testChangedReadLock() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/bye/.done/bye.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/goodday/.done/goodday.txt");
-		mock.assertIsSatisfied();
+		mock.expectedMessageCount(1);
+		mock.expectedFileExists("target/changed/out/zerofile.dat");
+
+		writeZeroFile();
+
+		assertMockEndpointsSatisfied();
 	}
 
-	private void prepareDavServer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "bye/bye.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "goodday/goodday.txt");
+	private void writeZeroFile() throws Exception {
+		createDirectory(DAV_ROOT_DIR + "/changed");
+		FileOutputStream fos = new FileOutputStream(DAV_ROOT_DIR + "/changed/zerofile.dat", true);
+		fos.flush();
+		fos.close();
 	}
 
 	@Override
@@ -53,8 +48,9 @@ public class FromDavMoveFileToHiddenFolderRecursiveTest extends AbstractDavTest 
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
+				from(getDavUrl()).to("file:target/changed/out", "mock:result");
 			}
 		};
 	}
+
 }

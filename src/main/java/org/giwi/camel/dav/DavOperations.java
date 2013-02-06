@@ -191,7 +191,6 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	private boolean doStoreFile(String name, String targetName, Exchange exchange) throws GenericFileOperationFailedException {
 		log.info("doStoreFile({})", targetName);
-
 		// if an existing file already exists what should we do?
 		if (endpoint.getFileExist() == GenericFileExist.Ignore || endpoint.getFileExist() == GenericFileExist.Fail || endpoint.getFileExist() == GenericFileExist.Move) {
 			boolean existFile = existsFile(targetName);
@@ -349,9 +348,15 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 				InputStream is = client.get(name);
 				DavResource file = client.list(name).get(0);
 				IOHelper.copyAndCloseInput(is, os);
-
+				String localName = (endpoint.getConfiguration().getHostPath() + FileUtil.stripFirstLeadingSeparator(file.getPath())).replaceAll(endpoint.getConfiguration()
+						.getRemoteServerInformation(), "/");
+				exchange.getIn().setHeader("CamelFileLength", file.getContentLength());
 				exchange.getIn().setHeader(Exchange.FILE_LAST_MODIFIED, file.getModified());
-				log.info("Client retrieveFile: {}", remoteName);
+				// exchange.getIn().setHeader(Exchange.FILE_NAME, localName);
+				// exchange.getIn().setHeader(Exchange.FILE_NAME_ONLY, remoteName);
+				// exchange.getIn().setHeader(Exchange.FILE_NAME_PRODUCED, localName);
+				// exchange.getIn().setHeader(Exchange.FILE
+				log.info("Client retrieveFile: {}", localName);
 			} else {
 				exchange.getIn().setBody(null);
 			}
@@ -417,8 +422,14 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			GenericFile<DavResource> target = (GenericFile<DavResource>) exchange.getProperty(FileComponent.FILE_EXCHANGE_FILE);
 			// store the java.io.File handle as the body
 			target.setBody(local);
-			log.trace("Client retrieveFile: {}", name);
+			log.trace("Client retrieveFileToFileInLocalWorkDirectory: {}", name);
 			InputStream is = client.get(name);
+			DavResource file = client.list(name).get(0);
+			exchange.getIn().setHeader("CamelFileLength", file.getContentLength());
+			exchange.getIn().setHeader(Exchange.FILE_LAST_MODIFIED, file.getModified());
+			exchange.getIn().setHeader(Exchange.FILE_NAME, file.getPath());
+			exchange.getIn().setHeader(Exchange.FILE_NAME_ONLY, name);
+			exchange.getIn().setHeader(Exchange.FILE_NAME_PRODUCED, endpoint.getConfiguration().getHostPath() + file.getPath());
 			IOHelper.copyAndCloseInput(is, os);
 			result = true;
 

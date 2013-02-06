@@ -13,39 +13,42 @@ package org.giwi.camel.dav.test;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test based on end user problem with SFTP on Windows
+ * @version
  */
-public class FromDavMoveFileToHiddenFolderRecursiveTest extends AbstractDavTest {
+public class FromDavRecursiveNoopTest extends AbstractDavTest {
 
 	protected String getDavUrl() {
-		return DAV_URL + "?recursive=true&move=${file:parent}/.done/${file:onlyname}&initialDelay=3000&delay=5000";
+		return DAV_URL + "/noop?initialDelay=3000&recursive=true&noop=true";
 	}
 
 	@Override
-	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		prepareDavServer();
+
+		template.sendBodyAndHeader(getDavUrl(), "a", Exchange.FILE_NAME, "a.txt");
+		template.sendBodyAndHeader(getDavUrl(), "b", Exchange.FILE_NAME, "b.txt");
+		template.sendBodyAndHeader(getDavUrl(), "a2", Exchange.FILE_NAME, "foo/a.txt");
+		template.sendBodyAndHeader(getDavUrl(), "c", Exchange.FILE_NAME, "bar/c.txt");
+		template.sendBodyAndHeader(getDavUrl(), "b2", Exchange.FILE_NAME, "bar/b.txt");
 	}
 
 	@Test
-	public void testPollFileAndShouldBeMoved() throws Exception {
+	public void testRecursiveNoop() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/bye/.done/bye.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/goodday/.done/goodday.txt");
-		mock.assertIsSatisfied();
-	}
+		mock.expectedBodiesReceivedInAnyOrder("a", "b", "a2", "c", "b2");
 
-	private void prepareDavServer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "bye/bye.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "goodday/goodday.txt");
+		assertMockEndpointsSatisfied();
+
+		// reset mock and send in a new file to be picked up only
+		mock.reset();
+		mock.expectedBodiesReceived("c2");
+
+		template.sendBodyAndHeader(getDavUrl(), "c2", Exchange.FILE_NAME, "c.txt");
+
+		assertMockEndpointsSatisfied();
 	}
 
 	@Override
@@ -53,7 +56,7 @@ public class FromDavMoveFileToHiddenFolderRecursiveTest extends AbstractDavTest 
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
+				from(getDavUrl()).convertBodyTo(String.class).to("log:ftp").to("mock:result");
 			}
 		};
 	}

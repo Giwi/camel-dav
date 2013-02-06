@@ -10,19 +10,29 @@
  */
 package org.giwi.camel.dav.test;
 
-import org.apache.camel.Exchange;
+import java.util.Comparator;
+
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.impl.JndiRegistry;
+import org.giwi.camel.dav.RemoteFile;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test based on end user problem with SFTP on Windows
+ * Unit test to verify remotefile sorter option.
  */
-public class FromDavMoveFileToHiddenFolderRecursiveTest extends AbstractDavTest {
+public class FromDavRemoteFileSorterTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "?recursive=true&move=${file:parent}/.done/${file:onlyname}&initialDelay=3000&delay=5000";
+	private String getDavUrl() {
+		return DAV_URL + "/sorter?sorter=#mySorter";
+	}
+
+	@Override
+	protected JndiRegistry createRegistry() throws Exception {
+		JndiRegistry jndi = super.createRegistry();
+		jndi.bind("mySorter", new MyRemoteFileSorter());
+		return jndi;
 	}
 
 	@Override
@@ -33,19 +43,19 @@ public class FromDavMoveFileToHiddenFolderRecursiveTest extends AbstractDavTest 
 	}
 
 	@Test
-	public void testPollFileAndShouldBeMoved() throws Exception {
+	public void testDavSorter() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/bye/.done/bye.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/goodday/.done/goodday.txt");
+		mock.expectedMessageCount(3);
+		mock.expectedBodiesReceived("Hello Copenhagen", "Hello London", "Hello Paris");
 		mock.assertIsSatisfied();
 	}
 
 	private void prepareDavServer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "bye/bye.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "goodday/goodday.txt");
+		// prepares the FTP Server by creating files on the server that we want to unit
+		// test that we can pool
+		sendFile(getDavUrl(), "Hello Paris", "paris.txt");
+		sendFile(getDavUrl(), "Hello London", "london.txt");
+		sendFile(getDavUrl(), "Hello Copenhagen", "copenhagen.txt");
 	}
 
 	@Override
@@ -57,4 +67,13 @@ public class FromDavMoveFileToHiddenFolderRecursiveTest extends AbstractDavTest 
 			}
 		};
 	}
+
+	// START SNIPPET: e1
+	public class MyRemoteFileSorter implements Comparator<RemoteFile<?>> {
+
+		public int compare(RemoteFile<?> o1, RemoteFile<?> o2) {
+			return o1.getFileNameOnly().compareToIgnoreCase(o2.getFileNameOnly());
+		}
+	}
+	// END SNIPPET: e1
 }

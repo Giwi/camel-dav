@@ -14,7 +14,6 @@ import java.io.File;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -22,12 +21,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test to test preMove with delete option.
+ * Unit test to test preMoveNamePostfix option.
  */
-public class FromDavPreMoveDeleteTest extends AbstractDavTest {
+public class FromDavPreMoveFilePostfixTest extends AbstractDavTest {
 
 	protected String getDavUrl() {
-		return DAV_URL + "/movefile?preMove=work&delete=true";
+		return DAV_URL + "/movefile?preMove=${file:name}.old";
 	}
 
 	@Override
@@ -38,17 +37,16 @@ public class FromDavPreMoveDeleteTest extends AbstractDavTest {
 	}
 
 	@Test
-	public void testPreMoveDelete() throws Exception {
+	public void testPollFileAndShouldBeMoved() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMessageCount(1);
-		mock.expectedBodiesReceived("Hello World this file will be moved");
+		// mock.expectedBodiesReceived("Hello World this file will be moved");
 
 		mock.assertIsSatisfied();
 
-		// and file should be deleted
-		Thread.sleep(1000);
-		File file = new File(DAV_ROOT_DIR + "/movefile/work/hello.txt");
-		assertFalse("The file should have been deleted", file.exists());
+		// assert the file is moved
+		File file = new File(DAV_ROOT_DIR + "/movefile/hello.txt.old");
+		assertTrue("The file should have been moved", file.exists());
 	}
 
 	private void prepareDavServer() throws Exception {
@@ -62,6 +60,10 @@ public class FromDavPreMoveDeleteTest extends AbstractDavTest {
 		producer.start();
 		producer.process(exchange);
 		producer.stop();
+
+		// assert file is created
+		File file = new File(DAV_ROOT_DIR + "/movefile/hello.txt");
+		assertTrue("The file should exists", file.exists());
 	}
 
 	@Override
@@ -69,14 +71,7 @@ public class FromDavPreMoveDeleteTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						// assert the file is pre moved
-						File file = new File(DAV_ROOT_DIR + "/movefile/work/hello.txt");
-						assertTrue("The file should have been moved", file.exists());
-					}
-				}).to("mock:result");
+				from(getDavUrl()).to("mock:result");
 			}
 		};
 	}

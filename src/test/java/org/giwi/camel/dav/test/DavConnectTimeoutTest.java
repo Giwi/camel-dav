@@ -10,42 +10,27 @@
  */
 package org.giwi.camel.dav.test;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test based on end user problem with SFTP on Windows
+ * @version
  */
-public class FromDavMoveFileToHiddenFolderRecursiveTest extends AbstractDavTest {
-
-	protected String getDavUrl() {
-		return DAV_URL + "?recursive=true&move=${file:parent}/.done/${file:onlyname}&initialDelay=3000&delay=5000";
-	}
-
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
+public class DavConnectTimeoutTest extends AbstractDavTest {
+	// TODO : gérer le timeout
+	private String getDavUrl() {
+		return DAV_URL + "/timeout/?connectTimeout=2000";
 	}
 
 	@Test
-	public void testPollFileAndShouldBeMoved() throws Exception {
+	public void testTimeout() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/bye/.done/bye.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/goodday/.done/goodday.txt");
-		mock.assertIsSatisfied();
-	}
+		mock.expectedBodiesReceived("Hello World");
 
-	private void prepareDavServer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "bye/bye.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "goodday/goodday.txt");
+		sendFile(getDavUrl(), "Hello World", "hello.txt");
+
+		mock.assertIsSatisfied();
 	}
 
 	@Override

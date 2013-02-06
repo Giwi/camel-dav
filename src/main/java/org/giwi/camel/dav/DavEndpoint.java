@@ -44,7 +44,7 @@ public class DavEndpoint<T extends DavResource> extends RemoteFileEndpoint<DavRe
 	@Override
 	protected GenericFileProducer<DavResource> buildProducer() {
 		try {
-			return new RemoteFileProducer<DavResource>(this, createRemoteFileOperations());
+			return new DavProducer(this, createRemoteFileOperations());
 		} catch (Exception e) {
 			throw new FailedToCreateProducerException(this, e);
 		}
