@@ -3,6 +3,7 @@ package org.giwi.camel.dav;
 import java.net.URI;
 
 import org.apache.camel.component.file.GenericFileConfiguration;
+import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.ObjectHelper;
 
 /**
@@ -69,9 +70,9 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 
 		setHost(uri.getHost());
 		setPort(uri.getPort());
-		hostPath = protocol + "://" + host + ":" + getPort() + "/"; // + getDirectory().split("/")[0] + "/";
-		remoteServerInformation = protocol + "://" + host + ":" + getPort() + "/" + getDirectory() + "/";
-		initialDirectory = getDirectory();
+		hostPath = protocol + "://" + host + ":" + getPort() + "/";
+		remoteServerInformation = protocol + "://" + host + ":" + getPort() + "/" + FileUtil.stripTrailingSeparator(getDirectory()) + "/";
+		initialDirectory = FileUtil.stripTrailingSeparator(getDirectory());
 
 		setDirectory("");
 	}

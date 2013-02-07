@@ -13,7 +13,7 @@ import com.googlecode.sardine.Sardine;
 import com.googlecode.sardine.SardineFactory;
 
 /**
- * Represents a Sardine endpoint.
+ * Represents a DAV endpoint.
  */
 public class DavEndpoint<T extends DavResource> extends RemoteFileEndpoint<DavResource> {
 	protected Sardine davClient;

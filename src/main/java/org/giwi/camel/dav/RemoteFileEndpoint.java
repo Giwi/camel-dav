@@ -42,7 +42,7 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	public RemoteFileEndpoint(String uri, RemoteFileComponent<T> component, RemoteFileConfiguration configuration) {
 		super(uri, component);
 		this.configuration = configuration;
-		// for ftp we need to use higher interval/checkout that for files
+		// for dav we need to use higher interval/checkout that for files
 		setReadLockTimeout(20000);
 		setReadLockCheckInterval(5000);
 	}
@@ -64,14 +64,12 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	@Override
 	public GenericFileProducer<T> createProducer() throws Exception {
 		afterPropertiesSet();
-
 		// ensure fileExist and moveExisting is configured correctly if in use
 		if (getFileExist() == GenericFileExist.Move && getMoveExisting() == null) {
 			throw new IllegalArgumentException("You must configure moveExisting option when fileExist=Move");
 		} else if (getMoveExisting() != null && getFileExist() != GenericFileExist.Move) {
 			throw new IllegalArgumentException("You must configure fileExist=Move when moveExisting has been set");
 		}
-
 		return buildProducer();
 	}
 

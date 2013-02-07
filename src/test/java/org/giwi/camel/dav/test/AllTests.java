@@ -22,7 +22,10 @@ import org.junit.runners.Suite;
 		FromDavRemoteFileSorterTest.class, FromDavSimpleNoEndpointPathRelativeMoveToAbsoluteTest.class, FromDavSimpleNoEndpointPathRelativeMoveToRelativeTest.class,
 		FromDavSimpleRelativeMoveToRelativeTest.class, FromDavSimulateNetworkIssueRecoverTest.class, FromDavStartingDirAndFileNameClashTest.class, FromDavThirdPoolOkTest.class,
 		FromDavToAsciiFileNoBodyConversionTest.class, FromDavToAsciiFileTest.class, FromDavToBinaryFileTest.class, FromDavToBinarySampleTest.class, FromDavToFileNoFileNameHeaderTest.class,
-		FromDavToMockTest.class, FromDavTwoSlashesIssueTest.class, FromQueueThenConsumeDavToMockTest.class, DavBrowsableEndpointTest.class, DavChangedZeroLengthReadLockTest.class, })
+		FromDavToMockTest.class, FromDavTwoSlashesIssueTest.class, FromQueueThenConsumeDavToMockTest.class, DavBrowsableEndpointTest.class, DavChangedZeroLengthReadLockTest.class,
+		DavConsumerAbsolutePathTest.class, DavConsumerAsyncStressTest.class, DavConsumerBodyAsStringTest.class, DavConsumerDirectoriesNotMatchedTest.class, DavConsumerDoneFileNameFixedTest.class,
+		DavConsumerDoneFileNameTest.class, DavConsumerDualDoneFileNameTest.class, DavConsumerExcludeNameTest.class, DavConsumerIdempotentRefTest.class, DavConsumerIdempotentTest.class,
+		DavConsumerIncludeNameTest.class, DavConsumerMaxMessagesPerPollTest.class, DavConsumerMoveExpressionTest.class })
 public class AllTests {
 
 }
