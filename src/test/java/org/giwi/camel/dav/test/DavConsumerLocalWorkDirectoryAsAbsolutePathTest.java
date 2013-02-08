@@ -27,7 +27,6 @@ import org.junit.Test;
  * @version
  */
 public class DavConsumerLocalWorkDirectoryAsAbsolutePathTest extends AbstractDavTest {
-	// FIXME : création de l'arborescence locale
 	private String base;
 
 	protected String getDavUrl() {

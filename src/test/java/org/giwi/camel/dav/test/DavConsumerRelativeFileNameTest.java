@@ -13,40 +13,19 @@ package org.giwi.camel.dav.test;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Unit test based on end user problem with SFTP on Windows
- */
-public class FromDavMoveFileAbsoluteFolderRecursiveTest extends AbstractDavTest {
+public class DavConsumerRelativeFileNameTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/movefile?recursive=true&move=/.done/${file:name}.old&initialDelay=2500&delay=5000";
+	private String getDavUrl() {
+		return DAV_URL + "/target/filename-consumer?recursive=true&sortBy=file:name";
 	}
 
 	@Override
-	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		prepareDavServer();
-	}
-
-	@Test
-	public void testPollFileAndShouldBeMoved() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt.old");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/bye/bye.txt.old");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/goodday/goodday.txt.old");
-
-		mock.assertIsSatisfied();
-	}
-
-	private void prepareDavServer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "bye/bye.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "goodday/goodday.txt");
+		sendFile(getDavUrl(), "Hello World", "target/filename-consumer-hello.txt");
+		sendFile(getDavUrl(), "Bye World", "target/filename-consumer-bye.txt");
 	}
 
 	@Override
@@ -58,4 +37,22 @@ public class FromDavMoveFileAbsoluteFolderRecursiveTest extends AbstractDavTest 
 			}
 		};
 	}
+
+	@Test
+	public void testValidFilenameOnExchange() throws Exception {
+		MockEndpoint mock = getMockEndpoint("mock:result");
+		mock.expectedMessageCount(2);
+		// should have file name header set
+		mock.allMessages().header(Exchange.FILE_NAME).isNotNull();
+
+		assertMockEndpointsSatisfied();
+
+		// give time for ftp consumer to disconnect
+		Thread.sleep(2000);
+
+		// and expect name to contain target/filename-consumer-XXX.txt
+		assertDirectoryEquals("target/filename-consumer-bye.txt", mock.getReceivedExchanges().get(0).getIn().getHeader(Exchange.FILE_NAME, String.class));
+		assertDirectoryEquals("target/filename-consumer-hello.txt", mock.getReceivedExchanges().get(1).getIn().getHeader(Exchange.FILE_NAME, String.class));
+	}
+
 }

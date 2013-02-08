@@ -18,7 +18,6 @@ import org.apache.camel.builder.RouteBuilder;
  * @version
  */
 public class DavConsumerLocalWorkDirectoryWorkOnPayloadTest extends DavConsumerLocalWorkDirectoryTest {
-	// FIXME
 	@Override
 	protected RouteBuilder createRouteBuilder() throws Exception {
 		return new RouteBuilder() {

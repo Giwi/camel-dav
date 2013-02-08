@@ -47,7 +47,7 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 		// remove trailing /
 		dirName = FileUtil.stripTrailingSeparator(dirName);
 		String dir = absolutePath;
-		log.debug("Polling directory: {}", dir);
+		log.debug("Polling directory: {} / {}", dir, dirName);
 		List<DavResource> files;
 		files = operations.listFiles(dir);
 
@@ -130,10 +130,10 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 			answer.setRelativeFilePath(getRelativePath(file) + file.getName());
 			answer.setFileName(getRelativePath(file) + file.getName());
 		}
-		answer.setAbsoluteFilePath(((RemoteFileConfiguration) endpoint.getConfiguration()).getHostPath() + FileUtil.stripLeadingSeparator(file.getPath()));
+		answer.setAbsoluteFilePath(FileUtil.stripLeadingSeparator(file.getPath()));
 		answer.setHostname(((RemoteFileConfiguration) endpoint.getConfiguration()).getHost());
-		if (file.getCreation() != null) {
-			answer.setLastModified(file.getCreation().getTime());
+		if (file.getModified() != null) {
+			answer.setLastModified(file.getModified().getTime());
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("found : " + answer);

@@ -14,7 +14,6 @@ package org.giwi.camel.dav.test;
  *
  */
 public class DavChangedReadLockFastExistCheckTest extends DavChangedReadLockTest {
-	// FIXME
 	@Override
 	protected String getDavUrl() {
 		return DAV_URL + "/changed?readLock=changed&readLockCheckInterval=1000&delete=true&fastExistsCheck=true";

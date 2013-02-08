@@ -17,12 +17,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test based on end user problem with SFTP on Windows
+ * @version
  */
-public class FromDavMoveFileAbsoluteFolderRecursiveTest extends AbstractDavTest {
+public class DavConsumerNotEagerMaxMessagesPerPollTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/movefile?recursive=true&move=/.done/${file:name}.old&initialDelay=2500&delay=5000";
+	private String getDavUrl() {
+		return DAV_URL + "/poll/?delay=6000&delete=true&sortBy=file:name&maxMessagesPerPoll=2&eagerMaxMessagesPerPoll=false";
 	}
 
 	@Override
@@ -33,20 +33,28 @@ public class FromDavMoveFileAbsoluteFolderRecursiveTest extends AbstractDavTest 
 	}
 
 	@Test
-	public void testPollFileAndShouldBeMoved() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt.old");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/bye/bye.txt.old");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/goodday/goodday.txt.old");
+	public void testMaxMessagesPerPoll() throws Exception {
+		// start route
+		context.startRoute("foo");
 
-		mock.assertIsSatisfied();
+		MockEndpoint mock = getMockEndpoint("mock:result");
+		mock.expectedBodiesReceived("AAA", "BBB");
+		mock.setResultWaitTime(4000);
+		mock.expectedPropertyReceived(Exchange.BATCH_SIZE, 2);
+
+		assertMockEndpointsSatisfied();
+
+		mock.reset();
+		mock.expectedBodiesReceived("CCC");
+		mock.expectedPropertyReceived(Exchange.BATCH_SIZE, 1);
+
+		assertMockEndpointsSatisfied();
 	}
 
 	private void prepareDavServer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "bye/bye.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "goodday/goodday.txt");
+		sendFile(getDavUrl(), "CCC", "ccc.txt");
+		sendFile(getDavUrl(), "AAA", "aaa.txt");
+		sendFile(getDavUrl(), "BBB", "bbb.txt");
 	}
 
 	@Override
@@ -54,7 +62,7 @@ public class FromDavMoveFileAbsoluteFolderRecursiveTest extends AbstractDavTest 
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
+				from(getDavUrl()).noAutoStartup().routeId("foo").to("mock:result");
 			}
 		};
 	}

@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DavChangedReadLockTest extends AbstractDavTest {
-	// FIXME
 	private static final transient Logger LOG = LoggerFactory.getLogger(DavChangedReadLockTest.class);
 
 	protected String getDavUrl() {

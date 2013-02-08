@@ -20,9 +20,8 @@ import org.junit.Test;
  * @version
  */
 public class FromDavSimpleRelativeMoveToAbsoluteTest extends AbstractDavTest {
-	// FIXME
 	protected String getDavUrl() {
-		return DAV_URL + "/movefile?recursive=true&move=/movefile/.done&initialDelay=2500&delay=5000";
+		return DAV_URL + "/movefile?recursive=true&move=/sub/.done&initialDelay=2500&delay=5000";
 	}
 
 	@Override
@@ -36,9 +35,9 @@ public class FromDavSimpleRelativeMoveToAbsoluteTest extends AbstractDavTest {
 	public void testPollFileAndShouldBeMoved() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/hello.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/bye.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/goodday.txt");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/sub/.done/hello.txt");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/sub/.done/bye.txt");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/sub/.done/goodday.txt");
 
 		mock.assertIsSatisfied();
 	}

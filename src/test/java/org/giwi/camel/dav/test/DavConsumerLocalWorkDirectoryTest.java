@@ -27,7 +27,6 @@ import org.junit.Test;
  * @version
  */
 public class DavConsumerLocalWorkDirectoryTest extends AbstractDavTest {
-	// FIXME
 	protected String getDavUrl() {
 		return DAV_URL + "/lwd/?delay=5000&localWorkDirectory=target/lwd&noop=true";
 	}

@@ -25,8 +25,6 @@ import org.junit.Test;
  * Unit test to verify that using option setNames and having multi remote directories the files are stored locally in the same directory layout.
  */
 public class FromDavSetNamesWithMultiDirectoriesTest extends AbstractDavTest {
-	// FIXME
-	// must user "consumer." prefix on the parameters to the file component
 	private String getDavUrl() {
 		return DAV_URL + "/incoming?initialDelay=2500&delay=5000&recursive=true";
 	}
@@ -49,7 +47,7 @@ public class FromDavSetNamesWithMultiDirectoriesTest extends AbstractDavTest {
 		assertTrue("Logo size wrong", bytes.length > 10000);
 
 		// assert the file
-		File file = new File("target/davsetnamestest/data1/logo1.jpg");
+		File file = new File("target/davsetnamestest/data1/logo1.jpeg");
 		assertTrue("The binary file should exists", file.exists());
 		assertTrue("Logo size wrong", file.length() > 10000);
 

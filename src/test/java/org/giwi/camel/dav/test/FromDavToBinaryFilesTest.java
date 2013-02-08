@@ -25,7 +25,6 @@ import org.junit.Test;
  * Unit test to verify that we can pool a BINARY file from the FTP Server and store it on a local file path
  */
 public class FromDavToBinaryFilesTest extends AbstractDavTest {
-	// FIXME
 	// must user "consumer." prefix on the parameters to the file component
 	private String getDavUrl() {
 		return DAV_URL + "/incoming?consumer.delay=2000&recursive=true";

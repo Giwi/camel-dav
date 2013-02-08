@@ -25,7 +25,10 @@ import org.junit.runners.Suite;
 		FromDavToMockTest.class, FromDavTwoSlashesIssueTest.class, FromQueueThenConsumeDavToMockTest.class, DavBrowsableEndpointTest.class, DavChangedZeroLengthReadLockTest.class,
 		DavConsumerAbsolutePathTest.class, DavConsumerAsyncStressTest.class, DavConsumerBodyAsStringTest.class, DavConsumerDirectoriesNotMatchedTest.class, DavConsumerDoneFileNameFixedTest.class,
 		DavConsumerDoneFileNameTest.class, DavConsumerDualDoneFileNameTest.class, DavConsumerExcludeNameTest.class, DavConsumerIdempotentRefTest.class, DavConsumerIdempotentTest.class,
-		DavConsumerIncludeNameTest.class, DavConsumerMaxMessagesPerPollTest.class, DavConsumerMoveExpressionTest.class })
+		DavConsumerIncludeNameTest.class, DavConsumerMaxMessagesPerPollTest.class, DavConsumerMoveExpressionTest.class, DavConsumerMultipleDirectoriesTest.class, DavChangedReadLockTest.class,
+		DavChangedReadLockFastExistCheckTest.class, DavChangedReadLockTimeoutTest.class, DavConsumerLocalWorkDirectoryTest.class, DavConsumerLocalWorkDirectoryWorkOnPayloadTest.class,
+		FromDavSetNamesWithMultiDirectoriesTest.class, FromDavSimpleRelativeMoveToAbsoluteTest.class, FromDavToBinaryFilesTest.class, DavConsumerLocalWorkDirectoryAsAbsolutePathTest.class,
+		DavConsumerLocalWorkDirectoryDirectTest.class, DavConsumerNotEagerMaxMessagesPerPollTest.class, DavConsumerRelativeFileNameTest.class })
 public class AllTests {
 
 }

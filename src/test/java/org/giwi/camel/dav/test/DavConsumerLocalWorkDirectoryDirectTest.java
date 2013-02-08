@@ -25,7 +25,6 @@ import org.junit.Test;
  * @version
  */
 public class DavConsumerLocalWorkDirectoryDirectTest extends AbstractDavTest {
-	// FIXME : création de l'arborescence locale
 	protected String getDavUrl() {
 		return DAV_URL + "/lwd/?delay=5000&localWorkDirectory=target/lwd&noop=true";
 	}

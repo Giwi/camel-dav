@@ -1,1 +1,2 @@
 class=org.giwi.camel.dav.DavComponent
+strategy.factory.class=org.giwi.camel.dav.strategy.DavProcessStrategyFactory
