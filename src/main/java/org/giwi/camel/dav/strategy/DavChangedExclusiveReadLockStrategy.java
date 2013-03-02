@@ -23,18 +23,38 @@ import org.slf4j.LoggerFactory;
 
 import com.googlecode.sardine.DavResource;
 
+/**
+ * @author Giwi Softwares
+ * 
+ */
 public class DavChangedExclusiveReadLockStrategy implements GenericFileExclusiveReadLockStrategy<DavResource> {
+	/**
+	 * 
+	 */
 	private static final transient Logger LOG = LoggerFactory.getLogger(DavChangedExclusiveReadLockStrategy.class);
 	private long timeout;
 	private long checkInterval = 5000;
+	/**
+	 * 
+	 */
 	private long minLength = 1;
 	private boolean fastExistsCheck;
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.camel.component.file.GenericFileExclusiveReadLockStrategy#prepareOnStartup(org.apache.camel.component.file.GenericFileOperations,
+	 * org.apache.camel.component.file.GenericFileEndpoint)
+	 */
 	@Override
 	public void prepareOnStartup(GenericFileOperations<DavResource> tGenericFileOperations, GenericFileEndpoint<DavResource> tGenericFileEndpoint) throws Exception {
 		// noop
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.camel.component.file.GenericFileExclusiveReadLockStrategy#acquireExclusiveReadLock(org.apache.camel.component.file.GenericFileOperations,
+	 * org.apache.camel.component.file.GenericFile, org.apache.camel.Exchange)
+	 */
 	@Override
 	public boolean acquireExclusiveReadLock(GenericFileOperations<DavResource> operations, GenericFile<DavResource> file, Exchange exchange) throws Exception {
 		boolean exclusive = false;
@@ -99,6 +119,9 @@ public class DavChangedExclusiveReadLockStrategy implements GenericFileExclusive
 		return exclusive;
 	}
 
+	/**
+	 * @return
+	 */
 	private boolean sleep() {
 		LOG.trace("Exclusive read lock not granted. Sleeping for " + checkInterval + " millis.");
 		try {

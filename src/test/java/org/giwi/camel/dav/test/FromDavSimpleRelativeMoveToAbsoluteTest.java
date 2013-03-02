@@ -21,7 +21,7 @@ import org.junit.Test;
  */
 public class FromDavSimpleRelativeMoveToAbsoluteTest extends AbstractDavTest {
 	protected String getDavUrl() {
-		return DAV_URL + "/movefile?recursive=true&move=/sub/.done&initialDelay=2500&delay=5000";
+		return DAV_URL + "/movefile?recursive=true&move=/webdav/movefile/sub/.done&initialDelay=2500&delay=5000";
 	}
 
 	@Override

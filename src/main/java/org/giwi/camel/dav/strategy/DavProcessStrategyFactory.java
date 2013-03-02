@@ -25,6 +25,10 @@ import org.apache.camel.util.ObjectHelper;
 
 import com.googlecode.sardine.DavResource;
 
+/**
+ * @author Giwi Softwares
+ * 
+ */
 public final class DavProcessStrategyFactory {
 
 	private DavProcessStrategyFactory() {
@@ -84,6 +88,10 @@ public final class DavProcessStrategyFactory {
 		}
 	}
 
+	/**
+	 * @param params
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	private static GenericFileExclusiveReadLockStrategy<DavResource> getExclusiveReadLockStrategy(Map<String, Object> params) {
 		GenericFileExclusiveReadLockStrategy<DavResource> strategy = (GenericFileExclusiveReadLockStrategy<DavResource>) params.get("exclusiveReadLockStrategy");

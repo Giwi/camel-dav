@@ -1,5 +1,12 @@
 /**
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright
+ * ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
  * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing permissions and limitations under the License.
  */
 package org.giwi.camel.dav;
 
@@ -31,7 +38,7 @@ import com.googlecode.sardine.DavResource;
 import com.googlecode.sardine.Sardine;
 
 /**
- * @author xavier
+ * @author Giwi Softwares
  * 
  */
 public class DavOperations implements RemoteFileOperations<DavResource> {
@@ -40,15 +47,26 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	protected final Sardine client;
 	protected RemoteFileEndpoint<DavResource> endpoint;
 
+	/**
+	 * @param client
+	 */
 	public DavOperations(Sardine client) {
 		this.client = client;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.camel.component.file.GenericFileOperations#setEndpoint(org.apache.camel.component.file.GenericFileEndpoint)
+	 */
 	@Override
 	public void setEndpoint(GenericFileEndpoint<DavResource> endpoint) {
 		this.endpoint = (RemoteFileEndpoint<DavResource>) endpoint;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.camel.component.file.GenericFileOperations#deleteFile(java.lang.String)
+	 */
 	@Override
 	public boolean deleteFile(String name) throws GenericFileOperationFailedException {
 		name = sanitizeWithHost(name);
@@ -84,6 +102,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		return name;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.camel.component.file.GenericFileOperations#existsFile(java.lang.String)
+	 */
 	@Override
 	public boolean existsFile(String name) throws GenericFileOperationFailedException {
 		if (!name.startsWith(endpoint.getConfiguration().getHostPath())) {
@@ -99,6 +121,11 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		}
 	}
 
+	/**
+	 * @param name
+	 * @return
+	 * @throws GenericFileOperationFailedException
+	 */
 	public boolean existsInitDir(String name) throws GenericFileOperationFailedException {
 		if (log.isInfoEnabled()) {
 			log.info("existsInitDir : " + name);
@@ -129,6 +156,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		return true;
 	}
 
+	/**
+	 * @param path
+	 */
 	public void initComponent(String path) {
 		String[] dirs = path.split("/");
 
@@ -153,6 +183,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.camel.component.file.GenericFileOperations#buildDirectory(java.lang.String, boolean)
+	 */
 	@Override
 	public boolean buildDirectory(String directory, boolean absolute) throws GenericFileOperationFailedException {
 		// WTF ?!? http:/localhost:80/webdav/ in directory
@@ -191,6 +225,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.camel.component.file.GenericFileOperations#retrieveFile(java.lang.String, org.apache.camel.Exchange)
+	 */
 	@Override
 	public boolean retrieveFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
 
@@ -206,6 +244,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.camel.component.file.GenericFileOperations#storeFile(java.lang.String, org.apache.camel.Exchange)
+	 */
 	@Override
 	public boolean storeFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
 		log.trace("storeFile({})", name);
@@ -214,6 +256,13 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		return doStoreFile(name, targetName, exchange);
 	}
 
+	/**
+	 * @param name
+	 * @param targetName
+	 * @param exchange
+	 * @return
+	 * @throws GenericFileOperationFailedException
+	 */
 	private boolean doStoreFile(String name, String targetName, Exchange exchange) throws GenericFileOperationFailedException {
 		log.info("doStoreFile({})", targetName);
 		// if an existing file already exists what should we do?
@@ -221,7 +270,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			boolean existFile = existsFile(targetName);
 			if (existFile && endpoint.getFileExist() == GenericFileExist.Ignore) {
 				// ignore but indicate that the file was written
-				log.trace("An existing file already exists: {}. Ignore and do not override it.", name);
+				log.debug("An existing file already exists: {}. Ignore and do not override it.", name);
 				return true;
 			} else if (existFile && endpoint.getFileExist() == GenericFileExist.Fail) {
 				throw new GenericFileOperationFailedException("File already exist: " + name + ". Cannot write new file.");
@@ -235,7 +284,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		if (exchange.getIn().getBody() == null) {
 			// Do an explicit test for a null body and decide what to do
 			if (endpoint.isAllowNullBody()) {
-				log.trace("Writing empty file.");
+				log.debug("Writing empty file.");
 				is = new ByteArrayInputStream(new byte[] {});
 			} else {
 				throw new GenericFileOperationFailedException("Cannot write null body to file: " + name);
@@ -260,6 +309,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	/**
 	 * Moves any existing file due fileExists=Move is in use.
+	 * 
+	 * @param name
+	 * @param targetName
+	 * @throws GenericFileOperationFailedException
 	 */
 	private void doMoveExistingFile(String name, String targetName) throws GenericFileOperationFailedException {
 		log.info("doMoveExistingFile name=" + name + " targetName=" + targetName);

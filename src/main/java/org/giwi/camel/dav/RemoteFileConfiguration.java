@@ -1,3 +1,13 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright
+ * ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing permissions and limitations under the License.
+ */
 package org.giwi.camel.dav;
 
 import java.net.URI;
@@ -7,7 +17,7 @@ import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.ObjectHelper;
 
 /**
- * Configuration of the FTP server
+ * Configuration of the DAV server
  */
 public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 
@@ -53,7 +63,7 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 		// setProtocol(uri.getScheme());
 		setDefaultPort();
 		setDefaultProtocol();
-		// UserInfo can contain both username and password as: user:pwd@ftpserver
+		// UserInfo can contain both username and password as: user:pwd@DAVserver
 		// see: http://en.wikipedia.org/wiki/URI_scheme
 		String username = uri.getUserInfo();
 		String pw = null;
@@ -137,7 +147,7 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	/**
 	 * Sets the connect timeout for waiting for a connection to be established
 	 * <p/>
-	 * Used by both FTPClient and JSCH
+	 * Used by both DAVClient and JSCH
 	 */
 	public void setConnectTimeout(int connectTimeout) {
 		this.connectTimeout = connectTimeout;
@@ -150,7 +160,7 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	/**
 	 * Sets the data timeout for waiting for reply
 	 * <p/>
-	 * Used only by FTPClient
+	 * Used only by DAVClient
 	 */
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;
@@ -163,7 +173,7 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	/**
 	 * Sets the so timeout
 	 * <p/>
-	 * Used only by FTPClient
+	 * Used only by DAVClient
 	 */
 	public void setSoTimeout(int soTimeout) {
 		this.soTimeout = soTimeout;

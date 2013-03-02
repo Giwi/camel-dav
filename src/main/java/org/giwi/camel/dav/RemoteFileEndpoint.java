@@ -23,7 +23,7 @@ import org.apache.camel.processor.idempotent.MemoryIdempotentRepository;
 import org.apache.camel.util.ObjectHelper;
 
 /**
- * @author xavier
+ * @author Giwi Softwares
  * 
  */
 public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
@@ -32,6 +32,9 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	private boolean disconnect;
 	private boolean fastExistsCheck;
 
+	/**
+	 * 
+	 */
 	public RemoteFileEndpoint() {
 		// no args constructor for spring bean endpoint configuration
 		// for dav we need to use higher interval/checkout that for files
@@ -39,6 +42,11 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 		setReadLockCheckInterval(5000);
 	}
 
+	/**
+	 * @param uri
+	 * @param component
+	 * @param configuration
+	 */
 	public RemoteFileEndpoint(String uri, RemoteFileComponent<T> component, RemoteFileConfiguration configuration) {
 		super(uri, component);
 		this.configuration = configuration;

@@ -18,7 +18,7 @@ import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.URISupport;
 
 /**
- * Generic remote file producer for all the FTP variations.
+ * Generic remote file producer for all the DAV variations.
  */
 public class RemoteFileProducer<T> extends GenericFileProducer<T> implements ServicePoolAware {
 

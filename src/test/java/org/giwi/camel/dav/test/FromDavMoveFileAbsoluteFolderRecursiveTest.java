@@ -22,7 +22,7 @@ import org.junit.Test;
 public class FromDavMoveFileAbsoluteFolderRecursiveTest extends AbstractDavTest {
 
 	protected String getDavUrl() {
-		return DAV_URL + "/movefile?recursive=true&move=/.done/${file:name}.old&initialDelay=2500&delay=5000";
+		return DAV_URL + "/movefile?recursive=true&move=/webdav/movefile/.done/${file:name}.old&initialDelay=2500&delay=5000";
 	}
 
 	@Override
@@ -36,9 +36,9 @@ public class FromDavMoveFileAbsoluteFolderRecursiveTest extends AbstractDavTest 
 	public void testPollFileAndShouldBeMoved() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt.old");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/bye/bye.txt.old");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/goodday/goodday.txt.old");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/hello.txt.old");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/bye/bye.txt.old");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/movefile/.done/goodday/goodday.txt.old");
 
 		mock.assertIsSatisfied();
 	}
