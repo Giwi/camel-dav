@@ -35,7 +35,7 @@ public class DavProducerFileExistIgnoreTest extends AbstractDavTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		deleteDirectory("target/exist");
+		deleteDirectory("tmpOut/exist");
 
 		template.sendBodyAndHeader(getDavUrl(), "Hello World", Exchange.FILE_NAME, "hello.txt");
 	}

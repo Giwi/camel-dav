@@ -55,7 +55,7 @@ public class FromDavToBinaryFileTest extends AbstractDavTest {
 		assertTrue("Logo size wrong", bytes.length > 10000);
 
 		// assert the file
-		File file = new File("target/davtest/deleteme.jpg");
+		File file = new File("tmpOut/davtest/deleteme.jpg");
 		assertTrue("The binary file should exists", file.exists());
 		assertTrue("Logo size wrong", file.length() > 10000);
 	}
@@ -79,7 +79,7 @@ public class FromDavToBinaryFileTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				String fileUrl = "file:target/davtest/?noop=true&fileExist=Override";
+				String fileUrl = "file:tmpOut/davtest/?noop=true&fileExist=Override";
 				from(getDavUrl()).setHeader(Exchange.FILE_NAME, constant("deleteme.jpg")).to(fileUrl, "mock:result");
 			}
 		};

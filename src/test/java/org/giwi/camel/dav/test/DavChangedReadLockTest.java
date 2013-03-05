@@ -39,13 +39,13 @@ public class DavChangedReadLockTest extends AbstractDavTest {
 	public void testChangedReadLock() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMessageCount(1);
-		mock.expectedFileExists("target/changed/out/slowfile.dat");
+		mock.expectedFileExists("tmpOut/changed/out/slowfile.dat");
 
 		writeSlowFile();
 
 		assertMockEndpointsSatisfied();
 
-		String content = context.getTypeConverter().convertTo(String.class, new File("target/changed/out/slowfile.dat"));
+		String content = context.getTypeConverter().convertTo(String.class, new File("tmpOut/changed/out/slowfile.dat"));
 		String[] lines = content.split(LS);
 		assertEquals("There should be 20 lines in the file", 20, lines.length);
 		for (int i = 0; i < 20; i++) {
@@ -74,7 +74,7 @@ public class DavChangedReadLockTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).to("file:target/changed/out", "mock:result");
+				from(getDavUrl()).to("file:tmpOut/changed/out", "mock:result");
 			}
 		};
 	}

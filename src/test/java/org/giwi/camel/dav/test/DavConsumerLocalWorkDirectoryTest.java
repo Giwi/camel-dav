@@ -34,14 +34,14 @@ import org.junit.Test;
  */
 public class DavConsumerLocalWorkDirectoryTest extends AbstractDavTest {
 	protected String getDavUrl() {
-		return DAV_URL + "/lwd/?delay=5000&localWorkDirectory=target/lwd&noop=true";
+		return DAV_URL + "/lwd/?delay=5000&localWorkDirectory=tmpOut/lwd&noop=true";
 	}
 
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		deleteDirectory("target/lwd");
-		deleteDirectory("target/out");
+		deleteDirectory("tmpOut/lwd");
+		deleteDirectory("tmpOut/out");
 		super.setUp();
 		prepareDavServer();
 	}
@@ -72,12 +72,12 @@ public class DavConsumerLocalWorkDirectoryTest extends AbstractDavTest {
 		Thread.sleep(6000);
 
 		// and the out file should exists
-		File out = new File("target/out/hello.txt");
+		File out = new File("tmpOut/out/hello.txt");
 		assertTrue("file should exists", out.exists());
 		assertEquals("Hello World", IOConverter.toString(out, null));
 
 		// now the lwd file should be deleted
-		File local = new File("target/lwd/hello.txt");
+		File local = new File("tmpOut/lwd/hello.txt");
 		assertFalse("Local work file should have been deleted", local.exists());
 	}
 
@@ -92,9 +92,9 @@ public class DavConsumerLocalWorkDirectoryTest extends AbstractDavTest {
 						File body = exchange.getIn().getBody(File.class);
 						assertNotNull(body);
 						assertTrue("Local work file should exists", body.exists());
-						assertEquals(FileUtil.normalizePath("target/lwd/hello.txt"), body.getPath());
+						assertEquals(FileUtil.normalizePath("tmpOut/lwd/hello.txt"), body.getPath());
 					}
-				}).to("mock:result", "file://target/out");
+				}).to("mock:result", "file://tmpOut/out");
 			}
 		};
 	}

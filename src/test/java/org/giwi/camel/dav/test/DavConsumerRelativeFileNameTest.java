@@ -24,14 +24,14 @@ import org.junit.Test;
 public class DavConsumerRelativeFileNameTest extends AbstractDavTest {
 
 	private String getDavUrl() {
-		return DAV_URL + "/target/filename-consumer?recursive=true&sortBy=file:name";
+		return DAV_URL + "/tmpOut/filename-consumer?recursive=true&sortBy=file:name";
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		sendFile(getDavUrl(), "Hello World", "target/filename-consumer-hello.txt");
-		sendFile(getDavUrl(), "Bye World", "target/filename-consumer-bye.txt");
+		sendFile(getDavUrl(), "Hello World", "tmpOut/filename-consumer-hello.txt");
+		sendFile(getDavUrl(), "Bye World", "tmpOut/filename-consumer-bye.txt");
 	}
 
 	@Override
@@ -56,8 +56,8 @@ public class DavConsumerRelativeFileNameTest extends AbstractDavTest {
 		// give time for ftp consumer to disconnect
 		Thread.sleep(2000);
 
-		assertDirectoryEquals("target/filename-consumer-bye.txt", mock.getReceivedExchanges().get(0).getIn().getHeader(Exchange.FILE_NAME, String.class));
-		assertDirectoryEquals("target/filename-consumer-hello.txt", mock.getReceivedExchanges().get(1).getIn().getHeader(Exchange.FILE_NAME, String.class));
+		assertDirectoryEquals("tmpOut/filename-consumer-bye.txt", mock.getReceivedExchanges().get(0).getIn().getHeader(Exchange.FILE_NAME, String.class));
+		assertDirectoryEquals("tmpOut/filename-consumer-hello.txt", mock.getReceivedExchanges().get(1).getIn().getHeader(Exchange.FILE_NAME, String.class));
 	}
 
 }

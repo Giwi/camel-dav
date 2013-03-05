@@ -35,7 +35,7 @@ public class DavChangedZeroLengthReadLockTest extends AbstractDavTest {
 	public void testChangedReadLock() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMessageCount(1);
-		mock.expectedFileExists("target/changed/out/zerofile.dat");
+		mock.expectedFileExists("tmpOut/changed/out/zerofile.dat");
 
 		writeZeroFile();
 
@@ -54,7 +54,7 @@ public class DavChangedZeroLengthReadLockTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).to("file:target/changed/out", "mock:result");
+				from(getDavUrl()).to("file:tmpOut/changed/out", "mock:result");
 			}
 		};
 	}

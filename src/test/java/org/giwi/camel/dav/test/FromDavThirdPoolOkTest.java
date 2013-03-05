@@ -39,7 +39,7 @@ public class FromDavThirdPoolOkTest extends AbstractDavTest {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		deleteDirectory("target/thridpool");
+		deleteDirectory("tmpOut/thridpool");
 		super.setUp();
 	}
 

@@ -67,7 +67,7 @@ public class FromDavToAsciiFileNoBodyConversionTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				String fileUrl = "file:target/davtest/?fileExist=Override&noop=true";
+				String fileUrl = "file:tmpOut/davtest/?fileExist=Override&noop=true";
 				from(getDavUrl()).to(fileUrl, "mock:result");
 			}
 		};

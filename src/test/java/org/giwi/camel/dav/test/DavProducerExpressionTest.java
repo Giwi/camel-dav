@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test for FTP using expression (file language)
+ * Unit test for DAV using expression (file language)
  */
 public class DavProducerExpressionTest extends AbstractDavTest {
 
@@ -37,7 +37,7 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		deleteDirectory("target/filelanguage");
+		deleteDirectory("tmpOut/filelanguage");
 	}
 
 	@Override

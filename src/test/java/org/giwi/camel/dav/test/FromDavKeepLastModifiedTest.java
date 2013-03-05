@@ -69,20 +69,20 @@ public class FromDavKeepLastModifiedTest extends AbstractDavTest {
 		context.addRoutes(new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).delay(3000).to("file:target/keep/out?keepLastModified=false", "mock:result");
+				from(getDavUrl()).delay(3000).to("file:tmpOut/keep/out?keepLastModified=false", "mock:result");
 			}
 		});
 		context.start();
 
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMessageCount(1);
-		mock.expectedFileExists("target/keep/out/hello.txt");
+		mock.expectedFileExists("tmpOut/keep/out/hello.txt");
 		mock.message(0).header(Exchange.FILE_LAST_MODIFIED).isNotNull();
 
 		assertMockEndpointsSatisfied();
 
 		long t1 = mock.getReceivedExchanges().get(0).getIn().getHeader(Exchange.FILE_LAST_MODIFIED, Date.class).getTime();
-		long t2 = new File("target/keep/out/hello.txt").lastModified();
+		long t2 = new File("tmpOut/keep/out/hello.txt").lastModified();
 
 		assertNotSame("Timestamp should NOT have been kept", t1, t2);
 	}
@@ -92,20 +92,20 @@ public class FromDavKeepLastModifiedTest extends AbstractDavTest {
 		context.addRoutes(new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).delay(3000).to("file:target/keep/out", "mock:result");
+				from(getDavUrl()).delay(3000).to("file:tmpOut/keep/out", "mock:result");
 			}
 		});
 		context.start();
 
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMessageCount(1);
-		mock.expectedFileExists("target/keep/out/hello.txt");
+		mock.expectedFileExists("tmpOut/keep/out/hello.txt");
 		mock.message(0).header(Exchange.FILE_LAST_MODIFIED).isNotNull();
 
 		assertMockEndpointsSatisfied();
 
 		long t1 = mock.getReceivedExchanges().get(0).getIn().getHeader(Exchange.FILE_LAST_MODIFIED, Date.class).getTime();
-		long t2 = new File("target/keep/out/hello.txt").lastModified();
+		long t2 = new File("tmpOut/keep/out/hello.txt").lastModified();
 
 		assertNotSame("Timestamp should NOT have been kept", t1, t2);
 	}

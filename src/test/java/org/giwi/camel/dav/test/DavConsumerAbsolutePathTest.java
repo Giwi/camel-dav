@@ -37,7 +37,7 @@ public class DavConsumerAbsolutePathTest extends AbstractDavTest {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		deleteDirectory("target/lwd");
+		deleteDirectory("tmpOut/lwd");
 		super.setUp();
 		prepareDavServer();
 	}

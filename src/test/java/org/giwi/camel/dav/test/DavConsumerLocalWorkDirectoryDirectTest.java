@@ -32,14 +32,14 @@ import org.junit.Test;
  */
 public class DavConsumerLocalWorkDirectoryDirectTest extends AbstractDavTest {
 	protected String getDavUrl() {
-		return DAV_URL + "/lwd/?delay=5000&localWorkDirectory=target/lwd&noop=true";
+		return DAV_URL + "/lwd/?delay=5000&localWorkDirectory=tmpOut/lwd&noop=true";
 	}
 
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		deleteDirectory("target/lwd");
-		deleteDirectory("target/out");
+		deleteDirectory("tmpOut/lwd");
+		deleteDirectory("tmpOut/out");
 		super.setUp();
 		prepareDavServer();
 	}
@@ -64,12 +64,12 @@ public class DavConsumerLocalWorkDirectoryDirectTest extends AbstractDavTest {
 		assertTrue("Should process one file", notify.matchesMockWaitTime());
 
 		// and the out file should exists
-		File out = new File("target/out/hello.txt");
+		File out = new File("tmpOut/out/hello.txt");
 		assertTrue("file should exists", out.exists());
 		assertEquals("Hello World", IOConverter.toString(out, null));
 
 		// now the lwd file should be deleted
-		File local = new File("target/lwd/hello.txt");
+		File local = new File("tmpOut/lwd/hello.txt");
 		assertFalse("Local work file should have been deleted", local.exists());
 	}
 
@@ -78,7 +78,7 @@ public class DavConsumerLocalWorkDirectoryDirectTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).to("file://target/out");
+				from(getDavUrl()).to("file://tmpOut/out");
 			}
 		};
 	}

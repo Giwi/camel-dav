@@ -52,7 +52,7 @@ public class FromDavToAsciiFileTest extends AbstractDavTest {
 		resultEndpoint.assertIsSatisfied();
 
 		// assert the file
-		File file = new File("target/davtest/deleteme.txt");
+		File file = new File("tmpOut/davtest/deleteme.txt");
 		assertTrue("The ASCII file should exists", file.exists());
 		assertTrue("File size wrong", file.length() > 10);
 	}
@@ -76,7 +76,7 @@ public class FromDavToAsciiFileTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				String fileUrl = "file:target/davtest/?fileExist=Override&noop=true";
+				String fileUrl = "file:tmpOut/davtest/?fileExist=Override&noop=true";
 				from(getDavUrl()).setHeader(Exchange.FILE_NAME, constant("deleteme.txt")).convertBodyTo(String.class).to(fileUrl).to("mock:result");
 			}
 		};

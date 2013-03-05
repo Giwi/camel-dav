@@ -35,7 +35,7 @@ public class DavProducerFileExistOverrideNoFileBeforeTest extends AbstractDavTes
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		deleteDirectory("target/exist");
+		deleteDirectory("tmpOut/exist");
 	}
 
 	@Test

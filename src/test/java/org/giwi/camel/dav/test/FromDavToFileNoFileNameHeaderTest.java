@@ -47,7 +47,7 @@ public class FromDavToFileNoFileNameHeaderTest extends AbstractDavTest {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMinimumMessageCount(1);
 		mock.expectedBodiesReceived("Hello World from DAVServer");
-		mock.expectedFileExists("target/davtest/hello.txt", "Hello World from DAVServer");
+		mock.expectedFileExists("tmpOut/davtest/hello.txt", "Hello World from DAVServer");
 
 		mock.assertIsSatisfied();
 	}
@@ -71,7 +71,7 @@ public class FromDavToFileNoFileNameHeaderTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				String fileUrl = "file:target/davtest/?fileExist=Override&noop=true";
+				String fileUrl = "file:tmpOut/davtest/?fileExist=Override&noop=true";
 				// we do not set any filename in the header property so the
 				// filename should be the one
 				// from the DAV server we downloaded

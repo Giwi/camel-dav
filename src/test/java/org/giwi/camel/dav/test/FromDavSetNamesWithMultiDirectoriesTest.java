@@ -39,7 +39,7 @@ public class FromDavSetNamesWithMultiDirectoriesTest extends AbstractDavTest {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		deleteDirectory("target/davsetnamestest");
+		deleteDirectory("tmpOut/davsetnamestest");
 		super.setUp();
 		prepareDavServer();
 	}
@@ -54,12 +54,12 @@ public class FromDavSetNamesWithMultiDirectoriesTest extends AbstractDavTest {
 		assertTrue("Logo size wrong", bytes.length > 10000);
 
 		// assert the file
-		File file = new File("target/davsetnamestest/data1/logo1.jpeg");
+		File file = new File("tmpOut/davsetnamestest/data1/logo1.jpeg");
 		assertTrue("The binary file should exists", file.exists());
 		assertTrue("Logo size wrong", file.length() > 10000);
 
 		// assert the file
-		file = new File("target/davsetnamestest/data2/logo2.png");
+		file = new File("tmpOut/davsetnamestest/data2/logo2.png");
 		assertTrue(" The binary file should exists", file.exists());
 		assertTrue("Logo size wrong", file.length() > 50000);
 	}
@@ -94,7 +94,7 @@ public class FromDavSetNamesWithMultiDirectoriesTest extends AbstractDavTest {
 		return new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				from(getDavUrl()).to("file:target/davsetnamestest", "mock:result");
+				from(getDavUrl()).to("file:tmpOut/davsetnamestest", "mock:result");
 			}
 		};
 	}

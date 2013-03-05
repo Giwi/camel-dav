@@ -25,7 +25,7 @@ public class DavIllegalOptionsTest extends AbstractDavTest {
 	@Test
 	public void testIllegalOptions() throws Exception {
 		try {
-			context.getEndpoint(DAV_URL + "/target?move=../done/${file:name}&delete=true").createConsumer(new Processor() {
+			context.getEndpoint(DAV_URL + "/tmpOut?move=../done/${file:name}&delete=true").createConsumer(new Processor() {
 				@Override
 				public void process(Exchange exchange) throws Exception {
 				}
@@ -36,7 +36,7 @@ public class DavIllegalOptionsTest extends AbstractDavTest {
 		}
 
 		try {
-			context.getEndpoint("file://target?move=../done/${file:name}&delete=true").createConsumer(new Processor() {
+			context.getEndpoint("file://tmpOut?move=../done/${file:name}&delete=true").createConsumer(new Processor() {
 				@Override
 				public void process(Exchange exchange) throws Exception {
 				}

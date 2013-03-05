@@ -36,7 +36,7 @@ public class DavConsumerLocalWorkDirectoryWorkOnPayloadTest extends DavConsumerL
 						exchange.getIn().setBody("Hello World");
 
 					}
-				}).to("mock:result", "file://target/out");
+				}).to("mock:result", "file://tmpOut/out");
 			}
 		};
 	}
