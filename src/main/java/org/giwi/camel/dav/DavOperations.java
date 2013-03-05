@@ -1,12 +1,18 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright
- * ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
- * License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.giwi.camel.dav;
 
@@ -56,7 +62,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.apache.camel.component.file.GenericFileOperations#setEndpoint(org.apache.camel.component.file.GenericFileEndpoint)
+	 * @see
+	 * org.apache.camel.component.file.GenericFileOperations#setEndpoint(org
+	 * .apache.camel.component.file.GenericFileEndpoint)
 	 */
 	@Override
 	public void setEndpoint(GenericFileEndpoint<DavResource> endpoint) {
@@ -65,7 +73,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.apache.camel.component.file.GenericFileOperations#deleteFile(java.lang.String)
+	 * @see
+	 * org.apache.camel.component.file.GenericFileOperations#deleteFile(java
+	 * .lang.String)
 	 */
 	@Override
 	public boolean deleteFile(String name) throws GenericFileOperationFailedException {
@@ -86,7 +96,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	 * @return
 	 */
 	private String sanitizePath(String name) {
-		// WTF : INFO deleteFile : http://localhost:80/webdav/movefile//http:/localhost:80/webdav/movefile/.done/goodday.txt
+		// WTF : INFO deleteFile :
+		// http://localhost:80/webdav/movefile//http:/localhost:80/webdav/movefile/.done/goodday.txt
 		name = name.replaceAll("http:/" + endpoint.getConfiguration().getHost(), "http://" + endpoint.getConfiguration().getHost());
 		name = name.replaceAll(endpoint.getConfiguration().getRemoteServerInformation(), "");
 		return FileUtil.stripLeadingSeparator(name);
@@ -104,7 +115,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.apache.camel.component.file.GenericFileOperations#existsFile(java.lang.String)
+	 * @see
+	 * org.apache.camel.component.file.GenericFileOperations#existsFile(java
+	 * .lang.String)
 	 */
 	@Override
 	public boolean existsFile(String name) throws GenericFileOperationFailedException {
@@ -142,7 +155,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		try {
 			log.info("renameFile from " + from + " to : " + to);
 			// if (to.startsWith("/")) {// absolute
-			// to = endpoint.getConfiguration().getRemoteServerInformation().substring(0, FileUtil.stripTrailingSeparator(endpoint.getConfiguration().getRemoteServerInformation()).lastIndexOf("/"))
+			// to =
+			// endpoint.getConfiguration().getRemoteServerInformation().substring(0,
+			// FileUtil.stripTrailingSeparator(endpoint.getConfiguration().getRemoteServerInformation()).lastIndexOf("/"))
 			// + to;
 			// } else {
 			to = sanitizeWithHost(to);
@@ -185,7 +200,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.apache.camel.component.file.GenericFileOperations#buildDirectory(java.lang.String, boolean)
+	 * @see
+	 * org.apache.camel.component.file.GenericFileOperations#buildDirectory(
+	 * java.lang.String, boolean)
 	 */
 	@Override
 	public boolean buildDirectory(String directory, boolean absolute) throws GenericFileOperationFailedException {
@@ -194,7 +211,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 		// if (absolute) {
 		// directory = endpoint.getConfiguration().getRemoteServerInformation()
-		// .substring(0, FileUtil.stripTrailingSeparator(endpoint.getConfiguration().getRemoteServerInformation()).lastIndexOf("/"))
+		// .substring(0,
+		// FileUtil.stripTrailingSeparator(endpoint.getConfiguration().getRemoteServerInformation()).lastIndexOf("/"))
 		// + directory;
 		// } else {
 		directory = sanitizeWithHost(directory);
@@ -227,7 +245,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.apache.camel.component.file.GenericFileOperations#retrieveFile(java.lang.String, org.apache.camel.Exchange)
+	 * @see
+	 * org.apache.camel.component.file.GenericFileOperations#retrieveFile(java
+	 * .lang.String, org.apache.camel.Exchange)
 	 */
 	@Override
 	public boolean retrieveFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
@@ -236,7 +256,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		name = sanitizeWithHost(name);
 		log.info("retrieveFile : " + name);
 		if (ObjectHelper.isNotEmpty(endpoint.getLocalWorkDirectory())) {
-			// local work directory is configured so we should store file content as files in this local directory
+			// local work directory is configured so we should store file
+			// content as files in this local directory
 			return retrieveFileToFileInLocalWorkDirectory(name, exchange);
 		} else {
 			// store file content directory as stream on the body
@@ -246,7 +267,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.apache.camel.component.file.GenericFileOperations#storeFile(java.lang.String, org.apache.camel.Exchange)
+	 * @see
+	 * org.apache.camel.component.file.GenericFileOperations#storeFile(java.
+	 * lang.String, org.apache.camel.Exchange)
 	 */
 	@Override
 	public boolean storeFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
@@ -316,11 +339,14 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	 */
 	private void doMoveExistingFile(String name, String targetName) throws GenericFileOperationFailedException {
 		log.info("doMoveExistingFile name=" + name + " targetName=" + targetName);
-		// need to evaluate using a dummy and simulate the file first, to have access to all the file attributes
-		// create a dummy exchange as Exchange is needed for expression evaluation
+		// need to evaluate using a dummy and simulate the file first, to have
+		// access to all the file attributes
+		// create a dummy exchange as Exchange is needed for expression
+		// evaluation
 		// we support only the following 3 tokens.
 		Exchange dummy = endpoint.createExchange();
-		// we only support relative paths for the dav component, so dont provide any parent
+		// we only support relative paths for the dav component, so dont provide
+		// any parent
 		String parent = null;
 		String onlyName = FileUtil.stripPath(targetName);
 		dummy.getIn().setHeader(Exchange.FILE_NAME, targetName);
@@ -328,7 +354,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		dummy.getIn().setHeader(Exchange.FILE_PARENT, parent);
 
 		String to = endpoint.getMoveExisting().evaluate(dummy, String.class);
-		// we only support relative paths for the dav component, so strip any leading paths
+		// we only support relative paths for the dav component, so strip any
+		// leading paths
 		to = FileUtil.stripLeadingSeparator(to);
 		// normalize accordingly to configuration
 		// to = endpoint.getConfiguration().normalizePath(to);
@@ -500,7 +527,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 				throw new GenericFileOperationFailedException("Cannot create new local work file: " + temp);
 			}
 
-			// store content as a file in the local work directory in the temp handle
+			// store content as a file in the local work directory in the temp
+			// handle
 			os = new FileOutputStream(temp);
 
 			// set header with the path to the local work file
@@ -538,7 +566,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 		if (result) {
 			log.trace("Renaming local in progress file from: {} to: {}", temp, local);
-			// operation went okay so rename temp to local after we have retrieved the data
+			// operation went okay so rename temp to local after we have
+			// retrieved the data
 			try {
 				if (!FileUtil.renameFile(temp, local, false)) {
 					throw new GenericFileOperationFailedException("Cannot rename local work file from: " + temp + " to: " + local);

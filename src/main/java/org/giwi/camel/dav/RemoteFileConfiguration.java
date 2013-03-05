@@ -1,12 +1,18 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright
- * ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
- * License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.giwi.camel.dav;
 
@@ -24,7 +30,8 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	/**
 	 * Path separator as either unix or windows style.
 	 * <p/>
-	 * UNIX = Path separator / is used Windows = Path separator \ is used Auto = Use existing path separator in file name
+	 * UNIX = Path separator / is used Windows = Path separator \ is used Auto =
+	 * Use existing path separator in file name
 	 */
 	public enum PathSeparator {
 		UNIX, Windows, Auto
@@ -63,7 +70,8 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 		// setProtocol(uri.getScheme());
 		setDefaultPort();
 		setDefaultProtocol();
-		// UserInfo can contain both username and password as: user:pwd@DAVserver
+		// UserInfo can contain both username and password as:
+		// user:pwd@DAVserver
 		// see: http://en.wikipedia.org/wiki/URI_scheme
 		String username = uri.getUserInfo();
 		String pw = null;
@@ -186,8 +194,10 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	/**
 	 * Should an exception be thrown if connection failed (exhausted)
 	 * <p/>
-	 * By default exception is not thrown and a <tt>WARN</tt> is logged. You can use this to enable exception being thrown and handle the thrown exception from the
-	 * {@link org.apache.camel.spi.PollingConsumerPollStrategy} rollback method.
+	 * By default exception is not thrown and a <tt>WARN</tt> is logged. You can
+	 * use this to enable exception being thrown and handle the thrown exception
+	 * from the {@link org.apache.camel.spi.PollingConsumerPollStrategy}
+	 * rollback method.
 	 */
 	public void setThrowExceptionOnConnectFailed(boolean throwExceptionOnConnectFailed) {
 		this.throwExceptionOnConnectFailed = throwExceptionOnConnectFailed;
@@ -200,7 +210,8 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	/**
 	 * Sets the path separator to be used.
 	 * <p/>
-	 * UNIX = Path separator / is used Windows = Path separator \ is used Auto = (is default) Use existing path separator in file name
+	 * UNIX = Path separator / is used Windows = Path separator \ is used Auto =
+	 * (is default) Use existing path separator in file name
 	 */
 	public void setSeparator(PathSeparator separator) {
 		this.separator = separator;
@@ -270,6 +281,27 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	 */
 	public void setDownload(boolean download) {
 		this.download = download;
+	}
+
+	/**
+	 * Normalizes the given path according to the configured path separator.
+	 * 
+	 * @param path
+	 *            the given path
+	 * @return the normalized path
+	 */
+	public String normalizePath(String path) {
+		if (ObjectHelper.isEmpty(path) || separator == PathSeparator.Auto) {
+			return path;
+		}
+
+		if (separator == PathSeparator.UNIX) {
+			// unix style
+			return path.replace('\\', '/');
+		} else {
+			// windows style
+			return path.replace('/', '\\');
+		}
 	}
 
 }

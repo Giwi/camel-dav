@@ -1,12 +1,18 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright
- * ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
- * License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.giwi.camel.dav.test;
 
@@ -40,7 +46,8 @@ public class FromDavExclusiveReadNoneStrategyTest extends AbstractDavTest {
 
 	@Test
 	public void testPollFileWhileSlowFileIsBeingWrittenUsingNonExclusiveRead() throws Exception {
-		// cannot test on windows due file system works differently with file locks
+		// cannot test on windows due file system works differently with file
+		// locks
 		if (isPlatform("windows")) {
 			return;
 		}
@@ -59,13 +66,16 @@ public class FromDavExclusiveReadNoneStrategyTest extends AbstractDavTest {
 		MockEndpoint mock = getMockEndpoint("mock:result");
 		mock.expectedMessageCount(1);
 
-		// send a message to seda:start to trigger the creating of the slowfile to poll
+		// send a message to seda:start to trigger the creating of the slowfile
+		// to poll
 		template.sendBody("seda:start", "Create the slow file");
 
 		mock.assertIsSatisfied();
 
-		// we read only part of the file as we dont have exclusive read and thus read part of the
-		// file currently in progress of being written - so we get only the Hello World part
+		// we read only part of the file as we dont have exclusive read and thus
+		// read part of the
+		// file currently in progress of being written - so we get only the
+		// Hello World part
 		String body = mock.getReceivedExchanges().get(0).getIn().getBody(String.class);
 		LOG.debug("Body is: " + body);
 		assertFalse("Should not wait and read the entire file", body.endsWith("Bye World"));

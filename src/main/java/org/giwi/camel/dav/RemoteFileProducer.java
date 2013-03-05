@@ -1,12 +1,18 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright
- * ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the
- * License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.giwi.camel.dav;
 
@@ -55,7 +61,8 @@ public class RemoteFileProducer<T> extends GenericFileProducer<T> implements Ser
 	}
 
 	/**
-	 * The file could not be written. We need to disconnect from the remote server.
+	 * The file could not be written. We need to disconnect from the remote
+	 * server.
 	 */
 	@Override
 	public void handleFailedWrite(Exchange exchange, Exception exception) throws Exception {
@@ -101,7 +108,8 @@ public class RemoteFileProducer<T> extends GenericFileProducer<T> implements Ser
 	@Override
 	protected void doStart() throws Exception {
 		log.debug("Starting");
-		// do not connect when component starts, just wait until we process as we will
+		// do not connect when component starts, just wait until we process as
+		// we will
 		// connect at that time if needed
 		super.doStart();
 	}
@@ -136,7 +144,8 @@ public class RemoteFileProducer<T> extends GenericFileProducer<T> implements Ser
 			}
 		}
 
-		// recover by re-creating operations which should most likely be able to recover
+		// recover by re-creating operations which should most likely be able to
+		// recover
 		if (!loggedIn) {
 			log.debug("Trying to recover connection to: {} with a fresh client.", getEndpoint());
 			setOperations(getEndpoint().createRemoteFileOperations());
@@ -150,7 +159,8 @@ public class RemoteFileProducer<T> extends GenericFileProducer<T> implements Ser
 
 	@Override
 	public boolean isSingleton() {
-		// this producer is stateful because the remote file operations is not thread safe
+		// this producer is stateful because the remote file operations is not
+		// thread safe
 		return false;
 	}
 
