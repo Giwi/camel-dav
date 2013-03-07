@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<properties>
+		<author>Giwi Softwares</author>
+		<title>Usage</title>
+	</properties>
+	<meta name="keyword" content="camel, dav, apache, java" />
+	<body>
+		<section name="Usage">
+		 <h2>Introduction</h2>
+
+<p>Camel-dav is an <a href="http://camel.apache.org/">Apache Camel</a> component designed for interacting with a webdav server.</p>
+
+
+
+<subsection name="URI format">
+
+<source>dav:host[:port]/path[?options]</source>
+</subsection>
+<subsection name="Ooptions" >
+
+<p>See <a href="http://camel.apache.org/file2.html">File</a> for more options as all the options from File is inherited.</p>
+
+<table>
+<thead><tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td> <tt>localWorkDirectory</tt> </td>
+    <td>null</td>
+    <td>When consuming, a local work directory can be used to store the remote file content directly in local files, to avoid loading the content into memory. This is beneficial, if you consume a very big remote file and thus can conserve memory. See below for more details.</td>
+</tr>
+<tr>
+<td> <tt>separator</tt> </td>
+    <td>Auto</td>
+    <td>Camel 2.6: Dictates what path separator char to use when uploading files. Auto = Use the path provided without altering it. UNIX = Use unix style path separators. Windows = Use Windows style path separators.</td>
+</tr>
+<tr>
+<td> <tt>stepwise</tt> </td>
+    <td>true</td>
+    <td>Camel 2.6: Whether or not stepwise traversing directories should be used or not. Stepwise means that it will CD one directory at a time. See more details below. You can disable this in case you can't use this approach.</td>
+</tr>
+</tbody>
+</table><h2>Message Headers</h2>
+
+<table>
+<thead><tr>
+<th>Property</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td> <tt>CamelFileName</tt> </td>
+    <td></td>
+    <td>Specifies the output file name (relative to the endpoint directory) to be used for the output message when sending to the endpoint. If this is not present and no expression either, then a generated message ID is used as the filename instead.</td>
+</tr>
+<tr>
+<td> <tt>CamelFileNameProduced</tt> </td>
+    <td></td>
+    <td>The actual absolute filepath (path + name) for the output file that was written. This header is set by Camel and its purpose is providing end-users the name of the file that was written.
+    </td>
+</tr>
+<tr>
+<td> <tt>CamelFileBatchIndex</tt> </td>
+    <td></td>
+    <td>Current index out of total number of files being consumed in this batch.
+</td>
+</tr>
+<tr>
+<td> <tt>CamelFileBatchSize</tt> </td>
+    <td></td>
+    <td>Total number of files being consumed in this batch.
+</td>
+</tr>
+<tr>
+<td> <tt>CamelFileHost</tt> </td>
+    <td></td>
+    <td>The remote hostname.
+</td>
+</tr>
+<tr>
+<td> <tt>CamelFileLocalWorkPath</tt> </td>
+    <td></td>
+    <td>Path to the local work file, if local work directory is used. 
+</td>
+</tr>
+</tbody>
+</table>
+</subsection>
+
+<subsection name="Samples">
+
+<source>from("file:/home/giwi/tmp/input").to("dav:localhost/webdav?autoCreate=false").to("log:result");
+from("dav:localhost/webdav?autoCreate=false&amp;idempotent=true&amp;recursive=true").to("file:/home/giwi/tmp/output");
+</source>
+</subsection>
+<subsection name="Filter using org.apache.camel.component.file.GenericFileFilter">
+
+<p>Camel supports pluggable filtering strategies. This strategy it to use the build in org.apache.camel.component.file.GenericFileFilter in Java. You can then configure the endpoint with such a filter to skip certain filters before being processed.</p>
+
+<p>In the sample we have built our own filter that only accepts files starting with report in the filename.</p>
+
+<source>public class MyFileFilter&lt;T&gt; implements GenericFileFilter&lt;T&gt; {
+
+    public boolean accept(GenericFile&lt;T&gt; file) {
+        // we only want report files 
+        return file.getFileName().startsWith("report");
+    }
+}
+</source>
+
+<p>And then we can configure our route using the filter attribute to reference our filter (using # notation) that we have defined in the spring XML file:</p>
+
+<source>   &lt;!-- define our sorter as a plain spring bean --&gt;
+   &lt;bean id="myFilter" class="com.mycompany.MyFileFilter"/&gt;
+
+  &lt;route&gt;
+    &lt;from uri="dav://somedavserver.com?&amp;filter=#myFilter"/&gt;
+    &lt;to uri="bean:processInbox"/&gt;
+  &lt;/route&gt;
+</source>
+</subsection>
+		</section>
+	</body>
+
+</document>
