@@ -38,11 +38,7 @@
     <td>Auto</td>
     <td>Camel 2.6: Dictates what path separator char to use when uploading files. Auto = Use the path provided without altering it. UNIX = Use unix style path separators. Windows = Use Windows style path separators.</td>
 </tr>
-<tr>
-<td> <tt>stepwise</tt> </td>
-    <td>true</td>
-    <td>Camel 2.6: Whether or not stepwise traversing directories should be used or not. Stepwise means that it will CD one directory at a time. See more details below. You can disable this in case you can't use this approach.</td>
-</tr>
+
 </tbody>
 </table><h2>Message Headers</h2>
 
