@@ -17,7 +17,7 @@
 
 <source>dav:host[:port]/path[?options]</source>
 </subsection>
-<subsection name="Ooptions" >
+<subsection name="Options" >
 
 <p>See <a href="http://camel.apache.org/file2.html">File</a> for more options as all the options from File is inherited.</p>
 
