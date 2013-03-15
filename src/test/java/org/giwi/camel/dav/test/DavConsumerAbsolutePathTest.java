@@ -30,54 +30,54 @@ import org.junit.Test;
  */
 public class DavConsumerAbsolutePathTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "///foo?password=admin&delay=5000";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "///foo?password=admin&delay=5000";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		deleteDirectory("tmpOut/lwd");
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	deleteDirectory("tmpOut/lwd");
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testAbsolutePath() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello World");
-		mock.expectedMessageCount(1);
+    @Test
+    public void testAbsolutePath() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello World");
+	mock.expectedMessageCount(1);
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						String body = exchange.getIn().getBody(String.class);
-						assertEquals("Hello World", body);
-					}
-				}).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).process(new Processor() {
+		    @Override
+		    public void process(Exchange exchange) throws Exception {
+			String body = exchange.getIn().getBody(String.class);
+			assertEquals("Hello World", body);
+		    }
+		}).to("mock:result");
+	    }
+	};
+    }
 }

@@ -128,8 +128,8 @@
 	</reporting>
 	<distributionManagement>
 		<site>
-			<id>apache-kafka-site</id>
-			<url>file:/opt/WorkSpacesEclipse/workspaceSnow/giwi-githubzone/WebContent/camel-dav</url>
+			<id>apache-dav-site</id>
+			<url>file:/home/xavier/giwi/camel-dav</url>
 		</site>
 	</distributionManagement>
 	<build>

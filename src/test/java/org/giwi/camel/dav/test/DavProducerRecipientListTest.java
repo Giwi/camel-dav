@@ -23,33 +23,36 @@ import org.junit.Test;
 
 public class DavProducerRecipientListTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/list";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/list";
+    }
 
-	@Test
-	public void testProducerRecipientList() throws Exception {
-		template.sendBodyAndHeader("direct:start", "Hello World", "foo", getDavUrl() + "&fileName=hello.txt");
-		template.sendBodyAndHeader("direct:start", "Bye World", "foo", getDavUrl() + "&fileName=bye.txt");
-		template.sendBodyAndHeader("direct:start", "Hi World", "foo", getDavUrl() + "&fileName=hi.txt");
+    @Test
+    public void testProducerRecipientList() throws Exception {
+	template.sendBodyAndHeader("direct:start", "Hello World", "foo",
+		getDavUrl() + "?fileName=hello.txt");
+	template.sendBodyAndHeader("direct:start", "Bye World", "foo",
+		getDavUrl() + "?fileName=bye.txt");
+	template.sendBodyAndHeader("direct:start", "Hi World", "foo",
+		getDavUrl() + "?fileName=hi.txt");
 
-		File file1 = new File(DAV_ROOT_DIR + "/list/hello.txt");
-		assertTrue("File should exists " + file1, file1.exists());
+	File file1 = new File(DAV_ROOT_DIR + "/list/hello.txt");
+	assertTrue("File should exists " + file1, file1.exists());
 
-		File file2 = new File(DAV_ROOT_DIR + "/list/bye.txt");
-		assertTrue("File should exists " + file2, file1.exists());
+	File file2 = new File(DAV_ROOT_DIR + "/list/bye.txt");
+	assertTrue("File should exists " + file2, file1.exists());
 
-		File file3 = new File(DAV_ROOT_DIR + "/list/hi.txt");
-		assertTrue("File should exists " + file3, file1.exists());
-	}
+	File file3 = new File(DAV_ROOT_DIR + "/list/hi.txt");
+	assertTrue("File should exists " + file3, file1.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from("direct:start").recipientList(header("foo"));
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from("direct:start").recipientList(header("foo"));
+	    }
+	};
+    }
 }

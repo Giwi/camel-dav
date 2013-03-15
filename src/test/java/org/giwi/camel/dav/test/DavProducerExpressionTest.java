@@ -29,93 +29,102 @@ import org.junit.Test;
  */
 public class DavProducerExpressionTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/filelanguage";
+    private String getDavUrl() {
+	return DAV_URL + "/filelanguage";
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	deleteDirectory("tmpOut/filelanguage");
+    }
+
+    @Override
+    protected JndiRegistry createRegistry() throws Exception {
+	JndiRegistry jndi = super.createRegistry();
+	jndi.bind("myguidgenerator", new MyGuidGenerator());
+	return jndi;
+    }
+
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
+
+    @Test
+    public void testProduceBeanByExpression() throws Exception {
+	template.sendBody(
+		getDavUrl() + "?fileName=${bean:myguidgenerator}.bak",
+		"Hello World");
+
+	assertFileExists(DAV_ROOT_DIR + "/filelanguage/123.bak");
+    }
+
+    @Test
+    public void testProduceBeanByHeader() throws Exception {
+	sendFile(getDavUrl(), "Hello World", "${bean:myguidgenerator}.bak");
+
+	assertFileExists(DAV_ROOT_DIR + "/filelanguage/123.bak");
+    }
+
+    @Test
+    public void testProducerDateByHeader() throws Exception {
+	sendFile(getDavUrl(), "Hello World", "myfile-${date:now:yyyyMMdd}.txt");
+
+	String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
+	assertFileExists(DAV_ROOT_DIR + "/filelanguage/myfile-" + date + ".txt");
+    }
+
+    @Test
+    public void testProducerDateByExpression() throws Exception {
+	template.sendBody(getDavUrl()
+		+ "?fileName=myfile-${date:now:yyyyMMdd}.txt", "Hello World");
+
+	String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
+	assertFileExists(DAV_ROOT_DIR + "/filelanguage/myfile-" + date + ".txt");
+    }
+
+    @Test
+    public void testProducerComplexByExpression() throws Exception {
+	// need one extra subdirectory (=foo) to be able to start with .. in the
+	// fileName option
+	String url = DAV_URL + "/filelanguage/foo?password=admin";
+
+	String expression = "../filelanguageinbox/myfile-${bean:myguidgenerator.guid}-${date:now:yyyyMMdd}.txt";
+	template.sendBody(url + "&fileName=" + expression, "Hello World");
+
+	String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
+	assertFileExists(DAV_ROOT_DIR
+		+ "/filelanguage/filelanguageinbox/myfile-123-" + date + ".txt");
+    }
+
+    @Test
+    public void testProducerSimpleWithHeaderByExpression() throws Exception {
+	template.sendBodyAndHeader(getDavUrl()
+		+ "?fileName=myfile-${in.header.foo}.txt", "Hello World",
+		"foo", "abc");
+
+	assertFileExists(DAV_ROOT_DIR + "/filelanguage/myfile-abc.txt");
+    }
+
+    @Test
+    public void testProducerWithDateHeader() throws Exception {
+	Calendar cal = Calendar.getInstance();
+	cal.set(1974, Calendar.APRIL, 20);
+	Date date = cal.getTime();
+
+	template.sendBodyAndHeader(
+		getDavUrl()
+			+ "?fileName=mybirthday-${date:in.header.birthday:yyyyMMdd}.txt",
+		"Hello World", "birthday", date);
+
+	assertFileExists(DAV_ROOT_DIR + "/filelanguage/mybirthday-19740420.txt");
+    }
+
+    public class MyGuidGenerator {
+	public String guid() {
+	    return "123";
 	}
-
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		deleteDirectory("tmpOut/filelanguage");
-	}
-
-	@Override
-	protected JndiRegistry createRegistry() throws Exception {
-		JndiRegistry jndi = super.createRegistry();
-		jndi.bind("myguidgenerator", new MyGuidGenerator());
-		return jndi;
-	}
-
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
-
-	@Test
-	public void testProduceBeanByExpression() throws Exception {
-		template.sendBody(getDavUrl() + "&fileName=${bean:myguidgenerator}.bak", "Hello World");
-
-		assertFileExists(DAV_ROOT_DIR + "/filelanguage/123.bak");
-	}
-
-	@Test
-	public void testProduceBeanByHeader() throws Exception {
-		sendFile(getDavUrl(), "Hello World", "${bean:myguidgenerator}.bak");
-
-		assertFileExists(DAV_ROOT_DIR + "/filelanguage/123.bak");
-	}
-
-	@Test
-	public void testProducerDateByHeader() throws Exception {
-		sendFile(getDavUrl(), "Hello World", "myfile-${date:now:yyyyMMdd}.txt");
-
-		String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
-		assertFileExists(DAV_ROOT_DIR + "/filelanguage/myfile-" + date + ".txt");
-	}
-
-	@Test
-	public void testProducerDateByExpression() throws Exception {
-		template.sendBody(getDavUrl() + "&fileName=myfile-${date:now:yyyyMMdd}.txt", "Hello World");
-
-		String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
-		assertFileExists(DAV_ROOT_DIR + "/filelanguage/myfile-" + date + ".txt");
-	}
-
-	@Test
-	public void testProducerComplexByExpression() throws Exception {
-		// need one extra subdirectory (=foo) to be able to start with .. in the
-		// fileName option
-		String url = DAV_URL + "/filelanguage/foo?password=admin";
-
-		String expression = "../filelanguageinbox/myfile-${bean:myguidgenerator.guid}-${date:now:yyyyMMdd}.txt";
-		template.sendBody(url + "&fileName=" + expression, "Hello World");
-
-		String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
-		assertFileExists(DAV_ROOT_DIR + "/filelanguage/filelanguageinbox/myfile-123-" + date + ".txt");
-	}
-
-	@Test
-	public void testProducerSimpleWithHeaderByExpression() throws Exception {
-		template.sendBodyAndHeader(getDavUrl() + "&fileName=myfile-${in.header.foo}.txt", "Hello World", "foo", "abc");
-
-		assertFileExists(DAV_ROOT_DIR + "/filelanguage/myfile-abc.txt");
-	}
-
-	@Test
-	public void testProducerWithDateHeader() throws Exception {
-		Calendar cal = Calendar.getInstance();
-		cal.set(1974, Calendar.APRIL, 20);
-		Date date = cal.getTime();
-
-		template.sendBodyAndHeader(getDavUrl() + "&fileName=mybirthday-${date:in.header.birthday:yyyyMMdd}.txt", "Hello World", "birthday", date);
-
-		assertFileExists(DAV_ROOT_DIR + "/filelanguage/mybirthday-19740420.txt");
-	}
-
-	public class MyGuidGenerator {
-		public String guid() {
-			return "123";
-		}
-	}
+    }
 }

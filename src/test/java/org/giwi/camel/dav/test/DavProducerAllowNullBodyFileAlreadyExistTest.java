@@ -21,50 +21,61 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
-public class DavProducerAllowNullBodyFileAlreadyExistTest extends AbstractDavTest {
+public class DavProducerAllowNullBodyFileAlreadyExistTest extends
+	AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/allow";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/allow";
+    }
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-		template.sendBodyAndHeader(getDavUrl(), "Hello world", Exchange.FILE_NAME, "hello.txt");
-	}
+    @Override
+    public void setUp() throws Exception {
+	super.setUp();
+	template.sendBodyAndHeader(getDavUrl(), "Hello world",
+		Exchange.FILE_NAME, "hello.txt");
+    }
 
-	@Test
-	public void testFileExistAppendAllowNullBody() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:appendTypeAppendResult");
-		mock.expectedMessageCount(1);
-		mock.expectedFileExists(DAV_ROOT_DIR + "/allow/hello.txt", "Hello world");
+    @Test
+    public void testFileExistAppendAllowNullBody() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:appendTypeAppendResult");
+	mock.expectedMessageCount(1);
+	mock.expectedFileExists(DAV_ROOT_DIR + "/allow/hello.txt",
+		"Hello world");
 
-		template.sendBody("direct:appendTypeAppend", null);
+	template.sendBody("direct:appendTypeAppend", null);
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Test
-	public void testFileExistOverrideAllowNullBody() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:appendTypeOverrideResult");
-		mock.expectedMessageCount(1);
-		mock.expectedFileExists(DAV_ROOT_DIR + "/allow/hello.txt", "");
+    @Test
+    public void testFileExistOverrideAllowNullBody() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:appendTypeOverrideResult");
+	mock.expectedMessageCount(1);
+	mock.expectedFileExists(DAV_ROOT_DIR + "/allow/hello.txt", "");
 
-		template.sendBody("direct:appendTypeOverride", null);
+	template.sendBody("direct:appendTypeOverride", null);
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() {
-		return new RouteBuilder() {
-			@Override
-			public void configure() {
-				from("direct:appendTypeAppend").setHeader(Exchange.FILE_NAME, constant("hello.txt")).to(getDavUrl() + "?allowNullBody=true&fileExist=Append").to("mock:appendTypeAppendResult");
+    @Override
+    protected RouteBuilder createRouteBuilder() {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() {
+		from("direct:appendTypeAppend")
+			.setHeader(Exchange.FILE_NAME, constant("hello.txt"))
+			.to(getDavUrl()
+				+ "?allowNullBody=true&fileExist=Append")
+			.to("mock:appendTypeAppendResult");
 
-				from("direct:appendTypeOverride").setHeader(Exchange.FILE_NAME, constant("hello.txt")).to(getDavUrl() + "?allowNullBody=true&fileExist=Override").to("mock:appendTypeOverrideResult");
-			}
-		};
-	}
+		from("direct:appendTypeOverride")
+			.setHeader(Exchange.FILE_NAME, constant("hello.txt"))
+			.to(getDavUrl()
+				+ "?allowNullBody=true&fileExist=Override")
+			.to("mock:appendTypeOverrideResult");
+	    }
+	};
+    }
 
 }

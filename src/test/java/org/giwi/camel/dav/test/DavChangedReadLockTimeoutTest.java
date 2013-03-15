@@ -20,9 +20,9 @@ package org.giwi.camel.dav.test;
  *
  */
 public class DavChangedReadLockTimeoutTest extends DavChangedReadLockTest {
-	@Override
-	protected String getDavUrl() {
-		// will timeout, but the scheduler will pickup the file later
-		return super.getDavUrl() + "&readLockTimeout=2500";
-	}
+    @Override
+    protected String getDavUrl() {
+	// will timeout, but the scheduler will pickup the file later
+	return super.getDavUrl() + "&readLockTimeout=2500";
+    }
 }

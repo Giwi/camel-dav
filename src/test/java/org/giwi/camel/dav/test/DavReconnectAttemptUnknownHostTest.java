@@ -25,28 +25,28 @@ import org.junit.Test;
  */
 public class DavReconnectAttemptUnknownHostTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return "dav://admin@doesnotexisthost:80/reconnect";
-	}
+    private String getDavUrl() {
+	return "dav://admin@doesnotexisthost:80/reconnect";
+    }
 
-	@Test
-	public void testFromFileToDav() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(0);
+    @Test
+    public void testFromFileToDav() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(0);
 
-		// let it run a little
-		Thread.sleep(3000);
+	// let it run a little
+	Thread.sleep(3000);
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

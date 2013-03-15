@@ -27,36 +27,38 @@ import org.junit.Test;
  */
 public class DavChangedZeroLengthReadLockTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/changed?readLock=changed&readLockCheckInterval=1000&readLockMinLength=0&delete=true";
-	}
+    protected String getDavUrl() {
+	return DAV_URL
+		+ "/changed?readLock=changed&readLockCheckInterval=1000&readLockMinLength=0&delete=true";
+    }
 
-	@Test
-	public void testChangedReadLock() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedFileExists("tmpOut/changed/out/zerofile.dat");
+    @Test
+    public void testChangedReadLock() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedFileExists("tmpOut/changed/out/zerofile.dat");
 
-		writeZeroFile();
+	writeZeroFile();
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	private void writeZeroFile() throws Exception {
-		createDirectory(DAV_ROOT_DIR + "/changed");
-		FileOutputStream fos = new FileOutputStream(DAV_ROOT_DIR + "/changed/zerofile.dat", true);
-		fos.flush();
-		fos.close();
-	}
+    private void writeZeroFile() throws Exception {
+	createDirectory(DAV_ROOT_DIR + "/changed");
+	FileOutputStream fos = new FileOutputStream(DAV_ROOT_DIR
+		+ "/changed/zerofile.dat", true);
+	fos.flush();
+	fos.close();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("file:tmpOut/changed/out", "mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("file:tmpOut/changed/out", "mock:result");
+	    }
+	};
+    }
 
 }

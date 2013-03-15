@@ -24,28 +24,28 @@ import org.junit.Test;
  * @version
  */
 public class DavConnectTimeoutTest extends AbstractDavTest {
-	// TODO : gérer le timeout
-	private String getDavUrl() {
-		return DAV_URL + "/timeout/?connectTimeout=2000";
-	}
+    // TODO : gérer le timeout
+    private String getDavUrl() {
+	return DAV_URL + "/timeout/?connectTimeout=2000";
+    }
 
-	@Test
-	public void testTimeout() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello World");
+    @Test
+    public void testTimeout() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello World");
 
-		sendFile(getDavUrl(), "Hello World", "hello.txt");
+	sendFile(getDavUrl(), "Hello World", "hello.txt");
 
-		mock.assertIsSatisfied();
-	}
+	mock.assertIsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

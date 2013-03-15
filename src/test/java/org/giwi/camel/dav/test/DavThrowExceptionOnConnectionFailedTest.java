@@ -30,31 +30,36 @@ import org.junit.Test;
  */
 public class DavThrowExceptionOnConnectionFailedTest extends AbstractDavTest {
 
-	@Test
-	public void testBadLogin() throws Exception {
-		try {
-			uploadFile("dummy", "cantremeber");
-			fail("Should have thrown a GenericFileOperationFailedException");
-		} catch (GenericFileOperationFailedException e) {
-			// expected
-			assertEquals(530, e.getCode());
-		}
-
-		// assert file NOT created
-		File file = new File(DAV_ROOT_DIR + "login/report.txt");
-		assertFalse("The file should NOT exists", file.exists());
+    @Test
+    public void testBadLogin() throws Exception {
+	try {
+	    uploadFile("dummy", "cantremeber");
+	    fail("Should have thrown a GenericFileOperationFailedException");
+	} catch (GenericFileOperationFailedException e) {
+	    // expected
+	    assertEquals(530, e.getCode());
 	}
 
-	private void uploadFile(String username, String password) throws Exception {
-		Endpoint endpoint = context.getEndpoint("dav://" + username + "@localhost:80/login?password=" + password + "&maximumReconnectAttempts=0&throwExceptionOnConnectFailed=true");
+	// assert file NOT created
+	File file = new File(DAV_ROOT_DIR + "login/report.txt");
+	assertFalse("The file should NOT exists", file.exists());
+    }
 
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World from FTPServer");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void uploadFile(String username, String password) throws Exception {
+	Endpoint endpoint = context
+		.getEndpoint("dav://"
+			+ username
+			+ "@localhost:80/login?password="
+			+ password
+			+ "&maximumReconnectAttempts=0&throwExceptionOnConnectFailed=true");
+
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World from FTPServer");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
 }

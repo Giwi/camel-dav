@@ -19,11 +19,13 @@ package org.giwi.camel.dav.test;
 /**
  * @version
  */
-public class DavProducerFileExistOverrideNotEagerDeleteTargetFileTwoUploadTest extends DavProducerFileExistOverrideTwoUploadTest {
+public class DavProducerFileExistOverrideNotEagerDeleteTargetFileTwoUploadTest
+	extends DavProducerFileExistOverrideTwoUploadTest {
 
-	@Override
-	protected String getDavUrl() {
-		return DAV_URL + "/exist?tempPrefix=upload-&fileExist=Override&disconnect=true&eagerDeleteTargetFile=false";
-	}
+    @Override
+    protected String getDavUrl() {
+	return DAV_URL
+		+ "/exist?tempPrefix=upload-&fileExist=Override&disconnect=true&eagerDeleteTargetFile=false";
+    }
 
 }

@@ -29,71 +29,73 @@ import org.junit.Test;
  */
 public class FromDavRemoteFileFilterDirectoryTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/filefilter?recursive=true&filter=#myFilter";
+    private String getDavUrl() {
+	return DAV_URL + "/filefilter?recursive=true&filter=#myFilter";
+    }
+
+    @Override
+    protected JndiRegistry createRegistry() throws Exception {
+	JndiRegistry jndi = super.createRegistry();
+	jndi.bind("myFilter", new MyFileFilter<Object>());
+	return jndi;
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
+
+    @Test
+    public void testDavFilter() throws Exception {
+	if (isPlatform("aix")) {
+	    // skip testing on AIX as it have an issue with this test with the
+	    // file filter
+	    return;
 	}
+
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedBodiesReceived("Hello World");
+
+	mock.assertIsSatisfied();
+    }
+
+    private void prepareDavServer() throws Exception {
+	// prepares the FTP Server by creating files on the server that we want
+	// to unit
+	// test that we can pool
+	sendFile(getDavUrl(), "This is a file to be filtered",
+		"skipDir/skipme.txt");
+	sendFile(getDavUrl(), "This is a file to be filtered",
+		"skipDir2/skipme.txt");
+	sendFile(getDavUrl(), "Hello World", "okDir/hello.txt");
+    }
+
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).convertBodyTo(String.class).to("mock:result");
+	    }
+	};
+    }
+
+    // START SNIPPET: e1
+    public class MyFileFilter<T> implements GenericFileFilter<T> {
 
 	@Override
-	protected JndiRegistry createRegistry() throws Exception {
-		JndiRegistry jndi = super.createRegistry();
-		jndi.bind("myFilter", new MyFileFilter<Object>());
-		return jndi;
+	public boolean accept(GenericFile<T> file) {
+	    // we dont accept any files within directory starting with skip in
+	    // the name
+	    if (file.isDirectory() && file.getFileName().startsWith("skip")) {
+		return false;
+	    }
+
+	    return true;
 	}
-
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
-
-	@Test
-	public void testDavFilter() throws Exception {
-		if (isPlatform("aix")) {
-			// skip testing on AIX as it have an issue with this test with the
-			// file filter
-			return;
-		}
-
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedBodiesReceived("Hello World");
-
-		mock.assertIsSatisfied();
-	}
-
-	private void prepareDavServer() throws Exception {
-		// prepares the FTP Server by creating files on the server that we want
-		// to unit
-		// test that we can pool
-		sendFile(getDavUrl(), "This is a file to be filtered", "skipDir/skipme.txt");
-		sendFile(getDavUrl(), "This is a file to be filtered", "skipDir2/skipme.txt");
-		sendFile(getDavUrl(), "Hello World", "okDir/hello.txt");
-	}
-
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).convertBodyTo(String.class).to("mock:result");
-			}
-		};
-	}
-
-	// START SNIPPET: e1
-	public class MyFileFilter<T> implements GenericFileFilter<T> {
-
-		@Override
-		public boolean accept(GenericFile<T> file) {
-			// we dont accept any files within directory starting with skip in
-			// the name
-			if (file.isDirectory() && file.getFileName().startsWith("skip")) {
-				return false;
-			}
-
-			return true;
-		}
-	}
-	// END SNIPPET: e1
+    }
+    // END SNIPPET: e1
 }

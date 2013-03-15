@@ -26,32 +26,39 @@ import org.junit.Test;
  */
 public class DavRecursiveDepth3Test extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/depth3?recursive=true";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/depth3?recursive=true";
+    }
 
-	@Test
-	public void testDepthMin1Max1() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("a", "b");
+    @Test
+    public void testDepthMin1Max1() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceivedInAnyOrder("a", "b");
 
-		template.sendBodyAndHeader(DAV_URL + "/depth3?password=admin", "a", Exchange.FILE_NAME, "a.txt");
-		template.sendBodyAndHeader(DAV_URL + "/depth3?password=admin", "b", Exchange.FILE_NAME, "b.txt");
-		template.sendBodyAndHeader(DAV_URL + "/depth3/foo?password=admin", "a2", Exchange.FILE_NAME, "a.txt");
-		template.sendBodyAndHeader(DAV_URL + "/depth3/foo/bar?password=admin", "a3", Exchange.FILE_NAME, "a.txt");
-		template.sendBodyAndHeader(DAV_URL + "/depth3/bar?password=admin", "b2", Exchange.FILE_NAME, "b.txt");
-		template.sendBodyAndHeader(DAV_URL + "/depth3/bar/foo?password=admin", "b3", Exchange.FILE_NAME, "b.txt");
+	template.sendBodyAndHeader(DAV_URL + "/depth3?password=admin", "a",
+		Exchange.FILE_NAME, "a.txt");
+	template.sendBodyAndHeader(DAV_URL + "/depth3?password=admin", "b",
+		Exchange.FILE_NAME, "b.txt");
+	template.sendBodyAndHeader(DAV_URL + "/depth3/foo?password=admin",
+		"a2", Exchange.FILE_NAME, "a.txt");
+	template.sendBodyAndHeader(DAV_URL + "/depth3/foo/bar?password=admin",
+		"a3", Exchange.FILE_NAME, "a.txt");
+	template.sendBodyAndHeader(DAV_URL + "/depth3/bar?password=admin",
+		"b2", Exchange.FILE_NAME, "b.txt");
+	template.sendBodyAndHeader(DAV_URL + "/depth3/bar/foo?password=admin",
+		"b3", Exchange.FILE_NAME, "b.txt");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&minDepth=1&maxDepth=1").convertBodyTo(String.class).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&minDepth=1&maxDepth=1").convertBodyTo(
+			String.class).to("mock:result");
+	    }
+	};
+    }
 }

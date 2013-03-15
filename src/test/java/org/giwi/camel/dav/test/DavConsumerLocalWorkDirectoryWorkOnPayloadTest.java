@@ -23,22 +23,23 @@ import org.apache.camel.builder.RouteBuilder;
 /**
  * @version
  */
-public class DavConsumerLocalWorkDirectoryWorkOnPayloadTest extends DavConsumerLocalWorkDirectoryTest {
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						// alter the body by setting it to a String type
-						exchange.getIn().setBody("Hello World");
+public class DavConsumerLocalWorkDirectoryWorkOnPayloadTest extends
+	DavConsumerLocalWorkDirectoryTest {
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).process(new Processor() {
+		    @Override
+		    public void process(Exchange exchange) throws Exception {
+			// alter the body by setting it to a String type
+			exchange.getIn().setBody("Hello World");
 
-					}
-				}).to("mock:result", "file://tmpOut/out");
-			}
-		};
-	}
+		    }
+		}).to("mock:result", "file://tmpOut/out");
+	    }
+	};
+    }
 
 }

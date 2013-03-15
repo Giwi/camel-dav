@@ -25,29 +25,29 @@ import org.junit.Test;
  */
 public class FromDavNoFilesTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/slowfile?readLock=rename&consumer.delay=2000";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/slowfile?readLock=rename&consumer.delay=2000";
+    }
 
-	@Test
-	public void testPoolIn3SecondsButNoFiles() throws Exception {
-		deleteDirectory(DAV_ROOT_DIR + "slowfile");
-		createDirectory(DAV_ROOT_DIR + "slowfile");
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(0);
+    @Test
+    public void testPoolIn3SecondsButNoFiles() throws Exception {
+	deleteDirectory(DAV_ROOT_DIR + "slowfile");
+	createDirectory(DAV_ROOT_DIR + "slowfile");
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(0);
 
-		Thread.sleep(3 * 1000L);
+	Thread.sleep(3 * 1000L);
 
-		mock.assertIsSatisfied();
-	}
+	mock.assertIsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

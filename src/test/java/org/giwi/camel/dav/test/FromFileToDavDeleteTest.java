@@ -29,34 +29,36 @@ import org.junit.Test;
  */
 public class FromFileToDavDeleteTest extends AbstractDavTest {
 
-	@Test
-	public void testFromFileToDavDelete() throws Exception {
-		NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
+    @Test
+    public void testFromFileToDavDelete() throws Exception {
+	NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
 
-		template.sendBodyAndHeader("file:src/main/data", "Hello World", Exchange.FILE_NAME, "hello.txt");
+	template.sendBodyAndHeader("file:src/main/data", "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
 
-		assertMockEndpointsSatisfied();
-		assertTrue(notify.matchesMockWaitTime());
+	assertMockEndpointsSatisfied();
+	assertTrue(notify.matchesMockWaitTime());
 
-		// file should be deleted
-		File file = new File("src/main/data/hello.txt");
-		assertFalse("File should be deleted", file.exists());
+	// file should be deleted
+	File file = new File("src/main/data/hello.txt");
+	assertFalse("File should be deleted", file.exists());
 
-		// file should exists on ftp server
-		file = new File(DAV_ROOT_DIR + "/hello.txt");
-		assertTrue("File should exist on dav server", file.exists());
-	}
+	// file should exists on ftp server
+	file = new File(DAV_ROOT_DIR + "/hello.txt");
+	assertTrue("File should exist on dav server", file.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from("file:src/main/data?delete=true").to(DAV_URL).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from("file:src/main/data?delete=true").to(DAV_URL).to(
+			"mock:result");
+	    }
+	};
+    }
 }

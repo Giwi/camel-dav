@@ -27,23 +27,23 @@ import org.junit.Test;
  */
 public class DavEndpointURISanitizedTest extends AbstractDavTest {
 
-	private final String password = "secret";
+    private final String password = "secret";
 
-	protected String getDavUrl() {
-		return DAV_URL + "///foo?delay=5000";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "///foo?delay=5000";
+    }
 
-	@Test
-	public void testDavConsumerUriSanitized() throws Exception {
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Consumer consumer = endpoint.createConsumer(null);
-		assertFalse(consumer.toString().contains(password));
-	}
+    @Test
+    public void testDavConsumerUriSanitized() throws Exception {
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Consumer consumer = endpoint.createConsumer(null);
+	assertFalse(consumer.toString().contains(password));
+    }
 
-	@Test
-	public void testDavProducerUriSanitized() throws Exception {
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Producer producer = endpoint.createProducer();
-		assertFalse(producer.toString().contains(password));
-	}
+    @Test
+    public void testDavProducerUriSanitized() throws Exception {
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Producer producer = endpoint.createProducer();
+	assertFalse(producer.toString().contains(password));
+    }
 }

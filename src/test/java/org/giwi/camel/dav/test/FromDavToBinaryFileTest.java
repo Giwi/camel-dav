@@ -33,55 +33,57 @@ import org.junit.Test;
  */
 public class FromDavToBinaryFileTest extends AbstractDavTest {
 
-	// must user "consumer." prefix on the parameters to the file component
-	private String getDavUrl() {
-		return DAV_URL + "/tmp4/camel?consumer.delay=5000&recursive=false";
-	}
+    // must user "consumer." prefix on the parameters to the file component
+    private String getDavUrl() {
+	return DAV_URL + "/tmp4/camel?consumer.delay=5000&recursive=false";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testDavRoute() throws Exception {
-		MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
-		resultEndpoint.expectedMessageCount(1);
-		resultEndpoint.assertIsSatisfied();
-		Exchange ex = resultEndpoint.getExchanges().get(0);
-		byte[] bytes = ex.getIn().getBody(byte[].class);
-		assertTrue("Logo size wrong", bytes.length > 10000);
+    @Test
+    public void testDavRoute() throws Exception {
+	MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
+	resultEndpoint.expectedMessageCount(1);
+	resultEndpoint.assertIsSatisfied();
+	Exchange ex = resultEndpoint.getExchanges().get(0);
+	byte[] bytes = ex.getIn().getBody(byte[].class);
+	assertTrue("Logo size wrong", bytes.length > 10000);
 
-		// assert the file
-		File file = new File("tmpOut/davtest/deleteme.jpg");
-		assertTrue("The binary file should exists", file.exists());
-		assertTrue("Logo size wrong", file.length() > 10000);
-	}
+	// assert the file
+	File file = new File("tmpOut/davtest/deleteme.jpg");
+	assertTrue("The binary file should exists", file.exists());
+	assertTrue("Logo size wrong", file.length() > 10000);
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody(IOConverter.toFile("src/test/data/davbinarytest/logo.jpg"));
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "logo.jpg");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody(
+		IOConverter.toFile("src/test/data/davbinarytest/logo.jpg"));
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "logo.jpg");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				String fileUrl = "file:tmpOut/davtest/?noop=true&fileExist=Override";
-				from(getDavUrl()).setHeader(Exchange.FILE_NAME, constant("deleteme.jpg")).to(fileUrl, "mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		String fileUrl = "file:tmpOut/davtest/?noop=true&fileExist=Override";
+		from(getDavUrl()).setHeader(Exchange.FILE_NAME,
+			constant("deleteme.jpg")).to(fileUrl, "mock:result");
+	    }
+	};
+    }
 }

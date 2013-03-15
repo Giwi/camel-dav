@@ -27,40 +27,43 @@ import org.junit.Test;
  */
 public class DavPollingConsumerTest extends AbstractDavTest {
 
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 
-	private String getDavUrl() {
-		return DAV_URL + "/polling";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/polling";
+    }
 
-	@Test
-	public void testPollingConsumer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello World", Exchange.FILE_NAME, "hello.txt");
+    @Test
+    public void testPollingConsumer() throws Exception {
+	template.sendBodyAndHeader(getDavUrl(), "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
 
-		PollingConsumer consumer = context.getEndpoint(getDavUrl()).createPollingConsumer();
-		consumer.start();
-		Exchange exchange = consumer.receive(5000);
-		assertNotNull(exchange);
-		assertEquals("Hello World", exchange.getIn().getBody(String.class));
+	PollingConsumer consumer = context.getEndpoint(getDavUrl())
+		.createPollingConsumer();
+	consumer.start();
+	Exchange exchange = consumer.receive(5000);
+	assertNotNull(exchange);
+	assertEquals("Hello World", exchange.getIn().getBody(String.class));
 
-		// sleep a bit to ensure polling consumer would be suspended after we
-		// have used it
-		Thread.sleep(1000);
+	// sleep a bit to ensure polling consumer would be suspended after we
+	// have used it
+	Thread.sleep(1000);
 
-		// drop a new file which should not be picked up by the consumer
-		template.sendBodyAndHeader(getDavUrl(), "Bye World", Exchange.FILE_NAME, "bye.txt");
+	// drop a new file which should not be picked up by the consumer
+	template.sendBodyAndHeader(getDavUrl(), "Bye World",
+		Exchange.FILE_NAME, "bye.txt");
 
-		// sleep a bit to ensure polling consumer would not have picked up that
-		// file
-		Thread.sleep(1000);
+	// sleep a bit to ensure polling consumer would not have picked up that
+	// file
+	Thread.sleep(1000);
 
-		File file = new File(DAV_ROOT_DIR + "/polling/bye.txt");
-		assertTrue("File should exist " + file, file.exists());
+	File file = new File(DAV_ROOT_DIR + "/polling/bye.txt");
+	assertTrue("File should exist " + file, file.exists());
 
-		consumer.stop();
-	}
+	consumer.stop();
+    }
 
 }

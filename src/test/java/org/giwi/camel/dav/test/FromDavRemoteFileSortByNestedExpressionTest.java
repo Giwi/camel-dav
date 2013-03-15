@@ -24,63 +24,68 @@ import org.junit.Test;
 /**
  * Unit test to verify remotefile sort by option.
  */
-public class FromDavRemoteFileSortByNestedExpressionTest extends AbstractDavTest {
+public class FromDavRemoteFileSortByNestedExpressionTest extends
+	AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/sortbynested?consumer.delay=5000";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/sortbynested?consumer.delay=5000";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 
-	@Test
-	public void testSortFiles() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&sortBy=file:ext;file:name").to("mock:result");
-			}
-		});
-		context.start();
+    @Test
+    public void testSortFiles() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&sortBy=file:ext;file:name").to(
+			"mock:result");
+	    }
+	});
+	context.start();
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello Dublin", "Hello London", "Hello Paris", "Hello Copenhagen");
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello Dublin", "Hello London",
+		"Hello Paris", "Hello Copenhagen");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Test
-	public void testSortFilesReverse() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&sortBy=file:ext;reverse:file:name").to("mock:reverse");
-			}
-		});
-		context.start();
+    @Test
+    public void testSortFilesReverse() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&sortBy=file:ext;reverse:file:name").to(
+			"mock:reverse");
+	    }
+	});
+	context.start();
 
-		MockEndpoint reverse = getMockEndpoint("mock:reverse");
-		reverse.expectedBodiesReceived("Hello Paris", "Hello London", "Hello Dublin", "Hello Copenhagen");
+	MockEndpoint reverse = getMockEndpoint("mock:reverse");
+	reverse.expectedBodiesReceived("Hello Paris", "Hello London",
+		"Hello Dublin", "Hello Copenhagen");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the FTP Server by creating files on the server that we want
-		// to unit
-		// test that we can pool
-		sendFile(getDavUrl(), "Hello Paris", "paris.txt");
-		sendFile(getDavUrl(), "Hello London", "london.txt");
-		sendFile(getDavUrl(), "Hello Copenhagen", "copenhagen.xml");
-		sendFile(getDavUrl(), "Hello Dublin", "dublin.txt");
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the FTP Server by creating files on the server that we want
+	// to unit
+	// test that we can pool
+	sendFile(getDavUrl(), "Hello Paris", "paris.txt");
+	sendFile(getDavUrl(), "Hello London", "london.txt");
+	sendFile(getDavUrl(), "Hello Copenhagen", "copenhagen.xml");
+	sendFile(getDavUrl(), "Hello Dublin", "dublin.txt");
+    }
 }

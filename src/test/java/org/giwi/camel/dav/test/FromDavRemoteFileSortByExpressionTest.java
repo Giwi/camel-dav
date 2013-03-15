@@ -26,60 +26,63 @@ import org.junit.Test;
  */
 public class FromDavRemoteFileSortByExpressionTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/sortby?consumer.delay=5000";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/sortby?consumer.delay=5000";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 
-	@Test
-	public void testSortFiles() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&sortBy=file:ext").to("mock:result");
-			}
-		});
-		context.start();
+    @Test
+    public void testSortFiles() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&sortBy=file:ext").to("mock:result");
+	    }
+	});
+	context.start();
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello Paris", "Hello London", "Hello Copenhagen");
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello Paris", "Hello London",
+		"Hello Copenhagen");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Test
-	public void testSortFilesReverse() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&sortBy=reverse:file:ext").to("mock:reverse");
-			}
-		});
-		context.start();
+    @Test
+    public void testSortFilesReverse() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&sortBy=reverse:file:ext").to(
+			"mock:reverse");
+	    }
+	});
+	context.start();
 
-		MockEndpoint mock = getMockEndpoint("mock:reverse");
-		mock.expectedBodiesReceived("Hello Copenhagen", "Hello London", "Hello Paris");
+	MockEndpoint mock = getMockEndpoint("mock:reverse");
+	mock.expectedBodiesReceived("Hello Copenhagen", "Hello London",
+		"Hello Paris");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating files on the server that we want
-		// to unit
-		// test that we can pool
-		sendFile(getDavUrl(), "Hello Paris", "paris.dat");
-		sendFile(getDavUrl(), "Hello London", "london.txt");
-		sendFile(getDavUrl(), "Hello Copenhagen", "copenhagen.xml");
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating files on the server that we want
+	// to unit
+	// test that we can pool
+	sendFile(getDavUrl(), "Hello Paris", "paris.dat");
+	sendFile(getDavUrl(), "Hello London", "london.txt");
+	sendFile(getDavUrl(), "Hello Copenhagen", "copenhagen.xml");
+    }
 }

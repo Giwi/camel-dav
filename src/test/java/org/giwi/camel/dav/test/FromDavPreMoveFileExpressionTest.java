@@ -32,58 +32,61 @@ import org.junit.Test;
  */
 public class FromDavPreMoveFileExpressionTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/movefile?consumer.delay=5000&preMove=../inprogress/${file:name.noext}.bak";
-	}
+    private String getDavUrl() {
+	return DAV_URL
+		+ "/movefile?consumer.delay=5000&preMove=../inprogress/${file:name.noext}.bak";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testPollFileAndShouldBeMoved() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedBodiesReceived("Hello World this file will be moved");
+    @Test
+    public void testPollFileAndShouldBeMoved() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedBodiesReceived("Hello World this file will be moved");
 
-		mock.assertIsSatisfied();
-	}
+	mock.assertIsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the FTP Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World this file will be moved");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
+    private void prepareDavServer() throws Exception {
+	// prepares the FTP Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World this file will be moved");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
 
-		// assert file is created
-		File file = new File(DAV_ROOT_DIR + "/movefile/hello.txt");
-		assertTrue("The file should exists", file.exists());
-	}
+	// assert file is created
+	File file = new File(DAV_ROOT_DIR + "/movefile/hello.txt");
+	assertTrue("The file should exists", file.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						// assert the file is pre moved
-						File file = new File(DAV_ROOT_DIR + "/inprogress/hello.bak");
-						assertTrue("The file should have been moved", file.exists());
-					}
-				}).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).process(new Processor() {
+		    @Override
+		    public void process(Exchange exchange) throws Exception {
+			// assert the file is pre moved
+			File file = new File(DAV_ROOT_DIR
+				+ "/inprogress/hello.bak");
+			assertTrue("The file should have been moved",
+				file.exists());
+		    }
+		}).to("mock:result");
+	    }
+	};
+    }
 }

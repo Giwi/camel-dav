@@ -28,48 +28,56 @@ import org.junit.Test;
  * missing (full or part of).
  */
 @Ignore("Run this test manually")
-public class DavProducerRecipientListParallelTimeoutTest extends AbstractDavTest {
+public class DavProducerRecipientListParallelTimeoutTest extends
+	AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/timeout";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/timeout";
+    }
 
-	@Test
-	public void testRecipientListTimeout() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		// B will timeout so we only get A and C
-		mock.expectedBodiesReceived("AC");
+    @Test
+    public void testRecipientListTimeout() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	// B will timeout so we only get A and C
+	mock.expectedBodiesReceived("AC");
 
-		template.sendBodyAndHeader("direct:start", "Hello", "slip", "direct:a," + getDavUrl() + ",direct:c");
+	template.sendBodyAndHeader("direct:start", "Hello", "slip", "direct:a,"
+		+ getDavUrl() + ",direct:c");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				context.getShutdownStrategy().setTimeout(60);
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		context.getShutdownStrategy().setTimeout(60);
 
-				from("direct:start").recipientList(header("slip")).aggregationStrategy(new AggregationStrategy() {
-					@Override
-					public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
-						if (oldExchange == null) {
-							return newExchange;
-						}
+		from("direct:start").recipientList(header("slip"))
+			.aggregationStrategy(new AggregationStrategy() {
+			    @Override
+			    public Exchange aggregate(Exchange oldExchange,
+				    Exchange newExchange) {
+				if (oldExchange == null) {
+				    return newExchange;
+				}
 
-						String body = oldExchange.getIn().getBody(String.class);
-						oldExchange.getIn().setBody(body + newExchange.getIn().getBody(String.class));
-						return oldExchange;
-					}
-				}).parallelProcessing().timeout(2000).to("mock:result");
+				String body = oldExchange.getIn().getBody(
+					String.class);
+				oldExchange.getIn().setBody(
+					body
+						+ newExchange.getIn().getBody(
+							String.class));
+				return oldExchange;
+			    }
+			}).parallelProcessing().timeout(2000).to("mock:result");
 
-				from("direct:a").setBody(constant("A"));
+		from("direct:a").setBody(constant("A"));
 
-				from("direct:c").delay(500).setBody(constant("C"));
-			}
-		};
-	}
+		from("direct:c").delay(500).setBody(constant("C"));
+	    }
+	};
+    }
 
 }

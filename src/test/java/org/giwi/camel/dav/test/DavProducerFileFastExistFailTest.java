@@ -19,11 +19,13 @@ package org.giwi.camel.dav.test;
 /**
  * @version
  */
-public class DavProducerFileFastExistFailTest extends DavProducerFileExistFailTest {
+public class DavProducerFileFastExistFailTest extends
+	DavProducerFileExistFailTest {
 
-	@Override
-	protected String getDavUrl() {
-		return DAV_URL + "/exist?fastExistsCheck=true&delay=2000&noop=true&fileExist=Fail";
-	}
+    @Override
+    protected String getDavUrl() {
+	return DAV_URL
+		+ "/exist?fastExistsCheck=true&delay=2000&noop=true&fileExist=Fail";
+    }
 
 }

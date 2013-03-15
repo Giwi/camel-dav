@@ -24,29 +24,29 @@ import org.junit.Test;
  * @version
  */
 public class FromDavToMockTest extends AbstractDavTest {
-	protected String expectedBody = "Hello there!";
+    protected String expectedBody = "Hello there!";
 
-	private String getDavUrl() {
-		return DAV_URL + "/tmp/camel?recursive=true";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/tmp/camel?recursive=true";
+    }
 
-	@Test
-	public void testDavRoute() throws Exception {
-		MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
-		resultEndpoint.expectedBodiesReceived(expectedBody);
+    @Test
+    public void testDavRoute() throws Exception {
+	MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
+	resultEndpoint.expectedBodiesReceived(expectedBody);
 
-		template.sendBodyAndHeader(getDavUrl(), expectedBody, "cheese", 123);
+	template.sendBodyAndHeader(getDavUrl(), expectedBody, "cheese", 123);
 
-		resultEndpoint.assertIsSatisfied();
-	}
+	resultEndpoint.assertIsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

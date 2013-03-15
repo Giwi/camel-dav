@@ -30,29 +30,32 @@ import org.junit.Test;
  */
 public class DavPollingConsumerIdleMessageTest extends AbstractDavTest {
 
-	@Test
-	public void testConsumeIdleMessages() throws Exception {
-		Thread.sleep(110);
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMinimumMessageCount(2);
-		assertMockEndpointsSatisfied();
-		assertTrue(mock.getExchanges().get(0).getIn().getBody() == null);
-		assertTrue(mock.getExchanges().get(1).getIn().getBody() == null);
-	}
+    @Test
+    public void testConsumeIdleMessages() throws Exception {
+	Thread.sleep(110);
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMinimumMessageCount(2);
+	assertMockEndpointsSatisfied();
+	assertTrue(mock.getExchanges().get(0).getIn().getBody() == null);
+	assertTrue(mock.getExchanges().get(1).getIn().getBody() == null);
+    }
 
-	@Before
-	public void setup() throws Exception {
-		new File(DAV_ROOT_DIR + "/polling").mkdirs();
-	}
+    @Before
+    public void setup() throws Exception {
+	new File(DAV_ROOT_DIR + "/polling").mkdirs();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(DAV_URL + "/polling?delay=50&sendEmptyMessageWhenIdle=true").to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(
+			DAV_URL
+				+ "/polling?delay=50&sendEmptyMessageWhenIdle=true")
+			.to("mock:result");
+	    }
+	};
+    }
 
 }

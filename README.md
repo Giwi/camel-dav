@@ -3,7 +3,14 @@ This is a Dav client based on [Sardine](https://code.google.com/p/sardine/) and 
 
 # Still experimental, but you can be audacious and have a try :)
 
-Let's read the guts-shaking documentation on the [Wiki](https://github.com/BreizhBeans/camel-dav/wiki)
+Let's read the guts-shaking documentation on my [Blog](http://giwi.free.fr/docs/camel-dav/)
+
+Known limitations : 
+
+* Consider every path in parameters as relative and path in the uri as absolute.
+* Can not append something in a remote file. (I work on that)
+* Doesn't work for HTTPS Dav Servers  
+    
 
 ___
 

@@ -30,48 +30,49 @@ import org.junit.Test;
  */
 public class DavProducerConcurrentTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/concurrent?binary=false&password=admin";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/concurrent";
+    }
 
-	@Test
-	public void testNoConcurrentProducers() throws Exception {
-		doSendMessages(1, 1);
-	}
+    @Test
+    public void testNoConcurrentProducers() throws Exception {
+	doSendMessages(1, 1);
+    }
 
-	@Test
-	public void testConcurrentProducers() throws Exception {
-		doSendMessages(10, 5);
-	}
+    @Test
+    public void testConcurrentProducers() throws Exception {
+	doSendMessages(10, 5);
+    }
 
-	private void doSendMessages(int files, int poolSize) throws Exception {
-		getMockEndpoint("mock:result").expectedMessageCount(files);
+    private void doSendMessages(int files, int poolSize) throws Exception {
+	getMockEndpoint("mock:result").expectedMessageCount(files);
 
-		ExecutorService executor = Executors.newFixedThreadPool(poolSize);
-		for (int i = 0; i < files; i++) {
-			getMockEndpoint("mock:result").expectedFileExists(DAV_ROOT_DIR + "/concurrent/" + i + ".txt");
+	ExecutorService executor = Executors.newFixedThreadPool(poolSize);
+	for (int i = 0; i < files; i++) {
+	    getMockEndpoint("mock:result").expectedFileExists(
+		    DAV_ROOT_DIR + "/concurrent/" + i + ".txt");
 
-			final int index = i;
-			executor.submit(new Callable<Object>() {
-				@Override
-				public Object call() throws Exception {
-					sendFile("direct:start", "Hello World", index + ".txt");
-					return null;
-				}
-			});
+	    final int index = i;
+	    executor.submit(new Callable<Object>() {
+		@Override
+		public Object call() throws Exception {
+		    sendFile("direct:start", "Hello World", index + ".txt");
+		    return null;
 		}
-
-		assertMockEndpointsSatisfied();
-		executor.shutdownNow();
+	    });
 	}
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from("direct:start").to(getDavUrl(), "mock:result");
-			}
-		};
-	}
+	assertMockEndpointsSatisfied();
+	executor.shutdownNow();
+    }
+
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from("direct:start").to(getDavUrl(), "mock:result");
+	    }
+	};
+    }
 }

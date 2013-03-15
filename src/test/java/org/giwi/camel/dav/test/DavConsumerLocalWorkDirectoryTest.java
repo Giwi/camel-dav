@@ -33,70 +33,74 @@ import org.junit.Test;
  * @version
  */
 public class DavConsumerLocalWorkDirectoryTest extends AbstractDavTest {
-	protected String getDavUrl() {
-		return DAV_URL + "/lwd/?delay=5000&localWorkDirectory=tmpOut/lwd&noop=true";
-	}
+    protected String getDavUrl() {
+	return DAV_URL
+		+ "/lwd/?delay=5000&localWorkDirectory=tmpOut/lwd&noop=true";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		deleteDirectory("tmpOut/lwd");
-		deleteDirectory("tmpOut/out");
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	deleteDirectory("tmpOut/lwd");
+	deleteDirectory("tmpOut/out");
+	super.setUp();
+	prepareDavServer();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Test
-	public void testLocalWorkDirectory() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello World");
-		mock.expectedMessageCount(1);
+    @Test
+    public void testLocalWorkDirectory() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello World");
+	mock.expectedMessageCount(1);
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		// give test some time to close file resources
-		Thread.sleep(6000);
+	// give test some time to close file resources
+	Thread.sleep(6000);
 
-		// and the out file should exists
-		File out = new File("tmpOut/out/hello.txt");
-		assertTrue("file should exists", out.exists());
-		assertEquals("Hello World", IOConverter.toString(out, null));
+	// and the out file should exists
+	File out = new File("tmpOut/out/hello.txt");
+	assertTrue("file should exists", out.exists());
+	assertEquals("Hello World", IOConverter.toString(out, null));
 
-		// now the lwd file should be deleted
-		File local = new File("tmpOut/lwd/hello.txt");
-		assertFalse("Local work file should have been deleted", local.exists());
-	}
+	// now the lwd file should be deleted
+	File local = new File("tmpOut/lwd/hello.txt");
+	assertFalse("Local work file should have been deleted", local.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						File body = exchange.getIn().getBody(File.class);
-						assertNotNull(body);
-						assertTrue("Local work file should exists", body.exists());
-						assertEquals(FileUtil.normalizePath("tmpOut/lwd/hello.txt"), body.getPath());
-					}
-				}).to("mock:result", "file://tmpOut/out");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).process(new Processor() {
+		    @Override
+		    public void process(Exchange exchange) throws Exception {
+			File body = exchange.getIn().getBody(File.class);
+			assertNotNull(body);
+			assertTrue("Local work file should exists",
+				body.exists());
+			assertEquals(
+				FileUtil.normalizePath("tmpOut/lwd/hello.txt"),
+				body.getPath());
+		    }
+		}).to("mock:result", "file://tmpOut/out");
+	    }
+	};
+    }
 
 }

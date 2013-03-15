@@ -28,25 +28,28 @@ import org.junit.Test;
  */
 public class FileToDavTempFileNameTest extends AbstractDavTest {
 
-	@Test
-	public void testFileToDav() throws Exception {
-		NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
+    @Test
+    public void testFileToDav() throws Exception {
+	NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
 
-		template.sendBodyAndHeader("file:src/main/data", "Hello World", Exchange.FILE_NAME, "sub/hello.txt");
+	template.sendBodyAndHeader("file:src/main/data", "Hello World",
+		Exchange.FILE_NAME, "sub/hello.txt");
 
-		assertTrue(notify.matchesMockWaitTime());
-		Thread.sleep(1000);
-		File file = new File(DAV_ROOT_DIR + "/sub/hello.txt");
-		assertTrue("File should exists " + file, file.exists());
-	}
+	assertTrue(notify.matchesMockWaitTime());
+	Thread.sleep(1000);
+	File file = new File(DAV_ROOT_DIR + "/sub/hello.txt");
+	assertTrue("File should exists " + file, file.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from("file:src/main/data?recursive=true").to(DAV_URL + "?fileName=${file:name}&tempFileName=${file:onlyname}.part");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from("file:src/main/data?recursive=true")
+			.to(DAV_URL
+				+ "?fileName=${file:name}&tempFileName=${file:onlyname}.part");
+	    }
+	};
+    }
 }

@@ -26,93 +26,97 @@ import org.junit.Test;
 
 public class DavConsumerTemplateTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/template";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/template";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 
-	@Test
-	public void testConsumerTemplate() throws Exception {
-		Exchange exchange = consumer.receive(getDavUrl(), 5000);
-		assertNotNull(exchange);
-		assertEquals("hello.txt", exchange.getIn().getHeader(Exchange.FILE_NAME));
-		assertEquals("Hello World", exchange.getIn().getBody(String.class));
+    @Test
+    public void testConsumerTemplate() throws Exception {
+	Exchange exchange = consumer.receive(getDavUrl(), 5000);
+	assertNotNull(exchange);
+	assertEquals("hello.txt", exchange.getIn()
+		.getHeader(Exchange.FILE_NAME));
+	assertEquals("Hello World", exchange.getIn().getBody(String.class));
 
-		// must done when we are done using the exchange
-		consumer.doneUoW(exchange);
+	// must done when we are done using the exchange
+	consumer.doneUoW(exchange);
 
-		Thread.sleep(500);
+	Thread.sleep(500);
 
-		// poll the same file again
-		exchange = consumer.receive(getDavUrl(), 5000);
-		assertNotNull(exchange);
-		assertEquals("hello.txt", exchange.getIn().getHeader(Exchange.FILE_NAME));
-		assertEquals("Hello World", exchange.getIn().getBody(String.class));
+	// poll the same file again
+	exchange = consumer.receive(getDavUrl(), 5000);
+	assertNotNull(exchange);
+	assertEquals("hello.txt", exchange.getIn()
+		.getHeader(Exchange.FILE_NAME));
+	assertEquals("Hello World", exchange.getIn().getBody(String.class));
 
-		// must done when we are done using the exchange
-		consumer.doneUoW(exchange);
+	// must done when we are done using the exchange
+	consumer.doneUoW(exchange);
 
-		// file should still exists
-		Thread.sleep(500);
-		File file = new File(DAV_ROOT_DIR + "/template/hello.txt");
-		assertTrue("The file should exist: " + file, file.exists());
-	}
+	// file should still exists
+	Thread.sleep(500);
+	File file = new File(DAV_ROOT_DIR + "/template/hello.txt");
+	assertTrue("The file should exist: " + file, file.exists());
+    }
 
-	@Test
-	public void testConsumerTemplateNotDone() throws Exception {
-		Exchange exchange = consumer.receive(getDavUrl(), 5000);
-		assertNotNull(exchange);
-		assertEquals("hello.txt", exchange.getIn().getHeader(Exchange.FILE_NAME));
-		assertEquals("Hello World", exchange.getIn().getBody(String.class));
+    @Test
+    public void testConsumerTemplateNotDone() throws Exception {
+	Exchange exchange = consumer.receive(getDavUrl(), 5000);
+	assertNotNull(exchange);
+	assertEquals("hello.txt", exchange.getIn()
+		.getHeader(Exchange.FILE_NAME));
+	assertEquals("Hello World", exchange.getIn().getBody(String.class));
 
-		// forget to call done
+	// forget to call done
 
-		Thread.sleep(500);
+	Thread.sleep(500);
 
-		// try poll the same file again
-		Exchange exchange2 = consumer.receive(getDavUrl(), 2000);
-		assertNull(exchange2);
+	// try poll the same file again
+	Exchange exchange2 = consumer.receive(getDavUrl(), 2000);
+	assertNull(exchange2);
 
-		// now done the original exchange
-		consumer.doneUoW(exchange);
+	// now done the original exchange
+	consumer.doneUoW(exchange);
 
-		// now we can poll the file again as we have done the exchange
-		exchange2 = consumer.receive(getDavUrl(), 2000);
-		assertNotNull(exchange2);
-		assertEquals("hello.txt", exchange2.getIn().getHeader(Exchange.FILE_NAME));
-		assertEquals("Hello World", exchange2.getIn().getBody(String.class));
-		consumer.doneUoW(exchange2);
+	// now we can poll the file again as we have done the exchange
+	exchange2 = consumer.receive(getDavUrl(), 2000);
+	assertNotNull(exchange2);
+	assertEquals("hello.txt",
+		exchange2.getIn().getHeader(Exchange.FILE_NAME));
+	assertEquals("Hello World", exchange2.getIn().getBody(String.class));
+	consumer.doneUoW(exchange2);
 
-		// file should still exists
-		Thread.sleep(500);
-		File file = new File(DAV_ROOT_DIR + "/template/hello.txt");
-		assertTrue("The file should exist: " + file, file.exists());
-	}
+	// file should still exists
+	Thread.sleep(500);
+	File file = new File(DAV_ROOT_DIR + "/template/hello.txt");
+	assertTrue("The file should exist: " + file, file.exists());
+    }
 
-	private void prepareDavServer() throws Exception {
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
+    private void prepareDavServer() throws Exception {
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
 
-		// assert file is created
-		File file = new File(DAV_ROOT_DIR + "/template/hello.txt");
-		assertTrue("The file should exist: " + file, file.exists());
-	}
+	// assert file is created
+	File file = new File(DAV_ROOT_DIR + "/template/hello.txt");
+	assertTrue("The file should exist: " + file, file.exists());
+    }
 
 }

@@ -28,56 +28,60 @@ import org.junit.Test;
  */
 public class DavShutdownCompleteAllTasksTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/pending?initialDelay=5000";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/pending?initialDelay=5000";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating files on the server that we want
-		// to unit
-		String davUrl = DAV_URL + "/pending/";
-		template.sendBodyAndHeader(davUrl, "A", Exchange.FILE_NAME, "a.txt");
-		template.sendBodyAndHeader(davUrl, "B", Exchange.FILE_NAME, "b.txt");
-		template.sendBodyAndHeader(davUrl, "C", Exchange.FILE_NAME, "c.txt");
-		template.sendBodyAndHeader(davUrl, "D", Exchange.FILE_NAME, "d.txt");
-		template.sendBodyAndHeader(davUrl, "E", Exchange.FILE_NAME, "e.txt");
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating files on the server that we want
+	// to unit
+	String davUrl = DAV_URL + "/pending/";
+	template.sendBodyAndHeader(davUrl, "A", Exchange.FILE_NAME, "a.txt");
+	template.sendBodyAndHeader(davUrl, "B", Exchange.FILE_NAME, "b.txt");
+	template.sendBodyAndHeader(davUrl, "C", Exchange.FILE_NAME, "c.txt");
+	template.sendBodyAndHeader(davUrl, "D", Exchange.FILE_NAME, "d.txt");
+	template.sendBodyAndHeader(davUrl, "E", Exchange.FILE_NAME, "e.txt");
+    }
 
-	@Test
-	public void testShutdownCompleteAllTasks() throws Exception {
-		// give it 20 seconds to shutdown
-		context.getShutdownStrategy().setTimeout(20);
+    @Test
+    public void testShutdownCompleteAllTasks() throws Exception {
+	// give it 20 seconds to shutdown
+	context.getShutdownStrategy().setTimeout(20);
 
-		MockEndpoint bar = getMockEndpoint("mock:bar");
-		bar.expectedMinimumMessageCount(1);
+	MockEndpoint bar = getMockEndpoint("mock:bar");
+	bar.expectedMinimumMessageCount(1);
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		// shutdown during processing
-		context.stop();
+	// shutdown during processing
+	context.stop();
 
-		// should route all 5
-		assertEquals("Should complete all messages", 5, bar.getReceivedCounter());
-	}
+	// should route all 5
+	assertEquals("Should complete all messages", 5,
+		bar.getReceivedCounter());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).routeId("route1")
-				// let it complete all tasks during shutdown
-						.shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks).delay(1000).to("seda:foo");
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl())
+			.routeId("route1")
+			// let it complete all tasks during shutdown
+			.shutdownRunningTask(
+				ShutdownRunningTask.CompleteAllTasks)
+			.delay(1000).to("seda:foo");
 
-				from("seda:foo").routeId("route2").to("mock:bar");
-			}
-		};
-	}
+		from("seda:foo").routeId("route2").to("mock:bar");
+	    }
+	};
+    }
 }

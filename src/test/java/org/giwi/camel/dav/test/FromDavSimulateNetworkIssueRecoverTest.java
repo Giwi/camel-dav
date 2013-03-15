@@ -32,60 +32,63 @@ import org.junit.Test;
  */
 public class FromDavSimulateNetworkIssueRecoverTest extends AbstractDavTest {
 
-	private static int counter;
-	private static int rollback;
+    private static int counter;
+    private static int rollback;
 
-	private String getDavUrl() {
-		return DAV_URL + "/recover?pollStrategy=#myPoll";
+    private String getDavUrl() {
+	return DAV_URL + "/recover?pollStrategy=#myPoll";
+    }
+
+    @Override
+    protected JndiRegistry createRegistry() throws Exception {
+	JndiRegistry jndi = super.createRegistry();
+	jndi.bind("myPoll", new MyPollStrategy());
+	return jndi;
+    }
+
+    @Test
+    public void testDavRecover() throws Exception {
+	// should be able to download the file after recovering
+	MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
+	resultEndpoint.expectedMinimumMessageCount(3);
+
+	template.sendBody(getDavUrl(), "Hello World");
+
+	resultEndpoint.assertIsSatisfied();
+
+	Thread.sleep(2000);
+
+	assertTrue("Should have tried at least 3 times was " + counter,
+		counter >= 3);
+	assertEquals(2, rollback);
+    }
+
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
+
+    public class MyPollStrategy extends RemoteFilePollingConsumerPollStrategy {
+
+	@Override
+	public void commit(Consumer consumer, Endpoint endpoint,
+		int polledMessages) {
+	    counter++;
+	    if (counter < 3) {
+		throw new IllegalArgumentException("Forced by unit test");
+	    }
 	}
 
 	@Override
-	protected JndiRegistry createRegistry() throws Exception {
-		JndiRegistry jndi = super.createRegistry();
-		jndi.bind("myPoll", new MyPollStrategy());
-		return jndi;
+	public boolean rollback(Consumer consumer, Endpoint endpoint,
+		int retryCounter, Exception e) throws Exception {
+	    rollback++;
+	    return super.rollback(consumer, endpoint, retryCounter, e);
 	}
-
-	@Test
-	public void testDavRecover() throws Exception {
-		// should be able to download the file after recovering
-		MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
-		resultEndpoint.expectedMinimumMessageCount(3);
-
-		template.sendBody(getDavUrl(), "Hello World");
-
-		resultEndpoint.assertIsSatisfied();
-
-		Thread.sleep(2000);
-
-		assertTrue("Should have tried at least 3 times was " + counter, counter >= 3);
-		assertEquals(2, rollback);
-	}
-
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
-
-	public class MyPollStrategy extends RemoteFilePollingConsumerPollStrategy {
-
-		@Override
-		public void commit(Consumer consumer, Endpoint endpoint, int polledMessages) {
-			counter++;
-			if (counter < 3) {
-				throw new IllegalArgumentException("Forced by unit test");
-			}
-		}
-
-		@Override
-		public boolean rollback(Consumer consumer, Endpoint endpoint, int retryCounter, Exception e) throws Exception {
-			rollback++;
-			return super.rollback(consumer, endpoint, retryCounter, e);
-		}
-	}
+    }
 }

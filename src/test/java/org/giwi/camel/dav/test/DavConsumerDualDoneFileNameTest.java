@@ -25,41 +25,50 @@ import org.junit.Test;
  */
 public class DavConsumerDualDoneFileNameTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/done?initialDelay=0&delay=100";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/done?initialDelay=0&delay=100";
+    }
 
-	@Test
-	public void testTwoDoneFile() throws Exception {
-		getMockEndpoint("mock:result").expectedBodiesReceivedInAnyOrder("Hello World", "Bye World");
+    @Test
+    public void testTwoDoneFile() throws Exception {
+	getMockEndpoint("mock:result").expectedBodiesReceivedInAnyOrder(
+		"Hello World", "Bye World");
 
-		template.sendBodyAndHeader(getDavUrl() + "&doneFileName=${file:name}.ready", "Hello World", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl() + "&doneFileName=${file:name}.ready", "Bye World", Exchange.FILE_NAME, "bye.txt");
+	template.sendBodyAndHeader(getDavUrl()
+		+ "&doneFileName=${file:name}.ready", "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
+	template.sendBodyAndHeader(getDavUrl()
+		+ "&doneFileName=${file:name}.ready", "Bye World",
+		Exchange.FILE_NAME, "bye.txt");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Test
-	public void testOneDoneFileMissing() throws Exception {
-		getMockEndpoint("mock:result").expectedBodiesReceived("Hello World");
+    @Test
+    public void testOneDoneFileMissing() throws Exception {
+	getMockEndpoint("mock:result").expectedBodiesReceived("Hello World");
 
-		template.sendBodyAndHeader(getDavUrl() + "&doneFileName=${file:name}.ready", "Hello World", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye World", Exchange.FILE_NAME, "bye.txt");
+	template.sendBodyAndHeader(getDavUrl()
+		+ "&doneFileName=${file:name}.ready", "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
+	template.sendBodyAndHeader(getDavUrl(), "Bye World",
+		Exchange.FILE_NAME, "bye.txt");
 
-		// give chance to poll 2nd file but it lacks the done file
-		Thread.sleep(1000);
+	// give chance to poll 2nd file but it lacks the done file
+	Thread.sleep(1000);
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&doneFileName=${file:name}.ready").convertBodyTo(String.class).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&doneFileName=${file:name}.ready")
+			.convertBodyTo(String.class).to("mock:result");
+	    }
+	};
+    }
 
 }

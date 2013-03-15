@@ -31,56 +31,57 @@ import org.junit.Test;
  * @version
  */
 public class DavConsumerLocalWorkDirectoryDirectTest extends AbstractDavTest {
-	protected String getDavUrl() {
-		return DAV_URL + "/lwd/?delay=5000&localWorkDirectory=tmpOut/lwd&noop=true";
-	}
+    protected String getDavUrl() {
+	return DAV_URL
+		+ "/lwd/?delay=5000&localWorkDirectory=tmpOut/lwd&noop=true";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		deleteDirectory("tmpOut/lwd");
-		deleteDirectory("tmpOut/out");
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	deleteDirectory("tmpOut/lwd");
+	deleteDirectory("tmpOut/out");
+	super.setUp();
+	prepareDavServer();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Test
-	public void testLocalWorkDirectory() throws Exception {
-		NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
-		assertTrue("Should process one file", notify.matchesMockWaitTime());
+    @Test
+    public void testLocalWorkDirectory() throws Exception {
+	NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
+	assertTrue("Should process one file", notify.matchesMockWaitTime());
 
-		// and the out file should exists
-		File out = new File("tmpOut/out/hello.txt");
-		assertTrue("file should exists", out.exists());
-		assertEquals("Hello World", IOConverter.toString(out, null));
+	// and the out file should exists
+	File out = new File("tmpOut/out/hello.txt");
+	assertTrue("file should exists", out.exists());
+	assertEquals("Hello World", IOConverter.toString(out, null));
 
-		// now the lwd file should be deleted
-		File local = new File("tmpOut/lwd/hello.txt");
-		assertFalse("Local work file should have been deleted", local.exists());
-	}
+	// now the lwd file should be deleted
+	File local = new File("tmpOut/lwd/hello.txt");
+	assertFalse("Local work file should have been deleted", local.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("file://tmpOut/out");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("file://tmpOut/out");
+	    }
+	};
+    }
 
 }

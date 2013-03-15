@@ -32,54 +32,57 @@ import org.junit.Test;
  */
 public class FromDavToAsciiFileTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/tmp3/camel?fileExist=Override";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/tmp3/camel?fileExist=Override";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testDavRoute() throws Exception {
-		MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
-		resultEndpoint.expectedMinimumMessageCount(1);
-		resultEndpoint.expectedBodiesReceived("Hello World from davServer");
+    @Test
+    public void testDavRoute() throws Exception {
+	MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
+	resultEndpoint.expectedMinimumMessageCount(1);
+	resultEndpoint.expectedBodiesReceived("Hello World from davServer");
 
-		resultEndpoint.assertIsSatisfied();
+	resultEndpoint.assertIsSatisfied();
 
-		// assert the file
-		File file = new File("tmpOut/davtest/deleteme.txt");
-		assertTrue("The ASCII file should exists", file.exists());
-		assertTrue("File size wrong", file.length() > 10);
-	}
+	// assert the file
+	File file = new File("tmpOut/davtest/deleteme.txt");
+	assertTrue("The ASCII file should exists", file.exists());
+	assertTrue("File size wrong", file.length() > 10);
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the dav Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World from davServer");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the dav Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World from davServer");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				String fileUrl = "file:tmpOut/davtest/?fileExist=Override&noop=true";
-				from(getDavUrl()).setHeader(Exchange.FILE_NAME, constant("deleteme.txt")).convertBodyTo(String.class).to(fileUrl).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		String fileUrl = "file:tmpOut/davtest/?fileExist=Override&noop=true";
+		from(getDavUrl())
+			.setHeader(Exchange.FILE_NAME, constant("deleteme.txt"))
+			.convertBodyTo(String.class).to(fileUrl)
+			.to("mock:result");
+	    }
+	};
+    }
 
 }

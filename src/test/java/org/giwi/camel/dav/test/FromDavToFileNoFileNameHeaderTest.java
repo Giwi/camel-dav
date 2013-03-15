@@ -31,52 +31,54 @@ import org.junit.Test;
  */
 public class FromDavToFileNoFileNameHeaderTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/tmp3/camel";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/tmp3/camel";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testCorrectFilename() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMinimumMessageCount(1);
-		mock.expectedBodiesReceived("Hello World from DAVServer");
-		mock.expectedFileExists("tmpOut/davtest/hello.txt", "Hello World from DAVServer");
+    @Test
+    public void testCorrectFilename() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMinimumMessageCount(1);
+	mock.expectedBodiesReceived("Hello World from DAVServer");
+	mock.expectedFileExists("tmpOut/davtest/hello.txt",
+		"Hello World from DAVServer");
 
-		mock.assertIsSatisfied();
-	}
+	mock.assertIsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World from DAVServer");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World from DAVServer");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				String fileUrl = "file:tmpOut/davtest/?fileExist=Override&noop=true";
-				// we do not set any filename in the header property so the
-				// filename should be the one
-				// from the DAV server we downloaded
-				from(getDavUrl()).convertBodyTo(String.class).to(fileUrl).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		String fileUrl = "file:tmpOut/davtest/?fileExist=Override&noop=true";
+		// we do not set any filename in the header property so the
+		// filename should be the one
+		// from the DAV server we downloaded
+		from(getDavUrl()).convertBodyTo(String.class).to(fileUrl)
+			.to("mock:result");
+	    }
+	};
+    }
 }

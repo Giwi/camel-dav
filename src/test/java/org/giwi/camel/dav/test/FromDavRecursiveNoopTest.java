@@ -26,44 +26,51 @@ import org.junit.Test;
  */
 public class FromDavRecursiveNoopTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/noop?initialDelay=3000&recursive=true&noop=true";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/noop?initialDelay=3000&recursive=true&noop=true";
+    }
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
+    @Override
+    public void setUp() throws Exception {
+	super.setUp();
 
-		template.sendBodyAndHeader(getDavUrl(), "a", Exchange.FILE_NAME, "a.txt");
-		template.sendBodyAndHeader(getDavUrl(), "b", Exchange.FILE_NAME, "b.txt");
-		template.sendBodyAndHeader(getDavUrl(), "a2", Exchange.FILE_NAME, "foo/a.txt");
-		template.sendBodyAndHeader(getDavUrl(), "c", Exchange.FILE_NAME, "bar/c.txt");
-		template.sendBodyAndHeader(getDavUrl(), "b2", Exchange.FILE_NAME, "bar/b.txt");
-	}
+	template.sendBodyAndHeader(getDavUrl(), "a", Exchange.FILE_NAME,
+		"a.txt");
+	template.sendBodyAndHeader(getDavUrl(), "b", Exchange.FILE_NAME,
+		"b.txt");
+	template.sendBodyAndHeader(getDavUrl(), "a2", Exchange.FILE_NAME,
+		"foo/a.txt");
+	template.sendBodyAndHeader(getDavUrl(), "c", Exchange.FILE_NAME,
+		"bar/c.txt");
+	template.sendBodyAndHeader(getDavUrl(), "b2", Exchange.FILE_NAME,
+		"bar/b.txt");
+    }
 
-	@Test
-	public void testRecursiveNoop() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("a", "b", "a2", "c", "b2");
+    @Test
+    public void testRecursiveNoop() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceivedInAnyOrder("a", "b", "a2", "c", "b2");
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		// reset mock and send in a new file to be picked up only
-		mock.reset();
-		mock.expectedBodiesReceived("c2");
+	// reset mock and send in a new file to be picked up only
+	mock.reset();
+	mock.expectedBodiesReceived("c2");
 
-		template.sendBodyAndHeader(getDavUrl(), "c2", Exchange.FILE_NAME, "c.txt");
+	template.sendBodyAndHeader(getDavUrl(), "c2", Exchange.FILE_NAME,
+		"c.txt");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).convertBodyTo(String.class).to("log:ftp").to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).convertBodyTo(String.class).to("log:ftp")
+			.to("mock:result");
+	    }
+	};
+    }
 }

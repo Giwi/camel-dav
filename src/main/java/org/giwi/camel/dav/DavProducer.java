@@ -23,19 +23,22 @@ import com.googlecode.sardine.DavResource;
  * 
  */
 public class DavProducer extends RemoteFileProducer<DavResource> {
-	protected String endpointPath;
+    protected String endpointPath;
 
-	/**
-	 * @param endpoint
-	 * @param operations
-	 */
-	protected DavProducer(RemoteFileEndpoint<DavResource> endpoint, RemoteFileOperations<DavResource> operations) {
-		super(endpoint, operations);
-		endpointPath = endpoint.getConfiguration().getRemoteServerInformation();
-		if (log.isInfoEnabled()) {
-			log.info("endpointPath : " + endpointPath);
-		}
-		((DavOperations) operations).initComponent(endpoint.getConfiguration().getInitialDirectory());
+    /**
+     * @param endpoint
+     * @param operations
+     */
+    protected DavProducer(RemoteFileEndpoint<DavResource> endpoint,
+	    RemoteFileOperations<DavResource> operations) {
+	super(endpoint, operations);
+	endpointPath = endpoint.getConfiguration().getRemoteServerInformation();
+	if (log.isInfoEnabled()) {
+	    log.info("endpointPath : " + endpointPath);
 	}
-
+	if (endpoint.isAutoCreate()) {
+	    ((DavOperations) operations).initComponent(endpoint
+		    .getConfiguration().getInitialDirectory());
+	}
+    }
 }

@@ -29,67 +29,67 @@ import org.junit.Test;
  */
 public class FromDavRemoteFileFilterTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/filefilter?filter=#myFilter";
+    private String getDavUrl() {
+	return DAV_URL + "/filefilter?filter=#myFilter";
+    }
+
+    @Override
+    protected JndiRegistry createRegistry() throws Exception {
+	JndiRegistry jndi = super.createRegistry();
+	jndi.bind("myFilter", new MyFileFilter<Object>());
+	return jndi;
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
+
+    @Test
+    public void testDavFilter() throws Exception {
+	if (isPlatform("aix")) {
+	    // skip testing on AIX as it have an issue with this test with the
+	    // file filter
+	    return;
 	}
+
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(2);
+	mock.expectedBodiesReceivedInAnyOrder("Report 1", "Report 2");
+
+	mock.assertIsSatisfied();
+    }
+
+    private void prepareDavServer() throws Exception {
+	// prepares the FTP Server by creating files on the server that we want
+	// to unit
+	// test that we can pool
+	sendFile(getDavUrl(), "Hello World", "hello.txt");
+	sendFile(getDavUrl(), "Report 1", "report1.txt");
+	sendFile(getDavUrl(), "Bye World", "bye.txt");
+	sendFile(getDavUrl(), "Report 2", "report2.txt");
+    }
+
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).convertBodyTo(String.class).to("mock:result");
+	    }
+	};
+    }
+
+    // START SNIPPET: e1
+    public class MyFileFilter<T> implements GenericFileFilter<T> {
 
 	@Override
-	protected JndiRegistry createRegistry() throws Exception {
-		JndiRegistry jndi = super.createRegistry();
-		jndi.bind("myFilter", new MyFileFilter<Object>());
-		return jndi;
+	public boolean accept(GenericFile<T> file) {
+	    // we only want report files
+	    return file.getFileName().startsWith("report");
 	}
-
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
-
-	@Test
-	public void testDavFilter() throws Exception {
-		if (isPlatform("aix")) {
-			// skip testing on AIX as it have an issue with this test with the
-			// file filter
-			return;
-		}
-
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(2);
-		mock.expectedBodiesReceivedInAnyOrder("Report 1", "Report 2");
-
-		mock.assertIsSatisfied();
-	}
-
-	private void prepareDavServer() throws Exception {
-		// prepares the FTP Server by creating files on the server that we want
-		// to unit
-		// test that we can pool
-		sendFile(getDavUrl(), "Hello World", "hello.txt");
-		sendFile(getDavUrl(), "Report 1", "report1.txt");
-		sendFile(getDavUrl(), "Bye World", "bye.txt");
-		sendFile(getDavUrl(), "Report 2", "report2.txt");
-	}
-
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).convertBodyTo(String.class).to("mock:result");
-			}
-		};
-	}
-
-	// START SNIPPET: e1
-	public class MyFileFilter<T> implements GenericFileFilter<T> {
-
-		@Override
-		public boolean accept(GenericFile<T> file) {
-			// we only want report files
-			return file.getFileName().startsWith("report");
-		}
-	}
-	// END SNIPPET: e1
+    }
+    // END SNIPPET: e1
 }

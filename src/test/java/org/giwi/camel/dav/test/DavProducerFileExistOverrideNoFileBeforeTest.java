@@ -25,37 +25,39 @@ import org.junit.Test;
 /**
  * @version
  */
-public class DavProducerFileExistOverrideNoFileBeforeTest extends AbstractDavTest {
+public class DavProducerFileExistOverrideNoFileBeforeTest extends
+	AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/exist?delay=2000&noop=true&fileExist=Override";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/exist?delay=2000&noop=true&fileExist=Override";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		deleteDirectory("tmpOut/exist");
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	deleteDirectory("tmpOut/exist");
+    }
 
-	@Test
-	public void testOverride() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Bye World");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/exist/hello.txt", "Bye World");
+    @Test
+    public void testOverride() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Bye World");
+	mock.expectedFileExists(DAV_ROOT_DIR + "/exist/hello.txt", "Bye World");
 
-		template.sendBodyAndHeader(getDavUrl(), "Bye World", Exchange.FILE_NAME, "hello.txt");
+	template.sendBodyAndHeader(getDavUrl(), "Bye World",
+		Exchange.FILE_NAME, "hello.txt");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

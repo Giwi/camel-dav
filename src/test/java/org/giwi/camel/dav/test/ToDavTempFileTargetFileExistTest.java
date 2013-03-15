@@ -28,52 +28,54 @@ import org.junit.Test;
 
 public class ToDavTempFileTargetFileExistTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/tempfile?fileName=./foo/bar/message.txt&tempFileName=${file:onlyname.noext}.tmp";
-	}
+    private String getDavUrl() {
+	return DAV_URL
+		+ "/tempfile?fileName=./foo/bar/message.txt&tempFileName=${file:onlyname.noext}.tmp";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testSendFileTargetFileExist() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedBodiesReceived("Hello Again World");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/tempfile/foo/bar/message.txt", "Hello Again World");
+    @Test
+    public void testSendFileTargetFileExist() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedBodiesReceived("Hello Again World");
+	mock.expectedFileExists(DAV_ROOT_DIR + "/tempfile/foo/bar/message.txt",
+		"Hello Again World");
 
-		template.sendBody("direct:start", "Hello Again World");
+	template.sendBody("direct:start", "Hello Again World");
 
-		mock.assertIsSatisfied();
-	}
+	mock.assertIsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating a file on the server
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "foo/bar/message.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating a file on the server
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "foo/bar/message.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
 
-		// assert file is created
-		File file = new File(DAV_ROOT_DIR + "/tempfile/foo/bar/message.txt");
-		assertTrue("The file should exists", file.exists());
-	}
+	// assert file is created
+	File file = new File(DAV_ROOT_DIR + "/tempfile/foo/bar/message.txt");
+	assertTrue("The file should exists", file.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from("direct:start").to(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from("direct:start").to(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

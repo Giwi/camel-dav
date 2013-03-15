@@ -28,79 +28,97 @@ import org.junit.Test;
  */
 public class DavProducerDoneFileNameTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/done";
+    private String getDavUrl() {
+	return DAV_URL + "/done";
+    }
+
+    @Test
+    public void testProducerConstantDoneFileName() throws Exception {
+	template.sendBodyAndHeader(getDavUrl() + "?doneFileName=done",
+		"Hello World", Exchange.FILE_NAME, "hello.txt");
+
+	File file = new File(DAV_ROOT_DIR + "/done/hello.txt");
+	assertEquals("File should exists", true, file.exists());
+
+	File done = new File(DAV_ROOT_DIR + "/done/done");
+	assertEquals("Done file should exists", true, done.exists());
+    }
+
+    @Test
+    public void testProducerPrefixDoneFileName() throws Exception {
+	template.sendBodyAndHeader(getDavUrl()
+		+ "?doneFileName=done-${file:name}", "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
+
+	File file = new File(DAV_ROOT_DIR + "/done/hello.txt");
+	assertEquals("File should exists", true, file.exists());
+
+	File done = new File(DAV_ROOT_DIR + "/done/done-hello.txt");
+	assertEquals("Done file should exists", true, done.exists());
+    }
+
+    @Test
+    public void testProducerExtDoneFileName() throws Exception {
+	template.sendBodyAndHeader(getDavUrl()
+		+ "?doneFileName=${file:name}.done", "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
+
+	File file = new File(DAV_ROOT_DIR + "/done/hello.txt");
+	assertEquals("File should exists", true, file.exists());
+
+	File done = new File(DAV_ROOT_DIR + "/done/hello.txt.done");
+	assertEquals("Done file should exists", true, done.exists());
+    }
+
+    @Test
+    public void testProducerReplaceExtDoneFileName() throws Exception {
+	template.sendBodyAndHeader(getDavUrl()
+		+ "?doneFileName=${file:name.noext}.done", "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
+
+	File file = new File(DAV_ROOT_DIR + "/done/hello.txt");
+	assertEquals("File should exists", true, file.exists());
+
+	File done = new File(DAV_ROOT_DIR + "/done/hello.done");
+	assertEquals("Done file should exists", true, done.exists());
+    }
+
+    @Test
+    public void testProducerInvalidDoneFileName() throws Exception {
+	try {
+	    template.sendBodyAndHeader(getDavUrl()
+		    + "?doneFileName=${file:parent}/foo", "Hello World",
+		    Exchange.FILE_NAME, "hello.txt");
+	    fail("Should have thrown exception");
+	} catch (CamelExecutionException e) {
+	    ExpressionIllegalSyntaxException cause = assertIsInstanceOf(
+		    ExpressionIllegalSyntaxException.class, e.getCause());
+	    assertTrue(
+		    cause.getMessage(),
+		    cause.getMessage().endsWith(
+			    "Cannot resolve reminder: ${file:parent}/foo"));
 	}
+    }
 
-	@Test
-	public void testProducerConstantDoneFileName() throws Exception {
-		template.sendBodyAndHeader(getDavUrl() + "&doneFileName=done", "Hello World", Exchange.FILE_NAME, "hello.txt");
-
-		File file = new File(DAV_ROOT_DIR + "/done/hello.txt");
-		assertEquals("File should exists", true, file.exists());
-
-		File done = new File(DAV_ROOT_DIR + "/done/done");
-		assertEquals("Done file should exists", true, done.exists());
+    @Test
+    public void testProducerEmptyDoneFileName() throws Exception {
+	try {
+	    template.sendBodyAndHeader(getDavUrl() + "?doneFileName=",
+		    "Hello World", Exchange.FILE_NAME, "hello.txt");
+	    fail("Should have thrown exception");
+	} catch (CamelExecutionException e) {
+	    IllegalArgumentException cause = assertIsInstanceOf(
+		    IllegalArgumentException.class, e.getCause());
+	    assertTrue(
+		    cause.getMessage(),
+		    cause.getMessage().startsWith(
+			    "doneFileName must be specified and not empty"));
 	}
+    }
 
-	@Test
-	public void testProducerPrefixDoneFileName() throws Exception {
-		template.sendBodyAndHeader(getDavUrl() + "&doneFileName=done-${file:name}", "Hello World", Exchange.FILE_NAME, "hello.txt");
-
-		File file = new File(DAV_ROOT_DIR + "/done/hello.txt");
-		assertEquals("File should exists", true, file.exists());
-
-		File done = new File(DAV_ROOT_DIR + "/done/done-hello.txt");
-		assertEquals("Done file should exists", true, done.exists());
-	}
-
-	@Test
-	public void testProducerExtDoneFileName() throws Exception {
-		template.sendBodyAndHeader(getDavUrl() + "&doneFileName=${file:name}.done", "Hello World", Exchange.FILE_NAME, "hello.txt");
-
-		File file = new File(DAV_ROOT_DIR + "/done/hello.txt");
-		assertEquals("File should exists", true, file.exists());
-
-		File done = new File(DAV_ROOT_DIR + "/done/hello.txt.done");
-		assertEquals("Done file should exists", true, done.exists());
-	}
-
-	@Test
-	public void testProducerReplaceExtDoneFileName() throws Exception {
-		template.sendBodyAndHeader(getDavUrl() + "&doneFileName=${file:name.noext}.done", "Hello World", Exchange.FILE_NAME, "hello.txt");
-
-		File file = new File(DAV_ROOT_DIR + "/done/hello.txt");
-		assertEquals("File should exists", true, file.exists());
-
-		File done = new File(DAV_ROOT_DIR + "/done/hello.done");
-		assertEquals("Done file should exists", true, done.exists());
-	}
-
-	@Test
-	public void testProducerInvalidDoneFileName() throws Exception {
-		try {
-			template.sendBodyAndHeader(getDavUrl() + "&doneFileName=${file:parent}/foo", "Hello World", Exchange.FILE_NAME, "hello.txt");
-			fail("Should have thrown exception");
-		} catch (CamelExecutionException e) {
-			ExpressionIllegalSyntaxException cause = assertIsInstanceOf(ExpressionIllegalSyntaxException.class, e.getCause());
-			assertTrue(cause.getMessage(), cause.getMessage().endsWith("Cannot resolve reminder: ${file:parent}/foo"));
-		}
-	}
-
-	@Test
-	public void testProducerEmptyDoneFileName() throws Exception {
-		try {
-			template.sendBodyAndHeader(getDavUrl() + "&doneFileName=", "Hello World", Exchange.FILE_NAME, "hello.txt");
-			fail("Should have thrown exception");
-		} catch (CamelExecutionException e) {
-			IllegalArgumentException cause = assertIsInstanceOf(IllegalArgumentException.class, e.getCause());
-			assertTrue(cause.getMessage(), cause.getMessage().startsWith("doneFileName must be specified and not empty"));
-		}
-	}
-
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 
 }

@@ -24,28 +24,32 @@ import org.junit.Test;
 
 public class DavProducerAllowNullBodyTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/allownull?fileName=allowNullBody.txt";
+    private String getDavUrl() {
+	return DAV_URL + "/allownull?fileName=allowNullBody.txt";
+    }
+
+    @Test
+    public void testAllowNullBodyTrue() throws Exception {
+	template.sendBody(getDavUrl() + "&allowNullBody=true", null);
+
+	assertFileExists(DAV_ROOT_DIR + "/allownull/allowNullBody.txt");
+    }
+
+    @Test
+    public void testAllowNullBodyFalse() throws Exception {
+	try {
+	    template.sendBody(getDavUrl() + "&allowNullBody=false", null);
+	    fail("Should have thrown a GenericFileOperationFailedException");
+	} catch (CamelExecutionException e) {
+	    GenericFileOperationFailedException cause = assertIsInstanceOf(
+		    GenericFileOperationFailedException.class, e.getCause());
+	    assertTrue(cause.getMessage().endsWith("allowNullBody.txt"));
 	}
 
-	@Test
-	public void testAllowNullBodyTrue() throws Exception {
-		template.sendBody(getDavUrl() + "&allowNullBody=true", null);
-
-		assertFileExists(DAV_ROOT_DIR + "/allownull/allowNullBody.txt");
-	}
-
-	@Test
-	public void testAllowNullBodyFalse() throws Exception {
-		try {
-			template.sendBody(getDavUrl() + "&allowNullBody=false", null);
-			fail("Should have thrown a GenericFileOperationFailedException");
-		} catch (CamelExecutionException e) {
-			GenericFileOperationFailedException cause = assertIsInstanceOf(GenericFileOperationFailedException.class, e.getCause());
-			assertTrue(cause.getMessage().endsWith("allowNullBody.txt"));
-		}
-
-		assertFalse("allowNullBody set to false with null body should not create a new file", new File(DAV_ROOT_DIR + "/allownull/allowNullBody.txt").exists());
-	}
+	assertFalse(
+		"allowNullBody set to false with null body should not create a new file",
+		new File(DAV_ROOT_DIR + "/allownull/allowNullBody.txt")
+			.exists());
+    }
 
 }

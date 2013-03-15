@@ -33,72 +33,76 @@ import org.slf4j.LoggerFactory;
  */
 public class FromDavExclusiveReadNoneStrategyTest extends AbstractDavTest {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FromDavExclusiveReadNoneStrategyTest.class);
+    private static final Logger LOG = LoggerFactory
+	    .getLogger(FromDavExclusiveReadNoneStrategyTest.class);
 
-	private String getDavUrl() {
-		return DAV_URL + "/slowfile?readLock=none&consumer.delay=500";
+    private String getDavUrl() {
+	return DAV_URL + "/slowfile?readLock=none&consumer.delay=500";
+    }
+
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
+
+    @Test
+    public void testPollFileWhileSlowFileIsBeingWrittenUsingNonExclusiveRead()
+	    throws Exception {
+	// cannot test on windows due file system works differently with file
+	// locks
+	if (isPlatform("windows")) {
+	    return;
 	}
+
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from("seda:start").process(new MySlowFileProcessor());
+		from(getDavUrl()).to("mock:result");
+	    }
+	});
+	context.start();
+
+	deleteDirectory(DAV_ROOT_DIR + "/slowfile");
+	createDirectory(DAV_ROOT_DIR + "/slowfile");
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+
+	// send a message to seda:start to trigger the creating of the slowfile
+	// to poll
+	template.sendBody("seda:start", "Create the slow file");
+
+	mock.assertIsSatisfied();
+
+	// we read only part of the file as we dont have exclusive read and thus
+	// read part of the
+	// file currently in progress of being written - so we get only the
+	// Hello World part
+	String body = mock.getReceivedExchanges().get(0).getIn()
+		.getBody(String.class);
+	LOG.debug("Body is: " + body);
+	assertFalse("Should not wait and read the entire file",
+		body.endsWith("Bye World"));
+    }
+
+    private static class MySlowFileProcessor implements Processor {
 
 	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
+	public void process(Exchange exchange) throws Exception {
+	    LOG.info("Creating a slow file ...");
+	    File file = new File(DAV_ROOT_DIR + "/slowfile/hello.txt");
+	    FileOutputStream fos = new FileOutputStream(file);
+	    FileLock lock = fos.getChannel().lock();
+	    fos.write("Hello World".getBytes());
+	    for (int i = 0; i < 3; i++) {
+		Thread.sleep(1000);
+		fos.write(("Line #" + i).getBytes());
+		LOG.info("Appending to slowfile");
+	    }
+	    fos.write("Bye World".getBytes());
+	    lock.release();
+	    fos.close();
+	    LOG.info("... done creating slowfile");
 	}
-
-	@Test
-	public void testPollFileWhileSlowFileIsBeingWrittenUsingNonExclusiveRead() throws Exception {
-		// cannot test on windows due file system works differently with file
-		// locks
-		if (isPlatform("windows")) {
-			return;
-		}
-
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from("seda:start").process(new MySlowFileProcessor());
-				from(getDavUrl()).to("mock:result");
-			}
-		});
-		context.start();
-
-		deleteDirectory(DAV_ROOT_DIR + "/slowfile");
-		createDirectory(DAV_ROOT_DIR + "/slowfile");
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-
-		// send a message to seda:start to trigger the creating of the slowfile
-		// to poll
-		template.sendBody("seda:start", "Create the slow file");
-
-		mock.assertIsSatisfied();
-
-		// we read only part of the file as we dont have exclusive read and thus
-		// read part of the
-		// file currently in progress of being written - so we get only the
-		// Hello World part
-		String body = mock.getReceivedExchanges().get(0).getIn().getBody(String.class);
-		LOG.debug("Body is: " + body);
-		assertFalse("Should not wait and read the entire file", body.endsWith("Bye World"));
-	}
-
-	private static class MySlowFileProcessor implements Processor {
-
-		@Override
-		public void process(Exchange exchange) throws Exception {
-			LOG.info("Creating a slow file ...");
-			File file = new File(DAV_ROOT_DIR + "/slowfile/hello.txt");
-			FileOutputStream fos = new FileOutputStream(file);
-			FileLock lock = fos.getChannel().lock();
-			fos.write("Hello World".getBytes());
-			for (int i = 0; i < 3; i++) {
-				Thread.sleep(1000);
-				fos.write(("Line #" + i).getBytes());
-				LOG.info("Appending to slowfile");
-			}
-			fos.write("Bye World".getBytes());
-			lock.release();
-			fos.close();
-			LOG.info("... done creating slowfile");
-		}
-	}
+    }
 }

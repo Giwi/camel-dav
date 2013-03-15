@@ -27,43 +27,47 @@ import org.junit.Test;
  */
 public class FromDavRegexPatternTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/regexp?include=report.*";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/regexp?include=report.*";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testDavRegexPattern() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(2);
-		mock.expectedBodiesReceived("Reports", "Reports");
-		mock.assertIsSatisfied();
-	}
+    @Test
+    public void testDavRegexPattern() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(2);
+	mock.expectedBodiesReceived("Reports", "Reports");
+	mock.assertIsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the FTP Server by creating files on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		String ftpUrl = DAV_URL + "/regexp/?password=admin";
-		template.sendBodyAndHeader(ftpUrl, "Hello World", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(ftpUrl, "Reports", Exchange.FILE_NAME, "report1.txt");
-		template.sendBodyAndHeader(ftpUrl, "Bye World", Exchange.FILE_NAME, "bye.txt");
-		template.sendBodyAndHeader(ftpUrl, "Reports", Exchange.FILE_NAME, "report2.txt");
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the FTP Server by creating files on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	String ftpUrl = DAV_URL + "/regexp/?password=admin";
+	template.sendBodyAndHeader(ftpUrl, "Hello World", Exchange.FILE_NAME,
+		"hello.txt");
+	template.sendBodyAndHeader(ftpUrl, "Reports", Exchange.FILE_NAME,
+		"report1.txt");
+	template.sendBodyAndHeader(ftpUrl, "Bye World", Exchange.FILE_NAME,
+		"bye.txt");
+	template.sendBodyAndHeader(ftpUrl, "Reports", Exchange.FILE_NAME,
+		"report2.txt");
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

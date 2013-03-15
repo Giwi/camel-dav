@@ -31,49 +31,49 @@ import org.junit.Test;
  */
 public class FromDavNoopTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/noop?noop=true";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/noop?noop=true";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testNoop() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		// we should not be able to poll the file more than once since its noop
-		// and idempotent
-		mock.expectedMessageCount(1);
+    @Test
+    public void testNoop() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	// we should not be able to poll the file more than once since its noop
+	// and idempotent
+	mock.expectedMessageCount(1);
 
-		mock.assertIsSatisfied();
+	mock.assertIsSatisfied();
 
-		// assert the file is still there
-		File file = new File(DAV_ROOT_DIR + "/noop/hello.txt");
-		assertTrue("The file should exists", file.exists());
-	}
+	// assert the file is still there
+	File file = new File(DAV_ROOT_DIR + "/noop/hello.txt");
+	assertTrue("The file should exists", file.exists());
+    }
 
-	private void prepareDavServer() throws Exception {
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

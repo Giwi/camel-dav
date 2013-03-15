@@ -34,67 +34,71 @@ import org.junit.Test;
  * allowed
  */
 public class DavConsumerThrowExceptionOnLoginFailedTest extends AbstractDavTest {
-	// FIXME
-	private final CountDownLatch latch = new CountDownLatch(1);
+    // FIXME
+    private final CountDownLatch latch = new CountDownLatch(1);
 
-	private String getDavUrl() {
-		return "dav://dummy@localhost:80/badlogin?password=cantremember&throwExceptionOnConnectFailed=true&maximumReconnectAttempts=0&pollStrategy=#myPoll";
+    private String getDavUrl() {
+	return "dav://dummy@localhost:80/webdavs/badlogin?password=cantremember&throwExceptionOnConnectFailed=true&maximumReconnectAttempts=0&pollStrategy=#myPoll";
+    }
+
+    @Override
+    protected JndiRegistry createRegistry() throws Exception {
+	JndiRegistry jndi = super.createRegistry();
+	jndi.bind("myPoll", new MyPoll());
+	return jndi;
+    }
+
+    @Test
+    public void testBadLogin() throws Exception {
+	getMockEndpoint("mock:result").expectedMessageCount(0);
+
+	assertTrue(latch.await(5, TimeUnit.SECONDS));
+
+	assertMockEndpointsSatisfied();
+
+	// consumer should be stopped
+	Thread.sleep(1000);
+
+	Consumer consumer = context.getRoute("foo").getConsumer();
+	assertTrue("Consumer should be stopped",
+		((ServiceSupport) consumer).isStopped());
+    }
+
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).routeId("foo").to("mock:result");
+	    }
+	};
+    }
+
+    private class MyPoll implements PollingConsumerPollStrategy {
+
+	@Override
+	public boolean begin(Consumer consumer, Endpoint endpoint) {
+	    return true;
 	}
 
 	@Override
-	protected JndiRegistry createRegistry() throws Exception {
-		JndiRegistry jndi = super.createRegistry();
-		jndi.bind("myPoll", new MyPoll());
-		return jndi;
-	}
-
-	@Test
-	public void testBadLogin() throws Exception {
-		getMockEndpoint("mock:result").expectedMessageCount(0);
-
-		assertTrue(latch.await(5, TimeUnit.SECONDS));
-
-		assertMockEndpointsSatisfied();
-
-		// consumer should be stopped
-		Thread.sleep(1000);
-
-		Consumer consumer = context.getRoute("foo").getConsumer();
-		assertTrue("Consumer should be stopped", ((ServiceSupport) consumer).isStopped());
+	public void commit(Consumer consumer, Endpoint endpoint,
+		int polledMessages) {
 	}
 
 	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).routeId("foo").to("mock:result");
-			}
-		};
+	public boolean rollback(Consumer consumer, Endpoint endpoint,
+		int retryCounter, Exception cause) throws Exception {
+	    GenericFileOperationFailedException e = assertIsInstanceOf(
+		    GenericFileOperationFailedException.class, cause);
+	    assertEquals(530, e.getCode());
+
+	    // stop the consumer
+	    consumer.stop();
+
+	    latch.countDown();
+
+	    return false;
 	}
-
-	private class MyPoll implements PollingConsumerPollStrategy {
-
-		@Override
-		public boolean begin(Consumer consumer, Endpoint endpoint) {
-			return true;
-		}
-
-		@Override
-		public void commit(Consumer consumer, Endpoint endpoint, int polledMessages) {
-		}
-
-		@Override
-		public boolean rollback(Consumer consumer, Endpoint endpoint, int retryCounter, Exception cause) throws Exception {
-			GenericFileOperationFailedException e = assertIsInstanceOf(GenericFileOperationFailedException.class, cause);
-			assertEquals(530, e.getCode());
-
-			// stop the consumer
-			consumer.stop();
-
-			latch.countDown();
-
-			return false;
-		}
-	}
+    }
 }

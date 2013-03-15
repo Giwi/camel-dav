@@ -26,26 +26,32 @@ import org.apache.camel.impl.DefaultPollingConsumerPollStrategy;
  * 
  * @version
  */
-public class RemoteFilePollingConsumerPollStrategy extends DefaultPollingConsumerPollStrategy {
+public class RemoteFilePollingConsumerPollStrategy extends
+	DefaultPollingConsumerPollStrategy {
 
-	@Override
-	public boolean rollback(Consumer consumer, Endpoint endpoint, int retryCounter, Exception e) throws Exception {
-		RemoteFileConsumer<?> rfc = (RemoteFileConsumer<?>) consumer;
+    @Override
+    public boolean rollback(Consumer consumer, Endpoint endpoint,
+	    int retryCounter, Exception e) throws Exception {
+	RemoteFileConsumer<?> rfc = (RemoteFileConsumer<?>) consumer;
 
-		// only try to recover if we are allowed to run
-		if (((RemoteFileConsumer<?>) consumer).isRunAllowed()) {
-			// disconnect from the server to force it to re login at next poll
-			// to recover
-			log.warn("Trying to recover by disconnecting from remote server forcing a re-connect at next poll: " + rfc.remoteServer());
-			try {
-				rfc.disconnect();
-			} catch (Throwable t) {
-				// ignore the exception
-				log.debug("Error occurred during disconnect from: " + rfc.remoteServer() + ". This exception will be ignored.", t);
-			}
-		}
-
-		return super.rollback(consumer, endpoint, retryCounter, e);
+	// only try to recover if we are allowed to run
+	if (((RemoteFileConsumer<?>) consumer).isRunAllowed()) {
+	    // disconnect from the server to force it to re login at next poll
+	    // to recover
+	    log.warn("Trying to recover by disconnecting from remote server forcing a re-connect at next poll: "
+		    + rfc.remoteServer());
+	    try {
+		rfc.disconnect();
+	    } catch (Throwable t) {
+		// ignore the exception
+		log.debug(
+			"Error occurred during disconnect from: "
+				+ rfc.remoteServer()
+				+ ". This exception will be ignored.", t);
+	    }
 	}
+
+	return super.rollback(consumer, endpoint, retryCounter, e);
+    }
 
 }

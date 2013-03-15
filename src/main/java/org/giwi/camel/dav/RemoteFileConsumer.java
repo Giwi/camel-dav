@@ -25,69 +25,70 @@ import org.apache.camel.component.file.GenericFileConsumer;
  * Base class for remote file consumers.
  */
 public abstract class RemoteFileConsumer<T> extends GenericFileConsumer<T> {
-	protected boolean loggedIn = true;
+    protected boolean loggedIn = true;
 
-	public RemoteFileConsumer(RemoteFileEndpoint<T> endpoint, Processor processor, RemoteFileOperations<T> operations) {
-		super(endpoint, processor, operations);
-		setPollStrategy(new RemoteFilePollingConsumerPollStrategy());
-	}
+    public RemoteFileConsumer(RemoteFileEndpoint<T> endpoint,
+	    Processor processor, RemoteFileOperations<T> operations) {
+	super(endpoint, processor, operations);
+	setPollStrategy(new RemoteFilePollingConsumerPollStrategy());
+    }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public RemoteFileEndpoint<T> getEndpoint() {
-		return (RemoteFileEndpoint<T>) super.getEndpoint();
-	}
+    @Override
+    @SuppressWarnings("unchecked")
+    public RemoteFileEndpoint<T> getEndpoint() {
+	return (RemoteFileEndpoint<T>) super.getEndpoint();
+    }
 
-	protected RemoteFileOperations<T> getOperations() {
-		return (RemoteFileOperations<T>) operations;
-	}
+    protected RemoteFileOperations<T> getOperations() {
+	return (RemoteFileOperations<T>) operations;
+    }
 
-	@Override
-	protected boolean prePollCheck() throws Exception {
-		// noop
-		return true;
-	}
+    @Override
+    protected boolean prePollCheck() throws Exception {
+	// noop
+	return true;
+    }
 
-	@Override
-	protected void postPollCheck() {
-		// noop
-	}
+    @Override
+    protected void postPollCheck() {
+	// noop
+    }
 
-	// @Override
-	// protected void processExchange(Exchange exchange) {
-	// // mark the exchange to be processed synchronously as the dav client is
-	// not thread safe
-	// // and we must execute the callbacks in the same thread as this consumer
-	// exchange.setProperty(Exchange.UNIT_OF_WORK_PROCESS_SYNC, Boolean.TRUE);
-	// super.processExchange(exchange);
-	// }
+    // @Override
+    // protected void processExchange(Exchange exchange) {
+    // // mark the exchange to be processed synchronously as the dav client is
+    // not thread safe
+    // // and we must execute the callbacks in the same thread as this consumer
+    // exchange.setProperty(Exchange.UNIT_OF_WORK_PROCESS_SYNC, Boolean.TRUE);
+    // super.processExchange(exchange);
+    // }
 
-	protected boolean isRetrieveFile() {
-		return getEndpoint().getConfiguration().isDownload();
-	}
+    protected boolean isRetrieveFile() {
+	return getEndpoint().getConfiguration().isDownload();
+    }
 
-	@Override
-	protected void doStop() throws Exception {
-		super.doStop();
-	}
+    @Override
+    protected void doStop() throws Exception {
+	super.doStop();
+    }
 
-	protected void disconnect() {
-		// noop
-	}
+    protected void disconnect() {
+	// noop
+    }
 
-	protected void recoverableConnectIfNecessary() throws Exception {
-		// noop
-	}
+    protected void recoverableConnectIfNecessary() throws Exception {
+	// noop
+    }
 
-	protected void connectIfNecessary() throws IOException {
-		// noop
-	}
+    protected void connectIfNecessary() throws IOException {
+	// noop
+    }
 
-	/**
-	 * Returns human readable server information for logging purpose
-	 */
-	protected String remoteServer() {
-		return ((RemoteFileEndpoint<?>) endpoint).remoteServerInformation();
-	}
+    /**
+     * Returns human readable server information for logging purpose
+     */
+    protected String remoteServer() {
+	return ((RemoteFileEndpoint<?>) endpoint).remoteServerInformation();
+    }
 
 }

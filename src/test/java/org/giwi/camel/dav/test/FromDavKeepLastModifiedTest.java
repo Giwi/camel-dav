@@ -30,88 +30,97 @@ import org.junit.Test;
  */
 public class FromDavKeepLastModifiedTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/keep?noop=true";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/keep?noop=true";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		template.sendBodyAndHeader(getDavUrl(), "Hello World", "CamelFileName", "hello.txt");
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	template.sendBodyAndHeader(getDavUrl(), "Hello World", "CamelFileName",
+		"hello.txt");
+    }
 
-	@Test
-	public void testKeepLastModified() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).delay(3000).to("file:src/main/data/keep/out?keepLastModified=true", "mock:result");
-			}
-		});
-		context.start();
+    @Test
+    public void testKeepLastModified() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).delay(3000).to(
+			"file:src/main/data/keep/out?keepLastModified=true",
+			"mock:result");
+	    }
+	});
+	context.start();
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedFileExists("src/main/data/keep/out/hello.txt");
-		mock.message(0).header(Exchange.FILE_LAST_MODIFIED).isNotNull();
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedFileExists("src/main/data/keep/out/hello.txt");
+	mock.message(0).header(Exchange.FILE_LAST_MODIFIED).isNotNull();
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		long t1 = mock.getReceivedExchanges().get(0).getIn().getHeader(Exchange.FILE_LAST_MODIFIED, Date.class).getTime();
-		long t2 = new File("src/main/data/keep/out/hello.txt").lastModified();
+	long t1 = mock.getReceivedExchanges().get(0).getIn()
+		.getHeader(Exchange.FILE_LAST_MODIFIED, Date.class).getTime();
+	long t2 = new File("src/main/data/keep/out/hello.txt").lastModified();
 
-		assertEquals("Timestamp should have been kept", t1, t2);
-	}
+	assertEquals("Timestamp should have been kept", t1, t2);
+    }
 
-	@Test
-	public void testDoNotKeepLastModified() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).delay(3000).to("file:tmpOut/keep/out?keepLastModified=false", "mock:result");
-			}
-		});
-		context.start();
+    @Test
+    public void testDoNotKeepLastModified() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).delay(3000).to(
+			"file:tmpOut/keep/out?keepLastModified=false",
+			"mock:result");
+	    }
+	});
+	context.start();
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedFileExists("tmpOut/keep/out/hello.txt");
-		mock.message(0).header(Exchange.FILE_LAST_MODIFIED).isNotNull();
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedFileExists("tmpOut/keep/out/hello.txt");
+	mock.message(0).header(Exchange.FILE_LAST_MODIFIED).isNotNull();
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		long t1 = mock.getReceivedExchanges().get(0).getIn().getHeader(Exchange.FILE_LAST_MODIFIED, Date.class).getTime();
-		long t2 = new File("tmpOut/keep/out/hello.txt").lastModified();
+	long t1 = mock.getReceivedExchanges().get(0).getIn()
+		.getHeader(Exchange.FILE_LAST_MODIFIED, Date.class).getTime();
+	long t2 = new File("tmpOut/keep/out/hello.txt").lastModified();
 
-		assertNotSame("Timestamp should NOT have been kept", t1, t2);
-	}
+	assertNotSame("Timestamp should NOT have been kept", t1, t2);
+    }
 
-	@Test
-	public void testDoNotKeepLastModifiedIsDefault() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).delay(3000).to("file:tmpOut/keep/out", "mock:result");
-			}
-		});
-		context.start();
+    @Test
+    public void testDoNotKeepLastModifiedIsDefault() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).delay(3000).to("file:tmpOut/keep/out",
+			"mock:result");
+	    }
+	});
+	context.start();
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedFileExists("tmpOut/keep/out/hello.txt");
-		mock.message(0).header(Exchange.FILE_LAST_MODIFIED).isNotNull();
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedFileExists("tmpOut/keep/out/hello.txt");
+	mock.message(0).header(Exchange.FILE_LAST_MODIFIED).isNotNull();
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		long t1 = mock.getReceivedExchanges().get(0).getIn().getHeader(Exchange.FILE_LAST_MODIFIED, Date.class).getTime();
-		long t2 = new File("tmpOut/keep/out/hello.txt").lastModified();
+	long t1 = mock.getReceivedExchanges().get(0).getIn()
+		.getHeader(Exchange.FILE_LAST_MODIFIED, Date.class).getTime();
+	long t2 = new File("tmpOut/keep/out/hello.txt").lastModified();
 
-		assertNotSame("Timestamp should NOT have been kept", t1, t2);
-	}
+	assertNotSame("Timestamp should NOT have been kept", t1, t2);
+    }
 
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 }

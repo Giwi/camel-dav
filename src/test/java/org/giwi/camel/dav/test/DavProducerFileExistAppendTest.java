@@ -26,42 +26,45 @@ import org.junit.Test;
  * @version
  */
 public class DavProducerFileExistAppendTest extends AbstractDavTest {
-	private static final boolean ON_WINDOWS = System.getProperty("os.name").startsWith("Windows");
+    private static final boolean ON_WINDOWS = System.getProperty("os.name")
+	    .startsWith("Windows");
 
-	private String getDavUrl() {
-		return DAV_URL + "/exist?delay=2000&noop=true&fileExist=Append";
+    private String getDavUrl() {
+	return DAV_URL + "/exist?delay=2000&noop=true&fileExist=Append";
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	deleteDirectory("tmpOut/exist");
+
+	template.sendBodyAndHeader(getDavUrl(), "Hello World\n",
+		Exchange.FILE_NAME, "hello.txt");
+    }
+
+    @Test
+    public void testAppend() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	String expectBody = "Hello World\nBye World";
+	if (ON_WINDOWS) {
+	    expectBody = "Hello World\r\nBye World";
 	}
+	mock.expectedBodiesReceived(expectBody);
+	mock.expectedFileExists(DAV_ROOT_DIR + "/exist/hello.txt", expectBody);
+	template.sendBodyAndHeader(getDavUrl(), "Bye World",
+		Exchange.FILE_NAME, "hello.txt");
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		deleteDirectory("tmpOut/exist");
+	assertMockEndpointsSatisfied();
+    }
 
-		template.sendBodyAndHeader(getDavUrl(), "Hello World\n", Exchange.FILE_NAME, "hello.txt");
-	}
-
-	@Test
-	public void testAppend() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		String expectBody = "Hello World\nBye World";
-		if (ON_WINDOWS) {
-			expectBody = "Hello World\r\nBye World";
-		}
-		mock.expectedBodiesReceived(expectBody);
-		mock.expectedFileExists(DAV_ROOT_DIR + "/exist/hello.txt", expectBody);
-		template.sendBodyAndHeader(getDavUrl(), "Bye World", Exchange.FILE_NAME, "hello.txt");
-
-		assertMockEndpointsSatisfied();
-	}
-
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

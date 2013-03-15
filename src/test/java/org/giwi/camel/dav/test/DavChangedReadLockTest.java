@@ -29,54 +29,58 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DavChangedReadLockTest extends AbstractDavTest {
-	private static final transient Logger LOG = LoggerFactory.getLogger(DavChangedReadLockTest.class);
+    private static final transient Logger LOG = LoggerFactory
+	    .getLogger(DavChangedReadLockTest.class);
 
-	protected String getDavUrl() {
-		return DAV_URL + "/changed?readLock=changed&readLockCheckInterval=1000&delete=true";
+    protected String getDavUrl() {
+	return DAV_URL
+		+ "/changed?readLock=changed&readLockCheckInterval=1000&delete=true";
+    }
+
+    @Test
+    public void testChangedReadLock() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedFileExists("tmpOut/changed/out/slowfile.dat");
+
+	writeSlowFile();
+
+	assertMockEndpointsSatisfied();
+
+	String content = context.getTypeConverter().convertTo(String.class,
+		new File("tmpOut/changed/out/slowfile.dat"));
+	String[] lines = content.split(LS);
+	assertEquals("There should be 20 lines in the file", 20, lines.length);
+	for (int i = 0; i < 20; i++) {
+	    assertEquals("Line " + i, lines[i]);
+	}
+    }
+
+    private void writeSlowFile() throws Exception {
+	LOG.debug("Writing slow file...");
+
+	createDirectory(DAV_ROOT_DIR + "/changed");
+	FileOutputStream fos = new FileOutputStream(DAV_ROOT_DIR
+		+ "/changed/slowfile.dat", true);
+	for (int i = 0; i < 20; i++) {
+	    fos.write(("Line " + i + LS).getBytes());
+	    LOG.debug("Writing line " + i);
+	    Thread.sleep(200);
 	}
 
-	@Test
-	public void testChangedReadLock() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedFileExists("tmpOut/changed/out/slowfile.dat");
+	fos.flush();
+	fos.close();
+	LOG.debug("Writing slow file DONE...");
+    }
 
-		writeSlowFile();
-
-		assertMockEndpointsSatisfied();
-
-		String content = context.getTypeConverter().convertTo(String.class, new File("tmpOut/changed/out/slowfile.dat"));
-		String[] lines = content.split(LS);
-		assertEquals("There should be 20 lines in the file", 20, lines.length);
-		for (int i = 0; i < 20; i++) {
-			assertEquals("Line " + i, lines[i]);
-		}
-	}
-
-	private void writeSlowFile() throws Exception {
-		LOG.debug("Writing slow file...");
-
-		createDirectory(DAV_ROOT_DIR + "/changed");
-		FileOutputStream fos = new FileOutputStream(DAV_ROOT_DIR + "/changed/slowfile.dat", true);
-		for (int i = 0; i < 20; i++) {
-			fos.write(("Line " + i + LS).getBytes());
-			LOG.debug("Writing line " + i);
-			Thread.sleep(200);
-		}
-
-		fos.flush();
-		fos.close();
-		LOG.debug("Writing slow file DONE...");
-	}
-
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("file:tmpOut/changed/out", "mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("file:tmpOut/changed/out", "mock:result");
+	    }
+	};
+    }
 
 }

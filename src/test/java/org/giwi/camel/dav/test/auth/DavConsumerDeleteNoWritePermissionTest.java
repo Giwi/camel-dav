@@ -28,38 +28,40 @@ import org.junit.Test;
  */
 public class DavConsumerDeleteNoWritePermissionTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return "dav://dummy@localhost:80/deletenoperm?password=foo&delete=true&consumer.delay=5000";
-	}
+    private String getDavUrl() {
+	return "dav://dummy@localhost:80/webdavs/deletenoperm?password=foo&delete=true&consumer.delay=5000";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testConsumerDeleteNoWritePermission() throws Exception {
-		PollingConsumer consumer = context.getEndpoint(getDavUrl()).createPollingConsumer();
-		consumer.start();
-		Exchange out = consumer.receive(3000);
-		assertNotNull("Should get the file", out);
+    @Test
+    public void testConsumerDeleteNoWritePermission() throws Exception {
+	PollingConsumer consumer = context.getEndpoint(getDavUrl())
+		.createPollingConsumer();
+	consumer.start();
+	Exchange out = consumer.receive(3000);
+	assertNotNull("Should get the file", out);
 
-		try {
-			// give consumer time to try to delete the file
-			Thread.sleep(1000);
-			consumer.stop();
-		} catch (GenericFileOperationFailedException fofe) {
-			// expected, ignore
-		}
+	try {
+	    // give consumer time to try to delete the file
+	    Thread.sleep(1000);
+	    consumer.stop();
+	} catch (GenericFileOperationFailedException fofe) {
+	    // expected, ignore
 	}
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating files on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		String davUrl = DAV_URL + "/deletenoperm/";
-		template.sendBodyAndHeader(davUrl, "Hello World", Exchange.FILE_NAME, "hello.txt");
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating files on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	String davUrl = DAV_URL + "/deletenoperm/";
+	template.sendBodyAndHeader(davUrl, "Hello World", Exchange.FILE_NAME,
+		"hello.txt");
+    }
 }

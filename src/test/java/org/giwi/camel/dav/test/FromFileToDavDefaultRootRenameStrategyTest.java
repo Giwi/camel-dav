@@ -28,35 +28,39 @@ import org.junit.Test;
  */
 public class FromFileToDavDefaultRootRenameStrategyTest extends AbstractDavTest {
 
-	@Test
-	public void testFromFileToDav() throws Exception {
-		File expectedOnDavServer = new File(DAV_ROOT_DIR + "/hello.txt");
-		template.sendBodyAndHeader("file:" + DAV_ROOT_DIR, "Hello World", Exchange.FILE_NAME, "hello.txt");
-		// the poller won't start for 1.5 seconds, so we check to make sure the
-		// file
-		// is there first check 1 - is the file there (default root location)
-		assertTrue(expectedOnDavServer.exists());
+    @Test
+    public void testFromFileToDav() throws Exception {
+	File expectedOnDavServer = new File(DAV_ROOT_DIR + "/hello.txt");
+	template.sendBodyAndHeader("file:" + DAV_ROOT_DIR, "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
+	// the poller won't start for 1.5 seconds, so we check to make sure the
+	// file
+	// is there first check 1 - is the file there (default root location)
+	assertTrue(expectedOnDavServer.exists());
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		// give our mock a chance to delete the file
-		Thread.sleep(1000);
+	// give our mock a chance to delete the file
+	Thread.sleep(1000);
 
-		// assert the file is NOT there now
-		assertTrue(!expectedOnDavServer.exists());
-	}
+	// assert the file is NOT there now
+	assertTrue(!expectedOnDavServer.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(DAV_URL + "?delete=true&delay=1000&initialDelay=1500&readLock=rename").to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(
+			DAV_URL
+				+ "?delete=true&delay=1000&initialDelay=1500&readLock=rename")
+			.to("mock:result");
+	    }
+	};
+    }
 
 }

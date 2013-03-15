@@ -30,68 +30,73 @@ import org.junit.Test;
  *
  */
 public class FromDavAsyncProcessTest extends AbstractDavTest {
-	protected String getDavUrl() {
-		return DAV_URL + "/async?delete=true";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/async?delete=true";
+    }
 
-	@Test
-	public void testDavAsyncProcess() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello World", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye World", Exchange.FILE_NAME, "bye.txt");
-		getMockEndpoint("mock:result").expectedMessageCount(2);
-		getMockEndpoint("mock:result").expectedHeaderReceived("foo", 123);
-		context.startRoute("foo");
+    @Test
+    public void testDavAsyncProcess() throws Exception {
+	template.sendBodyAndHeader(getDavUrl(), "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
+	template.sendBodyAndHeader(getDavUrl(), "Bye World",
+		Exchange.FILE_NAME, "bye.txt");
+	getMockEndpoint("mock:result").expectedMessageCount(2);
+	getMockEndpoint("mock:result").expectedHeaderReceived("foo", 123);
+	context.startRoute("foo");
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		Thread.sleep(1000);
+	Thread.sleep(1000);
 
-		File hello = new File(DAV_ROOT_DIR + "/async/hello.txt");
-		assertFalse("File should not exist " + hello, hello.exists());
+	File hello = new File(DAV_ROOT_DIR + "/async/hello.txt");
+	assertFalse("File should not exist " + hello, hello.exists());
 
-		File bye = new File(DAV_ROOT_DIR + "/async/bye.txt");
-		assertFalse("File should not exist " + bye, bye.exists());
+	File bye = new File(DAV_ROOT_DIR + "/async/bye.txt");
+	assertFalse("File should not exist " + bye, bye.exists());
+    }
+
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).routeId("foo").noAutoStartup()
+			.process(new MyAsyncProcessor()).to("mock:result");
+	    }
+	};
+    }
+
+    /**
+     * @author xavier
+     * 
+     */
+    private class MyAsyncProcessor implements AsyncProcessor {
+
+	private final ExecutorService executor = Executors
+		.newSingleThreadExecutor();
+
+	@Override
+	public boolean process(final Exchange exchange,
+		final AsyncCallback callback) {
+	    executor.submit(new Runnable() {
+		@Override
+		public void run() {
+		    try {
+			Thread.sleep(1000);
+		    } catch (InterruptedException e) {
+			// ignore
+		    }
+		    exchange.getIn().setHeader("foo", 123);
+		    callback.done(false);
+		}
+	    });
+
+	    return false;
 	}
 
 	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).routeId("foo").noAutoStartup().process(new MyAsyncProcessor()).to("mock:result");
-			}
-		};
+	public void process(Exchange exchange) throws Exception {
+	    // noop
 	}
-
-	/**
-	 * @author xavier
-	 * 
-	 */
-	private class MyAsyncProcessor implements AsyncProcessor {
-
-		private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-		@Override
-		public boolean process(final Exchange exchange, final AsyncCallback callback) {
-			executor.submit(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// ignore
-					}
-					exchange.getIn().setHeader("foo", 123);
-					callback.done(false);
-				}
-			});
-
-			return false;
-		}
-
-		@Override
-		public void process(Exchange exchange) throws Exception {
-			// noop
-		}
-	}
+    }
 }

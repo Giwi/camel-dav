@@ -29,82 +29,91 @@ import org.junit.Test;
  */
 public class RecipientListErrorHandlingIssueTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		// use a wrong password so we cannot login and get an exception so we
-		// can test that the error handler kick in and we know which endpoint
-		// failed
-		return DAV_URL + "/recipientlist?password=denied";
-	}
+    private String getDavUrl() {
+	// use a wrong password so we cannot login and get an exception so we
+	// can test that the error handler kick in and we know which endpoint
+	// failed
+	return "dav://luiggi:mario@localhost:80/webdavs/recipientlist";
+    }
 
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 
-	@Test
-	public void testUsingInterceptor() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				onException(Exception.class).handled(true).to("mock:error");
+    @Test
+    public void testUsingInterceptor() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		onException(Exception.class).handled(true).to("mock:error");
 
-				interceptSendToEndpoint("(dav|direct):.*").process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						String target = exchange.getIn().getHeader(Exchange.INTERCEPTED_ENDPOINT, String.class);
-						exchange.getIn().setHeader("target", target);
-					}
-				});
+		interceptSendToEndpoint("(dav|direct):.*").process(
+			new Processor() {
+			    @Override
+			    public void process(Exchange exchange)
+				    throws Exception {
+				String target = exchange.getIn().getHeader(
+					Exchange.INTERCEPTED_ENDPOINT,
+					String.class);
+				exchange.getIn().setHeader("target", target);
+			    }
+			});
 
-				from("direct:start").recipientList(header("foo"));
+		from("direct:start").recipientList(header("foo"));
 
-				from("direct:foo").setBody(constant("Bye World")).to("mock:foo");
-			}
-		});
-		context.start();
+		from("direct:foo").setBody(constant("Bye World"))
+			.to("mock:foo");
+	    }
+	});
+	context.start();
 
-		getMockEndpoint("mock:foo").expectedMessageCount(1);
-		getMockEndpoint("mock:error").expectedMessageCount(1);
-		getMockEndpoint("mock:error").message(0).header("target").isEqualTo(getDavUrl());
+	getMockEndpoint("mock:foo").expectedMessageCount(1);
+	getMockEndpoint("mock:error").expectedMessageCount(1);
+	getMockEndpoint("mock:error").message(0).header("target")
+		.isEqualTo(getDavUrl());
 
-		String foo = "direct:foo," + getDavUrl();
+	String foo = "direct:foo," + getDavUrl();
 
-		Map<String, Object> headers = new HashMap<String, Object>();
-		headers.put("foo", foo);
-		headers.put(Exchange.FILE_NAME, "hello.txt");
+	Map<String, Object> headers = new HashMap<String, Object>();
+	headers.put("foo", foo);
+	headers.put(Exchange.FILE_NAME, "hello.txt");
 
-		template.sendBodyAndHeaders("direct:start", "Hello World", headers);
+	template.sendBodyAndHeaders("direct:start", "Hello World", headers);
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Test
-	public void testUsingExistingHeaders() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				onException(Exception.class).handled(true).to("mock:error");
+    @Test
+    public void testUsingExistingHeaders() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		onException(Exception.class).handled(true).to("mock:error");
 
-				from("direct:start").recipientList(header("foo"));
+		from("direct:start").recipientList(header("foo"));
 
-				from("direct:foo").setBody(constant("Bye World")).to("mock:foo");
-			}
-		});
-		context.start();
+		from("direct:foo").setBody(constant("Bye World"))
+			.to("mock:foo");
+	    }
+	});
+	context.start();
 
-		getMockEndpoint("mock:foo").expectedMessageCount(1);
-		getMockEndpoint("mock:foo").message(0).header(Exchange.TO_ENDPOINT).isEqualTo("mock://foo");
-		getMockEndpoint("mock:error").expectedMessageCount(1);
-		getMockEndpoint("mock:error").message(0).header(Exchange.FAILURE_ENDPOINT).isEqualTo(getDavUrl());
+	getMockEndpoint("mock:foo").expectedMessageCount(1);
+	getMockEndpoint("mock:foo").message(0).header(Exchange.TO_ENDPOINT)
+		.isEqualTo("mock://foo");
+	getMockEndpoint("mock:error").expectedMessageCount(1);
+	getMockEndpoint("mock:error").message(0)
+		.header(Exchange.FAILURE_ENDPOINT).isEqualTo(getDavUrl());
 
-		String foo = "direct:foo," + getDavUrl();
+	String foo = "direct:foo," + getDavUrl();
 
-		Map<String, Object> headers = new HashMap<String, Object>();
-		headers.put("foo", foo);
-		headers.put(Exchange.FILE_NAME, "hello.txt");
+	Map<String, Object> headers = new HashMap<String, Object>();
+	headers.put("foo", foo);
+	headers.put(Exchange.FILE_NAME, "hello.txt");
 
-		template.sendBodyAndHeaders("direct:start", "Hello World", headers);
+	template.sendBodyAndHeaders("direct:start", "Hello World", headers);
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 }

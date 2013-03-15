@@ -26,42 +26,42 @@ import org.junit.Test;
  */
 public class DavConsumerExcludeNameTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/excludename?exclude=secret.*|.*xml";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/excludename?exclude=secret.*|.*xml";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testExludePreAndPostfixes() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(2);
-		mock.expectedBodiesReceived("Reports", "Reports");
-		mock.assertIsSatisfied();
-	}
+    @Test
+    public void testExludePreAndPostfixes() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(2);
+	mock.expectedBodiesReceived("Reports", "Reports");
+	mock.assertIsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating files on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		sendFile(getDavUrl(), "Hello World", "hello.xml");
-		sendFile(getDavUrl(), "Reports", "report1.txt");
-		sendFile(getDavUrl(), "Bye World", "secret.txt");
-		sendFile(getDavUrl(), "Reports", "report2.txt");
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating files on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	sendFile(getDavUrl(), "Hello World", "hello.xml");
+	sendFile(getDavUrl(), "Reports", "report1.txt");
+	sendFile(getDavUrl(), "Bye World", "secret.txt");
+	sendFile(getDavUrl(), "Reports", "report2.txt");
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

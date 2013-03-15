@@ -28,58 +28,58 @@ import org.junit.Test;
  */
 public class FromDavFilterTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/filter?filter=#myFilter";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/filter?filter=#myFilter";
+    }
 
+    @Override
+    protected JndiRegistry createRegistry() throws Exception {
+	JndiRegistry jndi = super.createRegistry();
+	jndi.bind("myFilter", new MyFileFilter<Object>());
+	return jndi;
+    }
+
+    @Test
+    public void testFilterFiles() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(0);
+
+	sendFile(getDavUrl(), "This is a file to be filtered", "skipme.txt");
+
+	mock.setResultWaitTime(3000);
+	mock.assertIsSatisfied();
+    }
+
+    @Test
+    public void testFilterFilesWithARegularFile() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedBodiesReceived("Hello World");
+
+	sendFile(getDavUrl(), "This is a file to be filtered", "skipme.txt");
+
+	sendFile(getDavUrl(), "Hello World", "hello.txt");
+
+	mock.assertIsSatisfied();
+    }
+
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
+
+    // START SNIPPET: e1
+    public class MyFileFilter<T> implements GenericFileFilter<T> {
 	@Override
-	protected JndiRegistry createRegistry() throws Exception {
-		JndiRegistry jndi = super.createRegistry();
-		jndi.bind("myFilter", new MyFileFilter<Object>());
-		return jndi;
+	public boolean accept(GenericFile<T> file) {
+	    // we don't accept any files starting with skip in the name
+	    return !file.getFileName().startsWith("skip");
 	}
-
-	@Test
-	public void testFilterFiles() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(0);
-
-		sendFile(getDavUrl(), "This is a file to be filtered", "skipme.txt");
-
-		mock.setResultWaitTime(3000);
-		mock.assertIsSatisfied();
-	}
-
-	@Test
-	public void testFilterFilesWithARegularFile() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedBodiesReceived("Hello World");
-
-		sendFile(getDavUrl(), "This is a file to be filtered", "skipme.txt");
-
-		sendFile(getDavUrl(), "Hello World", "hello.txt");
-
-		mock.assertIsSatisfied();
-	}
-
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
-
-	// START SNIPPET: e1
-	public class MyFileFilter<T> implements GenericFileFilter<T> {
-		@Override
-		public boolean accept(GenericFile<T> file) {
-			// we don't accept any files starting with skip in the name
-			return !file.getFileName().startsWith("skip");
-		}
-	}
-	// END SNIPPET: e1
+    }
+    // END SNIPPET: e1
 }

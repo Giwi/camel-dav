@@ -31,43 +31,44 @@ import org.junit.Test;
  */
 public class DavConsumerWithNoFileOptionTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "?consumer.delay=5000";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "?consumer.delay=5000";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testWithNoFileInOption() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello World");
+    @Test
+    public void testWithNoFileInOption() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello World");
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		Exchange exchange = mock.getExchanges().get(0);
-		RemoteFile<?> file = (RemoteFile<?>) exchange.getProperty(FileComponent.FILE_EXCHANGE_FILE);
-		assertNotNull(file);
-		assertEquals("webdav/hello.txt", file.getAbsoluteFilePath());
-		assertEquals("hello.txt", file.getRelativeFilePath());
-		assertEquals("hello.txt", file.getFileName());
-	}
+	Exchange exchange = mock.getExchanges().get(0);
+	RemoteFile<?> file = (RemoteFile<?>) exchange
+		.getProperty(FileComponent.FILE_EXCHANGE_FILE);
+	assertNotNull(file);
+	assertEquals("webdav/hello.txt", file.getAbsoluteFilePath());
+	assertEquals("hello.txt", file.getRelativeFilePath());
+	assertEquals("hello.txt", file.getFileName());
+    }
 
-	private void prepareDavServer() throws Exception {
-		sendFile(getDavUrl(), "Hello World", "hello.txt");
-	}
+    private void prepareDavServer() throws Exception {
+	sendFile(getDavUrl(), "Hello World", "hello.txt");
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

@@ -23,16 +23,16 @@ import org.junit.Test;
 
 public class DavProducerFileWithPathTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/upload";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/upload";
+    }
 
-	@Test
-	public void testProducerFileWithPath() throws Exception {
-		sendFile(getDavUrl(), "Hello World", "hello/claus.txt");
+    @Test
+    public void testProducerFileWithPath() throws Exception {
+	sendFile(getDavUrl(), "Hello World", "hello/claus.txt");
 
-		File file = new File(DAV_ROOT_DIR + "/upload/hello/claus.txt");
-		assertTrue("The uploaded file should exists", file.exists());
-		assertEquals("Hello World", IOConverter.toString(file, null));
-	}
+	File file = new File(DAV_ROOT_DIR + "/upload/hello/claus.txt");
+	assertTrue("The uploaded file should exists", file.exists());
+	assertEquals("Hello World", IOConverter.toString(file, null));
+    }
 }

@@ -31,54 +31,54 @@ import org.junit.Test;
  */
 public class FromDavDeleteFileTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/deletefile?delete=true";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/deletefile?delete=true";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
-		// prepares the FTP Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World this file will be deleted");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
+	// prepares the FTP Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World this file will be deleted");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
 
-		// assert file is created
+	// assert file is created
 
-		assertTrue("The file should exists", file.exists());
-	}
+	assertTrue("The file should exists", file.exists());
+    }
 
-	@Test
-	public void testPollFileAndShouldBeDeleted() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedBodiesReceived("Hello World this file will be deleted");
+    @Test
+    public void testPollFileAndShouldBeDeleted() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedBodiesReceived("Hello World this file will be deleted");
 
-		mock.assertIsSatisfied();
+	mock.assertIsSatisfied();
 
-		Thread.sleep(500);
+	Thread.sleep(500);
 
-		// assert the file is deleted
-		File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
-		assertFalse("The file should have been deleted", file.exists());
-	}
+	// assert the file is deleted
+	File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
+	assertFalse("The file should have been deleted", file.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

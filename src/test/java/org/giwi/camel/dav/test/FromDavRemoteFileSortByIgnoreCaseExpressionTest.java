@@ -24,78 +24,84 @@ import org.junit.Test;
 /**
  * Unit test to verify remotefile sortby option.
  */
-public class FromDavRemoteFileSortByIgnoreCaseExpressionTest extends AbstractDavTest {
+public class FromDavRemoteFileSortByIgnoreCaseExpressionTest extends
+	AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/sortbyignore?consumer.delay=5000";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/sortbyignore?consumer.delay=5000";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 
-	@Test
-	public void testSortFiles() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&sortBy=file:name").to("mock:result");
-			}
-		});
-		context.start();
+    @Test
+    public void testSortFiles() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&sortBy=file:name").to("mock:result");
+	    }
+	});
+	context.start();
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello London", "Hello Copenhagen", "Hello Paris");
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello London", "Hello Copenhagen",
+		"Hello Paris");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Test
-	public void testSortFilesNoCase() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&sortBy=ignoreCase:file:name").to("mock:nocase");
-			}
-		});
-		context.start();
+    @Test
+    public void testSortFilesNoCase() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&sortBy=ignoreCase:file:name").to(
+			"mock:nocase");
+	    }
+	});
+	context.start();
 
-		MockEndpoint nocase = getMockEndpoint("mock:nocase");
-		nocase.expectedBodiesReceived("Hello Copenhagen", "Hello London", "Hello Paris");
+	MockEndpoint nocase = getMockEndpoint("mock:nocase");
+	nocase.expectedBodiesReceived("Hello Copenhagen", "Hello London",
+		"Hello Paris");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Test
-	public void testSortFilesNoCaseReverse() throws Exception {
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&sortBy=reverse:ignoreCase:file:name").to("mock:nocasereverse");
-			}
-		});
-		context.start();
+    @Test
+    public void testSortFilesNoCaseReverse() throws Exception {
+	context.addRoutes(new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&sortBy=reverse:ignoreCase:file:name").to(
+			"mock:nocasereverse");
+	    }
+	});
+	context.start();
 
-		MockEndpoint nocasereverse = getMockEndpoint("mock:nocasereverse");
-		nocasereverse.expectedBodiesReceived("Hello Paris", "Hello London", "Hello Copenhagen");
+	MockEndpoint nocasereverse = getMockEndpoint("mock:nocasereverse");
+	nocasereverse.expectedBodiesReceived("Hello Paris", "Hello London",
+		"Hello Copenhagen");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the FTP Server by creating files on the server that we want
-		// to unit
-		// test that we can pool
-		sendFile(getDavUrl(), "Hello Paris", "report-3.dat");
-		sendFile(getDavUrl(), "Hello London", "REPORT-2.txt");
-		sendFile(getDavUrl(), "Hello Copenhagen", "Report-1.xml");
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the FTP Server by creating files on the server that we want
+	// to unit
+	// test that we can pool
+	sendFile(getDavUrl(), "Hello Paris", "report-3.dat");
+	sendFile(getDavUrl(), "Hello London", "REPORT-2.txt");
+	sendFile(getDavUrl(), "Hello Copenhagen", "Report-1.xml");
+    }
 }

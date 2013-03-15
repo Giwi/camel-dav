@@ -26,43 +26,43 @@ import org.junit.Test;
  */
 public class DavConsumerDirectoriesNotMatchedTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/dirnotmatched/?recursive=true&include=^.*txt$";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/dirnotmatched/?recursive=true&include=^.*txt$";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testSkipDirectories() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(3);
-		mock.assertIsSatisfied();
-	}
+    @Test
+    public void testSkipDirectories() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(3);
+	mock.assertIsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating files on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating files on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
 
-		sendFile(getDavUrl(), "This is a dot file", ".skipme");
-		sendFile(getDavUrl(), "This is a web file", "index.html");
-		sendFile(getDavUrl(), "This is a readme file", "readme.txt");
-		sendFile(getDavUrl() + "/2007/", "2007 report", "report2007.txt");
-		sendFile(getDavUrl() + "/2008/", "2008 report", "report2008.txt");
-	}
+	sendFile(getDavUrl(), "This is a dot file", ".skipme");
+	sendFile(getDavUrl(), "This is a web file", "index.html");
+	sendFile(getDavUrl(), "This is a readme file", "readme.txt");
+	sendFile(getDavUrl() + "/2007/", "2007 report", "report2007.txt");
+	sendFile(getDavUrl() + "/2008/", "2008 report", "report2008.txt");
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

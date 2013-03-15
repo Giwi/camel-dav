@@ -27,49 +27,51 @@ import org.junit.Test;
  */
 public class DavConsumerMaxMessagesPerPollTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/poll/?delay=6000&delete=true&sortBy=file:name&maxMessagesPerPoll=2";
-	}
+    private String getDavUrl() {
+	return DAV_URL
+		+ "/poll/?delay=6000&delete=true&sortBy=file:name&maxMessagesPerPoll=2";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testMaxMessagesPerPoll() throws Exception {
-		// start route
-		context.startRoute("foo");
+    @Test
+    public void testMaxMessagesPerPoll() throws Exception {
+	// start route
+	context.startRoute("foo");
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Bye World", "Godday World");
-		mock.setResultWaitTime(4000);
-		mock.expectedPropertyReceived(Exchange.BATCH_SIZE, 2);
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Bye World", "Godday World");
+	mock.setResultWaitTime(4000);
+	mock.expectedPropertyReceived(Exchange.BATCH_SIZE, 2);
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		mock.reset();
-		mock.expectedBodiesReceived("Hello World");
-		mock.expectedPropertyReceived(Exchange.BATCH_SIZE, 1);
+	mock.reset();
+	mock.expectedBodiesReceived("Hello World");
+	mock.expectedPropertyReceived(Exchange.BATCH_SIZE, 1);
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		sendFile(getDavUrl(), "Bye World", "bye.txt");
-		sendFile(getDavUrl(), "Hello World", "hello.txt");
-		sendFile(getDavUrl(), "Godday World", "godday.txt");
-	}
+    private void prepareDavServer() throws Exception {
+	sendFile(getDavUrl(), "Bye World", "bye.txt");
+	sendFile(getDavUrl(), "Hello World", "hello.txt");
+	sendFile(getDavUrl(), "Godday World", "godday.txt");
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).noAutoStartup().routeId("foo").to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).noAutoStartup().routeId("foo")
+			.to("mock:result");
+	    }
+	};
+    }
 }

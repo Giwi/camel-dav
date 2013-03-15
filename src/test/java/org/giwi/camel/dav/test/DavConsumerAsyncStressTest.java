@@ -30,50 +30,52 @@ import org.junit.Test;
  */
 public class DavConsumerAsyncStressTest extends AbstractDavTest {
 
-	private final int files = 100;
+    private final int files = 100;
 
-	private String getDavUrl() {
-		return DAV_URL + "/filestress/?password=admin&maxMessagesPerPoll=25";
+    private String getDavUrl() {
+	return DAV_URL + "/filestress/?password=admin&maxMessagesPerPoll=25";
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	for (int i = 0; i < files; i++) {
+	    template.sendBodyAndHeader(
+		    "file://" + DAV_ROOT_DIR + "/filestress", "Hello World",
+		    Exchange.FILE_NAME, i + ".txt");
 	}
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		for (int i = 0; i < files; i++) {
-			template.sendBodyAndHeader("file://" + DAV_ROOT_DIR + "/filestress", "Hello World", Exchange.FILE_NAME, i + ".txt");
-		}
-	}
+    @Test
+    public void testDAVConsumerAsyncStress() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	// give some time to run on slower boxes
+	mock.setResultWaitTime(30000);
+	mock.expectedMinimumMessageCount(50);
 
-	@Test
-	public void testDAVConsumerAsyncStress() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		// give some time to run on slower boxes
-		mock.setResultWaitTime(30000);
-		mock.expectedMinimumMessageCount(50);
+	assertMockEndpointsSatisfied();
+    }
 
-		assertMockEndpointsSatisfied();
-	}
-
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				// leverage the fact that we can limit to max 25 files per poll
-				// this will result in polling again and potentially picking up
-				// files
-				// that already are in progress
-				from(getDavUrl()).threads(10).process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						// simulate some work with random time to complete
-						Random ran = new Random();
-						int delay = ran.nextInt(500) + 10;
-						Thread.sleep(delay);
-					}
-				}).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		// leverage the fact that we can limit to max 25 files per poll
+		// this will result in polling again and potentially picking up
+		// files
+		// that already are in progress
+		from(getDavUrl()).threads(10).process(new Processor() {
+		    @Override
+		    public void process(Exchange exchange) throws Exception {
+			// simulate some work with random time to complete
+			Random ran = new Random();
+			int delay = ran.nextInt(500) + 10;
+			Thread.sleep(delay);
+		    }
+		}).to("mock:result");
+	    }
+	};
+    }
 }

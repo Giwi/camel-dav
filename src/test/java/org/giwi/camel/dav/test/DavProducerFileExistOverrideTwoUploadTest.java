@@ -26,36 +26,39 @@ import org.junit.Test;
  */
 public class DavProducerFileExistOverrideTwoUploadTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/exist?tempPrefix=upload-&fileExist=Override&disconnect=true";
-	}
+    protected String getDavUrl() {
+	return DAV_URL
+		+ "/exist?tempPrefix=upload-&fileExist=Override&disconnect=true";
+    }
 
-	@Test
-	public void testOverride() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello World", Exchange.FILE_NAME, "hello.txt");
+    @Test
+    public void testOverride() throws Exception {
+	template.sendBodyAndHeader(getDavUrl(), "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
 
-		// the 1st file should be stored
-		File file = new File(DAV_ROOT_DIR + "/exist/hello.txt");
-		assertTrue(file.exists());
+	// the 1st file should be stored
+	File file = new File(DAV_ROOT_DIR + "/exist/hello.txt");
+	assertTrue(file.exists());
 
-		String body = context.getTypeConverter().convertTo(String.class, file);
-		assertEquals("Hello World", body);
+	String body = context.getTypeConverter().convertTo(String.class, file);
+	assertEquals("Hello World", body);
 
-		// just wait a bit before upload 2nd file
-		Thread.sleep(1000);
+	// just wait a bit before upload 2nd file
+	Thread.sleep(1000);
 
-		template.sendBodyAndHeader(getDavUrl(), "Bye World", Exchange.FILE_NAME, "hello.txt");
+	template.sendBodyAndHeader(getDavUrl(), "Bye World",
+		Exchange.FILE_NAME, "hello.txt");
 
-		// the 2nd file should also exists as we stored with override
-		file = new File(DAV_ROOT_DIR + "/exist/hello.txt");
-		assertTrue(file.exists());
+	// the 2nd file should also exists as we stored with override
+	file = new File(DAV_ROOT_DIR + "/exist/hello.txt");
+	assertTrue(file.exists());
 
-		body = context.getTypeConverter().convertTo(String.class, file);
-		assertEquals("Bye World", body);
-	}
+	body = context.getTypeConverter().convertTo(String.class, file);
+	assertEquals("Bye World", body);
+    }
 
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 }

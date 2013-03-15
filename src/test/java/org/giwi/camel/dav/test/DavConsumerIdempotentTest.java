@@ -25,43 +25,43 @@ import org.junit.Test;
  */
 public class DavConsumerIdempotentTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/idempotent?idempotent=true&delete=true&delay=1000";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/idempotent?idempotent=true&delete=true&delay=1000";
+    }
 
-	@Test
-	public void testIdempotent() throws Exception {
-		// consume the file the first time
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello World");
-		mock.expectedMessageCount(1);
+    @Test
+    public void testIdempotent() throws Exception {
+	// consume the file the first time
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello World");
+	mock.expectedMessageCount(1);
 
-		sendFile(getDavUrl(), "Hello World", "report.txt");
+	sendFile(getDavUrl(), "Hello World", "report.txt");
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		Thread.sleep(100);
+	Thread.sleep(100);
 
-		// reset mock and set new expectations
-		mock.reset();
-		mock.expectedMessageCount(0);
+	// reset mock and set new expectations
+	mock.reset();
+	mock.expectedMessageCount(0);
 
-		// move file back
-		sendFile(getDavUrl(), "Hello World", "report.txt");
+	// move file back
+	sendFile(getDavUrl(), "Hello World", "report.txt");
 
-		// should NOT consume the file again, let 2 secs pass to let the
-		// consumer try to consume it but it should not
-		Thread.sleep(2000);
-		assertMockEndpointsSatisfied();
-	}
+	// should NOT consume the file again, let 2 secs pass to let the
+	// consumer try to consume it but it should not
+	Thread.sleep(2000);
+	assertMockEndpointsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

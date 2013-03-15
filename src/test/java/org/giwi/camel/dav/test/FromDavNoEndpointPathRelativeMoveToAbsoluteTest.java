@@ -25,43 +25,48 @@ import org.junit.Test;
 /**
  * @version
  */
-public class FromDavNoEndpointPathRelativeMoveToAbsoluteTest extends AbstractDavTest {
+public class FromDavNoEndpointPathRelativeMoveToAbsoluteTest extends
+	AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "?recursive=true&move=/.done/${file:name}&initialDelay=2500&delay=5000";
-	}
+    protected String getDavUrl() {
+	return DAV_URL
+		+ "?recursive=true&move=/.done/${file:name}&initialDelay=2500&delay=5000";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testPollFileAndShouldBeMoved() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/sub/bye.txt");
-		mock.expectedFileExists(DAV_ROOT_DIR + "/.done/sub/sub2/goodday.txt");
+    @Test
+    public void testPollFileAndShouldBeMoved() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
+	mock.expectedFileExists(DAV_ROOT_DIR + "/.done/hello.txt");
+	mock.expectedFileExists(DAV_ROOT_DIR + "/.done/sub/bye.txt");
+	mock.expectedFileExists(DAV_ROOT_DIR + "/.done/sub/sub2/goodday.txt");
 
-		mock.assertIsSatisfied();
-	}
+	mock.assertIsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME, "hello.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME, "sub/bye.txt");
-		template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME, "sub/sub2/goodday.txt");
-	}
+    private void prepareDavServer() throws Exception {
+	template.sendBodyAndHeader(getDavUrl(), "Hello", Exchange.FILE_NAME,
+		"hello.txt");
+	template.sendBodyAndHeader(getDavUrl(), "Bye", Exchange.FILE_NAME,
+		"sub/bye.txt");
+	template.sendBodyAndHeader(getDavUrl(), "Goodday", Exchange.FILE_NAME,
+		"sub/sub2/goodday.txt");
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

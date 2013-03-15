@@ -26,36 +26,38 @@ import org.junit.Test;
  */
 public class DavSimpleConsumeAbsoluteTest extends AbstractDavTest {
 
-	@Test
-	public void testDavSimpleConsumeAbsolute() throws Exception {
+    @Test
+    public void testDavSimpleConsumeAbsolute() throws Exception {
 
-		String expected = "Hello World";
+	String expected = "Hello World";
 
-		// create file using regular file
+	// create file using regular file
 
-		// FTP Server does not support absolute path, so lets simulate it
-		String path = DAV_ROOT_DIR + "/tmp/mytemp";
-		template.sendBodyAndHeader("file:" + path, expected, Exchange.FILE_NAME, "hello.txt");
+	// FTP Server does not support absolute path, so lets simulate it
+	String path = DAV_ROOT_DIR + "/tmp/mytemp";
+	template.sendBodyAndHeader("file:" + path, expected,
+		Exchange.FILE_NAME, "hello.txt");
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.expectedHeaderReceived(Exchange.FILE_NAME, "hello.txt");
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.expectedHeaderReceived(Exchange.FILE_NAME, "hello.txt");
 
-		context.startRoute("foo");
+	context.startRoute("foo");
 
-		assertMockEndpointsSatisfied();
-	}
+	assertMockEndpointsSatisfied();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				// notice we use an absolute starting path: /tmp/mytemp
-				// - we must remember to use // slash because of the url
-				// separator
-				from(DAV_URL + "//tmp/mytemp?delay=10s&disconnect=true").routeId("foo").noAutoStartup().to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		// notice we use an absolute starting path: /tmp/mytemp
+		// - we must remember to use // slash because of the url
+		// separator
+		from(DAV_URL + "//tmp/mytemp?delay=10s&disconnect=true")
+			.routeId("foo").noAutoStartup().to("mock:result");
+	    }
+	};
+    }
 }

@@ -22,28 +22,32 @@ import org.junit.Test;
 
 public class DavIllegalOptionsTest extends AbstractDavTest {
 
-	@Test
-	public void testIllegalOptions() throws Exception {
-		try {
-			context.getEndpoint(DAV_URL + "/tmpOut?move=../done/${file:name}&delete=true").createConsumer(new Processor() {
-				@Override
-				public void process(Exchange exchange) throws Exception {
-				}
-			});
-			fail("Should have thrown an exception");
-		} catch (IllegalArgumentException e) {
-			// ok
-		}
-
-		try {
-			context.getEndpoint("file://tmpOut?move=../done/${file:name}&delete=true").createConsumer(new Processor() {
-				@Override
-				public void process(Exchange exchange) throws Exception {
-				}
-			});
-			fail("Should have thrown an exception");
-		} catch (IllegalArgumentException e) {
-			// ok
-		}
+    @Test
+    public void testIllegalOptions() throws Exception {
+	try {
+	    context.getEndpoint(
+		    DAV_URL + "/tmpOut?move=../done/${file:name}&delete=true")
+		    .createConsumer(new Processor() {
+			@Override
+			public void process(Exchange exchange) throws Exception {
+			}
+		    });
+	    fail("Should have thrown an exception");
+	} catch (IllegalArgumentException e) {
+	    // ok
 	}
+
+	try {
+	    context.getEndpoint(
+		    "file://tmpOut?move=../done/${file:name}&delete=true")
+		    .createConsumer(new Processor() {
+			@Override
+			public void process(Exchange exchange) throws Exception {
+			}
+		    });
+	    fail("Should have thrown an exception");
+	} catch (IllegalArgumentException e) {
+	    // ok
+	}
+    }
 }

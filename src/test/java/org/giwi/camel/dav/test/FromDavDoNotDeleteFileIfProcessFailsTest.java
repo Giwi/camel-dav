@@ -32,66 +32,67 @@ import org.junit.Test;
  */
 public class FromDavDoNotDeleteFileIfProcessFailsTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/deletefile/?delete=true";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/deletefile/?delete=true";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		// prepares the FTP Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World this file will NOT be deleted");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	// prepares the FTP Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World this file will NOT be deleted");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
 
-		// assert file is created
-		File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
-		assertTrue("The file should exists", file.exists());
-	}
+	// assert file is created
+	File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
+	assertTrue("The file should exists", file.exists());
+    }
 
-	@Test
-	public void testPollFileAndShouldNotBeDeleted() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:error");
-		mock.expectedMessageCount(1);
-		mock.expectedBodiesReceived("Hello World this file will NOT be deleted");
+    @Test
+    public void testPollFileAndShouldNotBeDeleted() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:error");
+	mock.expectedMessageCount(1);
+	mock.expectedBodiesReceived("Hello World this file will NOT be deleted");
 
-		mock.assertIsSatisfied();
+	mock.assertIsSatisfied();
 
-		// give time to NOT delete file
-		Thread.sleep(200);
+	// give time to NOT delete file
+	Thread.sleep(200);
 
-		// assert the file is deleted
-		File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
-		assertTrue("The file should NOT have been deleted", file.exists());
-	}
+	// assert the file is deleted
+	File file = new File(DAV_ROOT_DIR + "/deletefile/hello.txt");
+	assertTrue("The file should NOT have been deleted", file.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				// use no delay for fast unit testing
-				errorHandler(deadLetterChannel("mock:error").maximumRedeliveries(2).redeliveryDelay(0));
-				onException(IllegalArgumentException.class).handled(false); // DLC
-																			// should
-																			// not
-																			// handle
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		// use no delay for fast unit testing
+		errorHandler(deadLetterChannel("mock:error")
+			.maximumRedeliveries(2).redeliveryDelay(0));
+		onException(IllegalArgumentException.class).handled(false); // DLC
+									    // should
+									    // not
+									    // handle
 
-				from(getDavUrl()).process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						throw new IllegalArgumentException("Forced by unittest");
-					}
-				});
-			}
-		};
-	}
+		from(getDavUrl()).process(new Processor() {
+		    @Override
+		    public void process(Exchange exchange) throws Exception {
+			throw new IllegalArgumentException("Forced by unittest");
+		    }
+		});
+	    }
+	};
+    }
 }

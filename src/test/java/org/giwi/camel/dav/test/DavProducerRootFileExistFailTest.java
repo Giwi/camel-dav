@@ -27,34 +27,39 @@ import org.junit.Test;
  */
 public class DavProducerRootFileExistFailTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "?fileExist=Fail";
+    private String getDavUrl() {
+	return DAV_URL + "?fileExist=Fail";
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	// create existing file on dav server
+	template.sendBodyAndHeader(getDavUrl(), "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
+    }
+
+    @Test
+    public void testFail() throws Exception {
+	try {
+	    template.sendBodyAndHeader(getDavUrl(), "Bye World",
+		    Exchange.FILE_NAME, "hello.txt");
+	    fail("Should have thrown an exception");
+	} catch (CamelExecutionException e) {
+	    GenericFileOperationFailedException cause = assertIsInstanceOf(
+		    GenericFileOperationFailedException.class, e.getCause());
+	    assertEquals(
+		    "File already exist: hello.txt. Cannot write new file.",
+		    cause.getMessage());
 	}
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		// create existing file on dav server
-		template.sendBodyAndHeader(getDavUrl(), "Hello World", Exchange.FILE_NAME, "hello.txt");
-	}
+	// root file should still exist
+	assertFileExists(DAV_ROOT_DIR + "/hello.txt");
+    }
 
-	@Test
-	public void testFail() throws Exception {
-		try {
-			template.sendBodyAndHeader(getDavUrl(), "Bye World", Exchange.FILE_NAME, "hello.txt");
-			fail("Should have thrown an exception");
-		} catch (CamelExecutionException e) {
-			GenericFileOperationFailedException cause = assertIsInstanceOf(GenericFileOperationFailedException.class, e.getCause());
-			assertEquals("File already exist: hello.txt. Cannot write new file.", cause.getMessage());
-		}
-
-		// root file should still exist
-		assertFileExists(DAV_ROOT_DIR + "/hello.txt");
-	}
-
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 }

@@ -29,39 +29,40 @@ import org.junit.Test;
  */
 public class DavLoginTest extends AbstractDavTest {
 
-	@Test
-	public void testBadLogin() throws Exception {
-		try {
-			uploadFile("dummy", "cantremeber");
-			fail("Should have thrown a GenericFileOperationFailedException");
-		} catch (GenericFileOperationFailedException e) {
-			// expected
-			assertEquals(530, e.getCode());
-		}
-
-		// assert file NOT created
-		File file = new File(DAV_ROOT_DIR + "/login/report.txt");
-		assertFalse("The file should NOT exists", file.exists());
+    @Test
+    public void testBadLogin() throws Exception {
+	try {
+	    uploadFile("dummy", "cantremeber");
+	    fail("Should have thrown a GenericFileOperationFailedException");
+	} catch (GenericFileOperationFailedException e) {
+	    // expected
+	    assertEquals(530, e.getCode());
 	}
 
-	@Test
-	public void testGoodLogin() throws Exception {
-		uploadFile("scott", "tiger");
+	// assert file NOT created
+	File file = new File(DAV_ROOT_DIR + "/login/report.txt");
+	assertFalse("The file should NOT exists", file.exists());
+    }
 
-		// assert file created
-		File file = new File(DAV_ROOT_DIR + "/login/report.txt");
-		assertTrue("The file should exists", file.exists());
-	}
+    @Test
+    public void testGoodLogin() throws Exception {
+	uploadFile("test", "test");
 
-	private void uploadFile(String username, String password) throws Exception {
-		Endpoint endpoint = context.getEndpoint("dav://" + username + "@localhost:80/login?password=" + password);
+	// assert file created
+	File file = new File(DAV_ROOT_DIR + "/login/report.txt");
+	assertTrue("The file should exists", file.exists());
+    }
 
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World from DAV");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void uploadFile(String username, String password) throws Exception {
+	Endpoint endpoint = context.getEndpoint("dav://" + username + ":"
+		+ password + "@localhost:80/webdavs/login");
+
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World from DAV");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 }

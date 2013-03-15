@@ -29,34 +29,40 @@ import org.junit.Test;
 public class PaddyRouteTest extends AbstractDavTest {
 
     private String getDavUrl() {
-        return DAV_URL + "/paddy/?password=admin&recursive=true";
+	return DAV_URL + "/paddy/?password=admin&recursive=true";
     }
 
     @Test
     public void testConsumeFile() throws Exception {
-        MockEndpoint mock = getMockEndpoint("mock:result");
-        mock.expectedMessageCount(1);
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
 
-        sendFile(getDavUrl() + "/?password=admin", "Hello World", "incoming/hello.txt");
+	sendFile(getDavUrl() + "/?password=admin", "Hello World",
+		"incoming/hello.txt");
 
-        assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
     }
 
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
-        return new RouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                getContext().addInterceptStrategy(new Tracer());
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		getContext().addInterceptStrategy(new Tracer());
 
-                from(getDavUrl()).process(new Processor() {
-                    public void process(Exchange exchange) throws Exception {
-                        assertNotNull(exchange.getIn().getHeader(Exchange.FILE_NAME));
-                        assertEquals("hello.txt", exchange.getIn().getHeader(Exchange.FILE_NAME_ONLY));
-                        assertEquals("Hello World", exchange.getIn().getBody(String.class));
-                    }
-                }).to("mock:result");
-            }
-        };
+		from(getDavUrl()).process(new Processor() {
+		    public void process(Exchange exchange) throws Exception {
+			assertNotNull(exchange.getIn().getHeader(
+				Exchange.FILE_NAME));
+			assertEquals(
+				"hello.txt",
+				exchange.getIn().getHeader(
+					Exchange.FILE_NAME_ONLY));
+			assertEquals("Hello World",
+				exchange.getIn().getBody(String.class));
+		    }
+		}).to("mock:result");
+	    }
+	};
     }
 }

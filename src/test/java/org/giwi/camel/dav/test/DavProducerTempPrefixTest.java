@@ -27,21 +27,21 @@ import org.junit.Test;
  */
 public class DavProducerTempPrefixTest extends AbstractDavTest {
 
-	@Override
-	public boolean isUseRouteBuilder() {
-		return false;
-	}
+    @Override
+    public boolean isUseRouteBuilder() {
+	return false;
+    }
 
-	private String getDavUrl() {
-		return DAV_URL + "/upload/user/claus?tempPrefix=.uploading";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/upload/user/claus?tempPrefix=.uploading";
+    }
 
-	@Test
-	public void testProduceTempPrefixTest() throws Exception {
-		sendFile(getDavUrl(), "Hello World", "claus.txt");
+    @Test
+    public void testProduceTempPrefixTest() throws Exception {
+	sendFile(getDavUrl(), "Hello World", "claus.txt");
 
-		File file = new File(DAV_ROOT_DIR + "/upload/user/claus/claus.txt");
-		assertTrue("The uploaded file should exists", file.exists());
-		assertEquals("Hello World", IOConverter.toString(file, null));
-	}
+	File file = new File(DAV_ROOT_DIR + "/upload/user/claus/claus.txt");
+	assertTrue("The uploaded file should exists", file.exists());
+	assertEquals("Hello World", IOConverter.toString(file, null));
+    }
 }

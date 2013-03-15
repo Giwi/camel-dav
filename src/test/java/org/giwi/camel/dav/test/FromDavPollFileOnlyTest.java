@@ -30,46 +30,46 @@ import org.junit.Test;
  */
 public class FromDavPollFileOnlyTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/fileonly/";
-	}
+    private String getDavUrl() {
+	return DAV_URL + "/fileonly/";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testPollFileOnly() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello World from FTPServer");
+    @Test
+    public void testPollFileOnly() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello World from FTPServer");
 
-		mock.assertIsSatisfied();
-	}
+	mock.assertIsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the FTP Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool and store as a local file
-		Endpoint endpoint = context.getEndpoint(DAV_URL + "/fileonly/");
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World from FTPServer");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the FTP Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool and store as a local file
+	Endpoint endpoint = context.getEndpoint(DAV_URL + "/fileonly/");
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World from FTPServer");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 }

@@ -31,54 +31,58 @@ import org.junit.Test;
  */
 public class DavConsumerMoveExpressionTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/filelanguage?consumer.delay=5000";
+    private String getDavUrl() {
+	return DAV_URL + "/filelanguage?consumer.delay=5000";
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	deleteDirectory("tmpOut/filelanguage");
+    }
+
+    @Override
+    protected JndiRegistry createRegistry() throws Exception {
+	JndiRegistry jndi = super.createRegistry();
+	jndi.bind("myguidgenerator", new MyGuidGenerator());
+	return jndi;
+    }
+
+    @Test
+    public void testMoveUsingExpression() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Reports");
+
+	sendFile(getDavUrl(), "Reports", "report2.txt");
+
+	assertMockEndpointsSatisfied();
+
+	// give time for consumer to rename file
+	Thread.sleep(1000);
+
+	String now = new SimpleDateFormat("yyyyMMdd").format(new Date());
+	File file = new File(DAV_ROOT_DIR + "/filelanguage/backup/" + now
+		+ "/123-report2.bak");
+	assertTrue("File should have been renamed", file.exists());
+    }
+
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(
+			getDavUrl()
+				+ "&move=backup/${date:now:yyyyMMdd}/${bean:myguidgenerator}"
+				+ "-${file:name.noext}.bak").to("mock:result");
+	    }
+	};
+    }
+
+    public class MyGuidGenerator {
+	public String guid() {
+	    return "123";
 	}
-
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		deleteDirectory("tmpOut/filelanguage");
-	}
-
-	@Override
-	protected JndiRegistry createRegistry() throws Exception {
-		JndiRegistry jndi = super.createRegistry();
-		jndi.bind("myguidgenerator", new MyGuidGenerator());
-		return jndi;
-	}
-
-	@Test
-	public void testMoveUsingExpression() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Reports");
-
-		sendFile(getDavUrl(), "Reports", "report2.txt");
-
-		assertMockEndpointsSatisfied();
-
-		// give time for consumer to rename file
-		Thread.sleep(1000);
-
-		String now = new SimpleDateFormat("yyyyMMdd").format(new Date());
-		File file = new File(DAV_ROOT_DIR + "/filelanguage/backup/" + now + "/123-report2.bak");
-		assertTrue("File should have been renamed", file.exists());
-	}
-
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&move=backup/${date:now:yyyyMMdd}/${bean:myguidgenerator}" + "-${file:name.noext}.bak").to("mock:result");
-			}
-		};
-	}
-
-	public class MyGuidGenerator {
-		public String guid() {
-			return "123";
-		}
-	}
+    }
 }

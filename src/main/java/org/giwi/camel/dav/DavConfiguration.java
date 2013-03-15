@@ -24,37 +24,39 @@ import java.net.URI;
  */
 public class DavConfiguration extends RemoteFileConfiguration {
 
-	/**
+    /**
 	 * 
 	 */
-	public DavConfiguration() {
-		setProtocol("http");
-		setPort(80);
-	}
+    public DavConfiguration() {
+	setProtocol("http");
+	setPort(80);
+    }
 
-	/**
-	 * @param uri
-	 */
-	public DavConfiguration(URI uri) {
-		super(uri);
-	}
+    /**
+     * @param uri
+     */
+    public DavConfiguration(URI uri) {
+	super(uri);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.giwi.camel.dav.RemoteFileConfiguration#setDefaultPort()
-	 */
-	@Override
-	protected void setDefaultPort() {
-		setPort(80);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.giwi.camel.dav.RemoteFileConfiguration#setDefaultPort()
+     */
+    @Override
+    protected void setDefaultPort() {
+	setPort(80);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.giwi.camel.dav.RemoteFileConfiguration#setDefaultProtocol()
-	 */
-	@Override
-	protected void setDefaultProtocol() {
-		setProtocol("http");
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.giwi.camel.dav.RemoteFileConfiguration#setDefaultProtocol()
+     */
+    @Override
+    protected void setDefaultProtocol() {
+	setProtocol("http");
 
-	}
+    }
 }

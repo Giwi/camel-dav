@@ -27,47 +27,50 @@ import org.junit.Test;
  */
 public class DavConsumerDoneFileNameFixedTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/done?initialDelay=0&delay=100";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/done?initialDelay=0&delay=100";
+    }
 
-	@Test
-	public void testDoneFileName() throws Exception {
-		getMockEndpoint("mock:result").expectedMessageCount(0);
+    @Test
+    public void testDoneFileName() throws Exception {
+	getMockEndpoint("mock:result").expectedMessageCount(0);
 
-		template.sendBodyAndHeader(getDavUrl(), "Hello World", Exchange.FILE_NAME, "hello.txt");
+	template.sendBodyAndHeader(getDavUrl(), "Hello World",
+		Exchange.FILE_NAME, "hello.txt");
 
-		// wait a bit and it should not pickup the written file as there are no
-		// done file
-		Thread.sleep(1000);
+	// wait a bit and it should not pickup the written file as there are no
+	// done file
+	Thread.sleep(1000);
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		resetMocks();
+	resetMocks();
 
-		getMockEndpoint("mock:result").expectedBodiesReceived("Hello World");
+	getMockEndpoint("mock:result").expectedBodiesReceived("Hello World");
 
-		// write the done file
-		template.sendBodyAndHeader(getDavUrl(), "", Exchange.FILE_NAME, "fin.dat");
+	// write the done file
+	template.sendBodyAndHeader(getDavUrl(), "", Exchange.FILE_NAME,
+		"fin.dat");
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		// give time for done file to be deleted
-		Thread.sleep(1000);
+	// give time for done file to be deleted
+	Thread.sleep(1000);
 
-		// done file should be deleted now
-		File file = new File(DAV_ROOT_DIR + "done/fin.dat");
-		assertFalse("Done file should be deleted: " + file, file.exists());
-	}
+	// done file should be deleted now
+	File file = new File(DAV_ROOT_DIR + "done/fin.dat");
+	assertFalse("Done file should be deleted: " + file, file.exists());
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl() + "&doneFileName=fin.dat").convertBodyTo(String.class).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl() + "&doneFileName=fin.dat").convertBodyTo(
+			String.class).to("mock:result");
+	    }
+	};
+    }
 
 }

@@ -23,41 +23,49 @@ import org.junit.Test;
 
 public class DavConsumerRelativeFileNameTest extends AbstractDavTest {
 
-	private String getDavUrl() {
-		return DAV_URL + "/tmpOut/filename-consumer?recursive=true&sortBy=file:name";
-	}
+    private String getDavUrl() {
+	return DAV_URL
+		+ "/tmpOut/filename-consumer?recursive=true&sortBy=file:name";
+    }
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-		sendFile(getDavUrl(), "Hello World", "tmpOut/filename-consumer-hello.txt");
-		sendFile(getDavUrl(), "Bye World", "tmpOut/filename-consumer-bye.txt");
-	}
+    @Override
+    public void setUp() throws Exception {
+	super.setUp();
+	sendFile(getDavUrl(), "Hello World",
+		"tmpOut/filename-consumer-hello.txt");
+	sendFile(getDavUrl(), "Bye World", "tmpOut/filename-consumer-bye.txt");
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).to("mock:result");
+	    }
+	};
+    }
 
-	@Test
-	public void testValidFilenameOnExchange() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(2);
-		// should have file name header set
-		mock.allMessages().header(Exchange.FILE_NAME).isNotNull();
+    @Test
+    public void testValidFilenameOnExchange() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(2);
+	// should have file name header set
+	mock.allMessages().header(Exchange.FILE_NAME).isNotNull();
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		// give time for ftp consumer to disconnect
-		Thread.sleep(2000);
+	// give time for ftp consumer to disconnect
+	Thread.sleep(2000);
 
-		assertDirectoryEquals("tmpOut/filename-consumer-bye.txt", mock.getReceivedExchanges().get(0).getIn().getHeader(Exchange.FILE_NAME, String.class));
-		assertDirectoryEquals("tmpOut/filename-consumer-hello.txt", mock.getReceivedExchanges().get(1).getIn().getHeader(Exchange.FILE_NAME, String.class));
-	}
+	assertDirectoryEquals(
+		"tmpOut/filename-consumer-bye.txt",
+		mock.getReceivedExchanges().get(0).getIn()
+			.getHeader(Exchange.FILE_NAME, String.class));
+	assertDirectoryEquals(
+		"tmpOut/filename-consumer-hello.txt",
+		mock.getReceivedExchanges().get(1).getIn()
+			.getHeader(Exchange.FILE_NAME, String.class));
+    }
 
 }

@@ -30,53 +30,56 @@ import org.junit.Test;
  */
 public class FromDavNotDownloadTest extends AbstractDavTest {
 
-	protected String getDavUrl() {
-		return DAV_URL + "/download?noop=true&download=false";
-	}
+    protected String getDavUrl() {
+	return DAV_URL + "/download?noop=true&download=false";
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testNotDownload() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedMessageCount(1);
-		mock.message(0).body().isNull();
-		mock.message(0).header(Exchange.FILE_NAME).isEqualTo("hello.txt");
+    @Test
+    public void testNotDownload() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedMessageCount(1);
+	mock.message(0).body().isNull();
+	mock.message(0).header(Exchange.FILE_NAME).isEqualTo("hello.txt");
 
-		mock.assertIsSatisfied();
-	}
+	mock.assertIsSatisfied();
+    }
 
-	private void prepareDavServer() throws Exception {
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World this file will not be downloaded !!!!!!");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody(
+		"Hello World this file will not be downloaded !!!!!!");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						System.out.println(exchange.getIn().getBody());
-						assertNull("Should not download the file", exchange.getIn().getBody());
-						assertEquals("hello.txt", exchange.getIn().getHeader(Exchange.FILE_NAME));
-					}
-				}).to("mock:result");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).process(new Processor() {
+		    @Override
+		    public void process(Exchange exchange) throws Exception {
+			System.out.println(exchange.getIn().getBody());
+			assertNull("Should not download the file", exchange
+				.getIn().getBody());
+			assertEquals("hello.txt",
+				exchange.getIn().getHeader(Exchange.FILE_NAME));
+		    }
+		}).to("mock:result");
+	    }
+	};
+    }
 
 }

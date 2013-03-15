@@ -32,74 +32,79 @@ import org.junit.Test;
 /**
  * @version
  */
-public class DavConsumerLocalWorkDirectoryAsAbsolutePathTest extends AbstractDavTest {
-	private String base;
+public class DavConsumerLocalWorkDirectoryAsAbsolutePathTest extends
+	AbstractDavTest {
+    private String base;
 
-	protected String getDavUrl() {
-		base = new File("tmpOut/lwd").getAbsolutePath();
-		return DAV_URL + "/lwd/?delay=5000&noop=true&localWorkDirectory=" + base;
-	}
+    protected String getDavUrl() {
+	base = new File("tmpOut/lwd").getAbsolutePath();
+	return DAV_URL + "/lwd/?delay=5000&noop=true&localWorkDirectory="
+		+ base;
+    }
 
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		deleteDirectory("tmpOut/lwd");
-		deleteDirectory("tmpOut/out");
-		super.setUp();
-		prepareDavServer();
-	}
+    @Override
+    @Before
+    public void setUp() throws Exception {
+	deleteDirectory("tmpOut/lwd");
+	deleteDirectory("tmpOut/out");
+	super.setUp();
+	prepareDavServer();
+    }
 
-	@Test
-	public void testLocalWorkDirectory() throws Exception {
-		MockEndpoint mock = getMockEndpoint("mock:result");
-		mock.expectedBodiesReceived("Hello World");
-		mock.expectedMessageCount(1);
+    @Test
+    public void testLocalWorkDirectory() throws Exception {
+	MockEndpoint mock = getMockEndpoint("mock:result");
+	mock.expectedBodiesReceived("Hello World");
+	mock.expectedMessageCount(1);
 
-		assertMockEndpointsSatisfied();
+	assertMockEndpointsSatisfied();
 
-		// give test some time to close file resources
-		Thread.sleep(6000);
+	// give test some time to close file resources
+	Thread.sleep(6000);
 
-		// now the lwd file should be deleted
-		File local = new File("tmpOut/lwd/hello.txt");
-		assertFalse("Local work file should have been deleted", local.exists());
+	// now the lwd file should be deleted
+	File local = new File("tmpOut/lwd/hello.txt");
+	assertFalse("Local work file should have been deleted", local.exists());
 
-		// and the out file should exists
-		File out = new File("tmpOut/out/hello.txt");
-		assertTrue("file should exists", out.exists());
-		assertEquals("Hello World", IOConverter.toString(out, null));
-	}
+	// and the out file should exists
+	File out = new File("tmpOut/out/hello.txt");
+	assertTrue("file should exists", out.exists());
+	assertEquals("Hello World", IOConverter.toString(out, null));
+    }
 
-	private void prepareDavServer() throws Exception {
-		// prepares the DAV Server by creating a file on the server that we want
-		// to unit
-		// test that we can pool
-		Endpoint endpoint = context.getEndpoint(getDavUrl());
-		Exchange exchange = endpoint.createExchange();
-		exchange.getIn().setBody("Hello World");
-		exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-		Producer producer = endpoint.createProducer();
-		producer.start();
-		producer.process(exchange);
-		producer.stop();
-	}
+    private void prepareDavServer() throws Exception {
+	// prepares the DAV Server by creating a file on the server that we want
+	// to unit
+	// test that we can pool
+	Endpoint endpoint = context.getEndpoint(getDavUrl());
+	Exchange exchange = endpoint.createExchange();
+	exchange.getIn().setBody("Hello World");
+	exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
+	Producer producer = endpoint.createProducer();
+	producer.start();
+	producer.process(exchange);
+	producer.stop();
+    }
 
-	@Override
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from(getDavUrl()).process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						File body = exchange.getIn().getBody(File.class);
-						assertNotNull(body);
-						assertTrue("Should be absolute path", body.isAbsolute());
-						assertTrue("Local work file should exists", body.exists());
-						assertEquals(FileUtil.normalizePath(base + "/hello.txt"), body.getPath());
-					}
-				}).to("mock:result", "file://tmpOut/out");
-			}
-		};
-	}
+    @Override
+    protected RouteBuilder createRouteBuilder() throws Exception {
+	return new RouteBuilder() {
+	    @Override
+	    public void configure() throws Exception {
+		from(getDavUrl()).process(new Processor() {
+		    @Override
+		    public void process(Exchange exchange) throws Exception {
+			File body = exchange.getIn().getBody(File.class);
+			assertNotNull(body);
+			assertTrue("Should be absolute path", body.isAbsolute());
+			assertTrue("Local work file should exists",
+				body.exists());
+			assertEquals(
+				FileUtil.normalizePath(base + "/hello.txt"),
+				body.getPath());
+		    }
+		}).to("mock:result", "file://tmpOut/out");
+	    }
+	};
+    }
 }

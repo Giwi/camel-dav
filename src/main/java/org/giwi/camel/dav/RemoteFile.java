@@ -27,64 +27,70 @@ import org.apache.camel.component.file.GenericFileMessage;
  */
 public class RemoteFile<T> extends GenericFile<T> implements Cloneable {
 
-	private String hostname;
+    private String hostname;
 
-	/**
-	 * Populates the {@link GenericFileMessage} relevant headers
-	 * 
-	 * @param message
-	 *            the message to populate with headers
-	 */
-	@Override
-	public void populateHeaders(GenericFileMessage<T> message) {
-		if (message != null) {
-			super.populateHeaders(message);
-			message.setHeader("CamelFileHost", getHostname());
-		}
+    /**
+     * Populates the {@link GenericFileMessage} relevant headers
+     * 
+     * @param message
+     *            the message to populate with headers
+     */
+    @Override
+    public void populateHeaders(GenericFileMessage<T> message) {
+	if (message != null) {
+	    super.populateHeaders(message);
+	    message.setHeader("CamelFileHost", getHostname());
 	}
+    }
 
-	public String getHostname() {
-		return hostname;
-	}
+    public String getHostname() {
+	return hostname;
+    }
 
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
-	}
+    public void setHostname(String hostname) {
+	this.hostname = hostname;
+    }
 
-	@Override
-	public char getFileSeparator() {
-		// always use / as separator for FTP
-		return '/';
-	}
+    @Override
+    public char getFileSeparator() {
+	// always use / as separator for FTP
+	return '/';
+    }
 
-	@Override
-	protected boolean isAbsolute(String name) {
-		return name.startsWith("" + getFileSeparator());
-	}
+    @Override
+    protected boolean isAbsolute(String name) {
+	return name.startsWith("" + getFileSeparator());
+    }
 
-	@Override
-	protected String normalizePath(String name) {
-		return name;
-	}
+    @Override
+    protected String normalizePath(String name) {
+	return name;
+    }
 
-	@Override
-	public void copyFromPopulateAdditional(GenericFile<T> source, GenericFile<T> result) {
-		RemoteFile<?> remoteSource = (RemoteFile<?>) source;
-		RemoteFile<?> remoteResult = (RemoteFile<?>) result;
+    @Override
+    public void copyFromPopulateAdditional(GenericFile<T> source,
+	    GenericFile<T> result) {
+	RemoteFile<?> remoteSource = (RemoteFile<?>) source;
+	RemoteFile<?> remoteResult = (RemoteFile<?>) result;
 
-		remoteResult.setHostname(remoteSource.getHostname());
-	}
+	remoteResult.setHostname(remoteSource.getHostname());
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("RemoteFile [hostname=").append(hostname).append(", getRelativeFilePath()=").append(getRelativeFilePath()).append(", getFileName()=").append(getFileName())
-				.append(", getAbsoluteFilePath()=").append(getAbsoluteFilePath()).append(", getFileNameOnly()=").append(getFileNameOnly()).append("]");
-		return builder.toString();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+	StringBuilder builder = new StringBuilder();
+	builder.append("RemoteFile [hostname=").append(hostname)
+		.append(", getRelativeFilePath()=")
+		.append(getRelativeFilePath()).append(", getFileName()=")
+		.append(getFileName()).append(", getAbsoluteFilePath()=")
+		.append(getAbsoluteFilePath()).append(", getFileNameOnly()=")
+		.append(getFileNameOnly()).append("]");
+	return builder.toString();
+    }
 
 }
