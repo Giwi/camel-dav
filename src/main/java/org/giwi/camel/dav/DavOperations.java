@@ -19,6 +19,7 @@ package org.giwi.camel.dav;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +39,7 @@ import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.log4j.lf5.util.StreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,15 +181,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
     public boolean renameFile(String from, String to)
 	    throws GenericFileOperationFailedException {
 	try {
-	    log.info("renameFile from " + from + " to : " + to);
-	    // if (to.startsWith("/")) {// absolute
-	    // to =
-	    // endpoint.getConfiguration().getRemoteServerInformation().substring(0,
-	    // FileUtil.stripTrailingSeparator(endpoint.getConfiguration().getRemoteServerInformation()).lastIndexOf("/"))
-	    // + to;
-	    // } else {
 	    to = sanitizeWithHost(to);
-	    // }
 	    from = sanitizeWithHost(from);
 	    log.info("renameFile from " + from + " to : " + to);
 	    client.move(from, to);
@@ -243,24 +237,12 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
     public boolean buildDirectory(String directory, boolean absolute)
 	    throws GenericFileOperationFailedException {
 	// WTF ?!? http:/localhost:80/webdav/ in directory
-	log.info("buildDirectory 1 : " + directory + ", absolute : " + absolute);
-
-	// if (absolute) {
-	// directory = endpoint.getConfiguration().getRemoteServerInformation()
-	// .substring(0,
-	// FileUtil.stripTrailingSeparator(endpoint.getConfiguration().getRemoteServerInformation()).lastIndexOf("/"))
-	// + directory;
-	// } else {
 	directory = sanitizeWithHost(directory);
-	// }
 	log.info("buildDirectory 1 : " + directory + ", absolute : " + absolute);
 
 	directory = directory.replaceAll(endpoint.getConfiguration()
 		.getRemoteServerInformation(), "");
 	String[] dirs = directory.split("/");
-	for (String dir : dirs) {
-	    log.info("buildDirectory 2 : " + dir);
-	}
 	StringBuilder dirToBuild = new StringBuilder();
 	for (String dir : dirs) {
 	    if (!"".equals(dir.trim())) {
@@ -374,12 +356,33 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	}
 
 	try {
-	    if (is == null) {
-		is = exchange.getIn().getMandatoryBody(InputStream.class);
+
+	    if (endpoint.getFileExist() == GenericFileExist.Append
+		    && existsFile(name)) {
+		log.trace("Client appendFile: {}", targetName);
+		// TODO : Merge 2 bunch of Data !!
+		File tmp = FileUtil.createTempFile("", "");
+		FileOutputStream os = new FileOutputStream(tmp, true);
+
+		StreamUtils.copy(
+			client.get(endpoint.getConfiguration()
+				.getRemoteServerInformation() + name), os);
+		StreamUtils.copy(
+			exchange.getIn().getMandatoryBody(InputStream.class),
+			os);
+		IOHelper.close(os, "store: " + name, log);
+		is = new FileInputStream(tmp);
+		client.put(endpoint.getConfiguration()
+			.getRemoteServerInformation() + name, is);
+	    } else {
+		if (is == null) {
+		    is = exchange.getIn().getMandatoryBody(InputStream.class);
+		}
+		log.trace("Client storeFile: {}", targetName);
+		client.put(endpoint.getConfiguration()
+			.getRemoteServerInformation() + name, is);
 	    }
-	    log.trace("Client storeFile: {}", targetName);
-	    client.put(endpoint.getConfiguration().getRemoteServerInformation()
-		    + name, is);
+
 	    return true;
 	} catch (SardineException e) {
 	    throw new GenericFileOperationFailedException(e.getStatusCode(),

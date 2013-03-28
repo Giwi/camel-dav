@@ -18,6 +18,7 @@ package org.giwi.camel.dav.test;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.file.GenericFileExist;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,8 @@ public class DavProducerFileExistAppendTest extends AbstractDavTest {
 	    .startsWith("Windows");
 
     private String getDavUrl() {
-	return DAV_URL + "/exist?delay=2000&noop=true&fileExist=Append";
+	return DAV_URL + "/exist?delay=2000&noop=true&fileExist="
+		+ GenericFileExist.Append;
     }
 
     @Override
