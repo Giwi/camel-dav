@@ -360,7 +360,6 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	    if (endpoint.getFileExist() == GenericFileExist.Append
 		    && existsFile(name)) {
 		log.trace("Client appendFile: {}", targetName);
-		// TODO : Merge 2 bunch of Data !!
 		File tmp = FileUtil.createTempFile("", "");
 		FileOutputStream os = new FileOutputStream(tmp, true);
 
