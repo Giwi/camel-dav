@@ -39,7 +39,6 @@ import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.log4j.lf5.util.StreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -363,10 +362,11 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		File tmp = FileUtil.createTempFile("", "");
 		FileOutputStream os = new FileOutputStream(tmp, true);
 
-		StreamUtils.copy(
+		IOHelper.copy(
 			client.get(endpoint.getConfiguration()
 				.getRemoteServerInformation() + name), os);
-		StreamUtils.copy(
+
+		IOHelper.copy(
 			exchange.getIn().getMandatoryBody(InputStream.class),
 			os);
 		IOHelper.close(os, "store: " + name, log);

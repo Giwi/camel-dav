@@ -8,9 +8,7 @@ Let's read the guts-shaking documentation on my [Blog](http://giwi.free.fr/docs/
 Known limitations : 
 
 * Consider every path in parameters as relative and path in the uri as absolute.
-* Can not append something in a remote file. (I work on that)
-* Doesn't work for HTTPS Dav Servers  
-    
+* Doesn't work for HTTPS Dav Servers    
 
 ___
 
