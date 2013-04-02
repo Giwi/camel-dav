@@ -16,6 +16,13 @@
 <subsection name="URI format">
 
 <source>dav:host[:port]/path[?options]</source>
+or
+<source>dav://host[:port]/path[?options]</source>
+
+HTTPS support : 
+<source>davs:host[:port]/path[?options]</source>
+or
+<source>davs://host[:port]/path[?options]</source>
 </subsection>
 <subsection name="Options" >
 

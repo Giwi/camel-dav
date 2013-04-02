@@ -29,7 +29,7 @@ public class DavsConfiguration extends DavConfiguration {
      */
     public DavsConfiguration() {
 	setProtocol("https");
-	setPort(80);
+	setPort(443);
     }
 
     /**
@@ -49,7 +49,7 @@ public class DavsConfiguration extends DavConfiguration {
      */
     @Override
     protected void setDefaultPort() {
-	setPort(80);
+	setPort(443);
     }
 
     /*
