@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav.test;
 
@@ -25,14 +24,24 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test for DAV using expression (file language)
+ * Unit test for DAV using expression (file language).
  */
 public class DavProducerExpressionTest extends AbstractDavTest {
 
+    /**
+     * Gets the dav url.
+     * 
+     * @return the dav url
+     */
     private String getDavUrl() {
 	return DAV_URL + "/filelanguage";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
+     */
     @Override
     @Before
     public void setUp() throws Exception {
@@ -40,6 +49,11 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 	deleteDirectory("tmpOut/filelanguage");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#createRegistry()
+     */
     @Override
     protected JndiRegistry createRegistry() throws Exception {
 	JndiRegistry jndi = super.createRegistry();
@@ -47,11 +61,22 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 	return jndi;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#isUseRouteBuilder()
+     */
     @Override
     public boolean isUseRouteBuilder() {
 	return false;
     }
 
+    /**
+     * Test produce bean by expression.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testProduceBeanByExpression() throws Exception {
 	template.sendBody(
@@ -61,6 +86,12 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 	assertFileExists(DAV_ROOT_DIR + "/filelanguage/123.bak");
     }
 
+    /**
+     * Test produce bean by header.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testProduceBeanByHeader() throws Exception {
 	sendFile(getDavUrl(), "Hello World", "${bean:myguidgenerator}.bak");
@@ -68,6 +99,12 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 	assertFileExists(DAV_ROOT_DIR + "/filelanguage/123.bak");
     }
 
+    /**
+     * Test producer date by header.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testProducerDateByHeader() throws Exception {
 	sendFile(getDavUrl(), "Hello World", "myfile-${date:now:yyyyMMdd}.txt");
@@ -76,6 +113,12 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 	assertFileExists(DAV_ROOT_DIR + "/filelanguage/myfile-" + date + ".txt");
     }
 
+    /**
+     * Test producer date by expression.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testProducerDateByExpression() throws Exception {
 	template.sendBody(getDavUrl()
@@ -85,6 +128,12 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 	assertFileExists(DAV_ROOT_DIR + "/filelanguage/myfile-" + date + ".txt");
     }
 
+    /**
+     * Test producer complex by expression.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testProducerComplexByExpression() throws Exception {
 	// need one extra subdirectory (=foo) to be able to start with .. in the
@@ -99,6 +148,12 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 		+ "/filelanguage/filelanguageinbox/myfile-123-" + date + ".txt");
     }
 
+    /**
+     * Test producer simple with header by expression.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testProducerSimpleWithHeaderByExpression() throws Exception {
 	template.sendBodyAndHeader(getDavUrl()
@@ -108,6 +163,12 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 	assertFileExists(DAV_ROOT_DIR + "/filelanguage/myfile-abc.txt");
     }
 
+    /**
+     * Test producer with date header.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testProducerWithDateHeader() throws Exception {
 	Calendar cal = Calendar.getInstance();
@@ -122,7 +183,16 @@ public class DavProducerExpressionTest extends AbstractDavTest {
 	assertFileExists(DAV_ROOT_DIR + "/filelanguage/mybirthday-19740420.txt");
     }
 
+    /**
+     * The Class MyGuidGenerator.
+     */
     public class MyGuidGenerator {
+
+	/**
+	 * Guid.
+	 * 
+	 * @return the string
+	 */
 	public String guid() {
 	    return "123";
 	}

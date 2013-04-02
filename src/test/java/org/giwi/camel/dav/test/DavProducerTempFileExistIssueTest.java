@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav.test;
 
@@ -24,19 +23,37 @@ import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.junit.Test;
 
 /**
+ * The Class DavProducerTempFileExistIssueTest.
+ * 
  * @version
  */
 public class DavProducerTempFileExistIssueTest extends AbstractDavTest {
 
+    /**
+     * Gets the dav url.
+     * 
+     * @return the dav url
+     */
     private String getDavUrl() {
 	return DAV_URL + "/tempprefix/";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#isUseRouteBuilder()
+     */
     @Override
     public boolean isUseRouteBuilder() {
 	return false;
     }
 
+    /**
+     * Test illegal configuration.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testIllegalConfiguration() throws Exception {
 	try {
@@ -50,6 +67,12 @@ public class DavProducerTempFileExistIssueTest extends AbstractDavTest {
 	}
     }
 
+    /**
+     * Test write using temp prefix but file exist.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testWriteUsingTempPrefixButFileExist() throws Exception {
 	template.sendBodyAndHeader(getDavUrl(), "Hello World",
@@ -68,6 +91,12 @@ public class DavProducerTempFileExistIssueTest extends AbstractDavTest {
 		context.getTypeConverter().convertTo(String.class, file));
     }
 
+    /**
+     * Test write using temp prefix but both file exist.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testWriteUsingTempPrefixButBothFileExist() throws Exception {
 	template.sendBodyAndHeader(getDavUrl(), "Hello World",
@@ -88,6 +117,12 @@ public class DavProducerTempFileExistIssueTest extends AbstractDavTest {
 		context.getTypeConverter().convertTo(String.class, file));
     }
 
+    /**
+     * Test write using temp prefix but file exist override.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testWriteUsingTempPrefixButFileExistOverride() throws Exception {
 	template.sendBodyAndHeader(getDavUrl(), "Hello World",
@@ -107,6 +142,12 @@ public class DavProducerTempFileExistIssueTest extends AbstractDavTest {
 		context.getTypeConverter().convertTo(String.class, file));
     }
 
+    /**
+     * Test write using temp prefix but file exist ignore.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testWriteUsingTempPrefixButFileExistIgnore() throws Exception {
 	template.sendBodyAndHeader(getDavUrl(), "Hello World",
@@ -126,6 +167,12 @@ public class DavProducerTempFileExistIssueTest extends AbstractDavTest {
 		context.getTypeConverter().convertTo(String.class, file));
     }
 
+    /**
+     * Test write using temp prefix but file exist fail.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testWriteUsingTempPrefixButFileExistFail() throws Exception {
 	template.sendBodyAndHeader(getDavUrl(), "Hello World",

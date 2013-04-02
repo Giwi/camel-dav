@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav.test;
 
@@ -32,13 +31,26 @@ import org.junit.Test;
  */
 public class FromDavSimulateNetworkIssueRecoverTest extends AbstractDavTest {
 
+    /** The counter. */
     private static int counter;
+
+    /** The rollback. */
     private static int rollback;
 
+    /**
+     * Gets the dav url.
+     * 
+     * @return the dav url
+     */
     private String getDavUrl() {
 	return DAV_URL + "/recover?pollStrategy=#myPoll";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#createRegistry()
+     */
     @Override
     protected JndiRegistry createRegistry() throws Exception {
 	JndiRegistry jndi = super.createRegistry();
@@ -46,6 +58,12 @@ public class FromDavSimulateNetworkIssueRecoverTest extends AbstractDavTest {
 	return jndi;
     }
 
+    /**
+     * Test dav recover.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testDavRecover() throws Exception {
 	// should be able to download the file after recovering
@@ -63,6 +81,11 @@ public class FromDavSimulateNetworkIssueRecoverTest extends AbstractDavTest {
 	assertEquals(2, rollback);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
+     */
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
 	return new RouteBuilder() {
@@ -73,8 +96,18 @@ public class FromDavSimulateNetworkIssueRecoverTest extends AbstractDavTest {
 	};
     }
 
+    /**
+     * The Class MyPollStrategy.
+     */
     public class MyPollStrategy extends RemoteFilePollingConsumerPollStrategy {
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.apache.camel.impl.DefaultPollingConsumerPollStrategy#commit(org
+	 * .apache.camel.Consumer, org.apache.camel.Endpoint, int)
+	 */
 	@Override
 	public void commit(Consumer consumer, Endpoint endpoint,
 		int polledMessages) {
@@ -84,6 +117,14 @@ public class FromDavSimulateNetworkIssueRecoverTest extends AbstractDavTest {
 	    }
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.giwi.camel.dav.RemoteFilePollingConsumerPollStrategy#rollback
+	 * (org.apache.camel.Consumer, org.apache.camel.Endpoint, int,
+	 * java.lang.Exception)
+	 */
 	@Override
 	public boolean rollback(Consumer consumer, Endpoint endpoint,
 		int retryCounter, Exception e) throws Exception {

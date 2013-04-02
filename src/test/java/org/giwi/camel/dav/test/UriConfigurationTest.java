@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav.test;
 
@@ -26,10 +25,15 @@ import org.giwi.camel.dav.RemoteFileEndpoint;
 import org.junit.Test;
 
 /**
+ * The Class UriConfigurationTest.
+ * 
  * @version
  */
 public class UriConfigurationTest extends CamelTestSupport {
 
+    /**
+     * Test dav configuration defaults.
+     */
     @Test
     public void testDavConfigurationDefaults() {
 	DavEndpoint<?> endpoint = context.getEndpoint("dav://hostname",
@@ -45,6 +49,9 @@ public class UriConfigurationTest extends CamelTestSupport {
 		config.getSeparator());
     }
 
+    /**
+     * Test dav explicit configuration.
+     */
     @Test
     public void testDavExplicitConfiguration() {
 	DavEndpoint<?> endpoint = context.getEndpoint(
@@ -59,6 +66,9 @@ public class UriConfigurationTest extends CamelTestSupport {
 	assertEquals("secret", config.getPassword());
     }
 
+    /**
+     * Test remote file endpoint files.
+     */
     @Test
     public void testRemoteFileEndpointFiles() {
 	assertRemoteFileEndpointFile("dav://hostname/foo/bar", "foo/bar");
@@ -98,6 +108,14 @@ public class UriConfigurationTest extends CamelTestSupport {
 	assertRemoteFileEndpointFile("davs://hostname//foo/bar/", "/foo/bar/");
     }
 
+    /**
+     * Assert remote file endpoint file.
+     * 
+     * @param endpointUri
+     *            the endpoint uri
+     * @param expectedFile
+     *            the expected file
+     */
     private void assertRemoteFileEndpointFile(String endpointUri,
 	    String expectedFile) {
 	RemoteFileEndpoint<?> endpoint = resolveMandatoryEndpoint(context,
@@ -109,6 +127,9 @@ public class UriConfigurationTest extends CamelTestSupport {
 		expectedFile, file);
     }
 
+    /**
+     * Test password in context path configuration.
+     */
     @Test
     public void testPasswordInContextPathConfiguration() {
 	DavEndpoint<?> endpoint = context.getEndpoint(
@@ -122,6 +143,12 @@ public class UriConfigurationTest extends CamelTestSupport {
 	assertEquals("secret", config.getPassword());
     }
 
+    /**
+     * Test starting directory with dot.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testStartingDirectoryWithDot() throws Exception {
 	DavEndpoint<?> endpoint = context.getEndpoint(
@@ -137,6 +164,9 @@ public class UriConfigurationTest extends CamelTestSupport {
 	});
     }
 
+    /**
+     * Test path separator auto.
+     */
     @Test
     public void testPathSeparatorAuto() {
 	DavEndpoint<?> endpoint = context.getEndpoint(
@@ -155,6 +185,9 @@ public class UriConfigurationTest extends CamelTestSupport {
 		config.normalizePath("foo\\bar\\hello.txt"));
     }
 
+    /**
+     * Test path separator unix.
+     */
     @Test
     public void testPathSeparatorUnix() {
 	DavEndpoint<?> endpoint = context.getEndpoint(
@@ -173,6 +206,9 @@ public class UriConfigurationTest extends CamelTestSupport {
 		config.normalizePath("foo\\bar\\hello.txt"));
     }
 
+    /**
+     * Test path separator windows.
+     */
     @Test
     public void testPathSeparatorWindows() {
 	DavEndpoint<?> endpoint = context.getEndpoint(

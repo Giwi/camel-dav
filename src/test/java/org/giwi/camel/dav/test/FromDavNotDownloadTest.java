@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav.test;
 
@@ -26,14 +25,24 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
+ * The Class FromDavNotDownloadTest.
  */
 public class FromDavNotDownloadTest extends AbstractDavTest {
 
+    /**
+     * Gets the dav url.
+     * 
+     * @return the dav url
+     */
     protected String getDavUrl() {
 	return DAV_URL + "/download?noop=true&download=false";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
+     */
     @Override
     @Before
     public void setUp() throws Exception {
@@ -41,6 +50,12 @@ public class FromDavNotDownloadTest extends AbstractDavTest {
 	prepareDavServer();
     }
 
+    /**
+     * Test not download.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testNotDownload() throws Exception {
 	MockEndpoint mock = getMockEndpoint("mock:result");
@@ -51,6 +66,12 @@ public class FromDavNotDownloadTest extends AbstractDavTest {
 	mock.assertIsSatisfied();
     }
 
+    /**
+     * Prepare dav server.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     private void prepareDavServer() throws Exception {
 	Endpoint endpoint = context.getEndpoint(getDavUrl());
 	Exchange exchange = endpoint.createExchange();
@@ -63,6 +84,11 @@ public class FromDavNotDownloadTest extends AbstractDavTest {
 	producer.stop();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
+     */
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
 	return new RouteBuilder() {

@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav.test.auth;
 
@@ -31,16 +30,27 @@ import org.junit.Test;
 
 /**
  * Unit test for login failure due bad password and no re connect attempts
- * allowed
+ * allowed.
  */
 public class DavConsumerThrowExceptionOnLoginFailedTest extends AbstractDavTest {
     // FIXME
+    /** The latch. */
     private final CountDownLatch latch = new CountDownLatch(1);
 
+    /**
+     * Gets the dav url.
+     * 
+     * @return the dav url
+     */
     private String getDavUrl() {
 	return "dav://dummy@localhost:80/webdavs/badlogin?password=cantremember&throwExceptionOnConnectFailed=true&maximumReconnectAttempts=0&pollStrategy=#myPoll";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#createRegistry()
+     */
     @Override
     protected JndiRegistry createRegistry() throws Exception {
 	JndiRegistry jndi = super.createRegistry();
@@ -48,6 +58,12 @@ public class DavConsumerThrowExceptionOnLoginFailedTest extends AbstractDavTest 
 	return jndi;
     }
 
+    /**
+     * Test bad login.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testBadLogin() throws Exception {
 	getMockEndpoint("mock:result").expectedMessageCount(0);
@@ -64,6 +80,11 @@ public class DavConsumerThrowExceptionOnLoginFailedTest extends AbstractDavTest 
 		((ServiceSupport) consumer).isStopped());
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
+     */
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
 	return new RouteBuilder() {
@@ -74,18 +95,42 @@ public class DavConsumerThrowExceptionOnLoginFailedTest extends AbstractDavTest 
 	};
     }
 
+    /**
+     * The Class MyPoll.
+     */
     private class MyPoll implements PollingConsumerPollStrategy {
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.apache.camel.spi.PollingConsumerPollStrategy#begin(org.apache
+	 * .camel.Consumer, org.apache.camel.Endpoint)
+	 */
 	@Override
 	public boolean begin(Consumer consumer, Endpoint endpoint) {
 	    return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.apache.camel.spi.PollingConsumerPollStrategy#commit(org.apache
+	 * .camel.Consumer, org.apache.camel.Endpoint, int)
+	 */
 	@Override
 	public void commit(Consumer consumer, Endpoint endpoint,
 		int polledMessages) {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.apache.camel.spi.PollingConsumerPollStrategy#rollback(org.apache
+	 * .camel.Consumer, org.apache.camel.Endpoint, int, java.lang.Exception)
+	 */
 	@Override
 	public boolean rollback(Consumer consumer, Endpoint endpoint,
 		int retryCounter, Exception cause) throws Exception {

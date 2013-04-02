@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav.test;
 
@@ -26,10 +25,20 @@ import org.junit.Test;
  */
 public class FromDavRemoteFileSortByExpressionTest extends AbstractDavTest {
 
+    /**
+     * Gets the dav url.
+     * 
+     * @return the dav url
+     */
     private String getDavUrl() {
 	return DAV_URL + "/sortby?consumer.delay=5000";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
+     */
     @Override
     @Before
     public void setUp() throws Exception {
@@ -37,11 +46,22 @@ public class FromDavRemoteFileSortByExpressionTest extends AbstractDavTest {
 	prepareDavServer();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.test.junit4.CamelTestSupport#isUseRouteBuilder()
+     */
     @Override
     public boolean isUseRouteBuilder() {
 	return false;
     }
 
+    /**
+     * Test sort files.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testSortFiles() throws Exception {
 	context.addRoutes(new RouteBuilder() {
@@ -59,6 +79,12 @@ public class FromDavRemoteFileSortByExpressionTest extends AbstractDavTest {
 	assertMockEndpointsSatisfied();
     }
 
+    /**
+     * Test sort files reverse.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     @Test
     public void testSortFilesReverse() throws Exception {
 	context.addRoutes(new RouteBuilder() {
@@ -77,6 +103,12 @@ public class FromDavRemoteFileSortByExpressionTest extends AbstractDavTest {
 	assertMockEndpointsSatisfied();
     }
 
+    /**
+     * Prepare dav server.
+     * 
+     * @throws Exception
+     *             the exception
+     */
     private void prepareDavServer() throws Exception {
 	// prepares the DAV Server by creating files on the server that we want
 	// to unit

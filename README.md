@@ -8,7 +8,6 @@ Let's read the guts-shaking documentation on my [Blog](http://giwi.free.fr/docs/
 Known limitations : 
 
 * Consider every path in parameters as relative and path in the uri as absolute.
-* Doesn't work for HTTPS Dav Servers    
 
 ___
 
