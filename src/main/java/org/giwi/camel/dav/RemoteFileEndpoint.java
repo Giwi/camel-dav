@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav;
 
@@ -29,18 +28,29 @@ import org.apache.camel.processor.idempotent.MemoryIdempotentRepository;
 import org.apache.camel.util.ObjectHelper;
 
 /**
- * @author Giwi Softwares
+ * The Class RemoteFileEndpoint.
  * 
+ * @param <T>
+ *            the generic type
+ * @author Giwi Softwares
  */
 public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
+
+    /** The maximum reconnect attempts. */
     private int maximumReconnectAttempts = 3;
+
+    /** The reconnect delay. */
     private long reconnectDelay = 1000;
+
+    /** The disconnect. */
     private boolean disconnect;
+
+    /** The fast exists check. */
     private boolean fastExistsCheck;
 
     /**
-	 * 
-	 */
+     * Instantiates a new remote file endpoint.
+     */
     public RemoteFileEndpoint() {
 	// no args constructor for spring bean endpoint configuration
 	// for dav we need to use higher interval/checkout that for files
@@ -49,9 +59,14 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
     }
 
     /**
+     * Instantiates a new remote file endpoint.
+     * 
      * @param uri
+     *            the uri
      * @param component
+     *            the component
      * @param configuration
+     *            the configuration
      */
     public RemoteFileEndpoint(String uri, RemoteFileComponent<T> component,
 	    RemoteFileConfiguration configuration) {
@@ -62,11 +77,24 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	setReadLockCheckInterval(5000);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileEndpoint#getConfiguration()
+     */
     @Override
     public RemoteFileConfiguration getConfiguration() {
 	return (RemoteFileConfiguration) configuration;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileEndpoint#createExchange(org
+     * .apache.camel.component.file.GenericFile)
+     */
     @Override
     public Exchange createExchange(GenericFile<T> file) {
 	Exchange answer = new DefaultExchange(this);
@@ -76,6 +104,11 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	return answer;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.component.file.GenericFileEndpoint#createProducer()
+     */
     @Override
     public GenericFileProducer<T> createProducer() throws Exception {
 	afterPropertiesSet();
@@ -92,6 +125,13 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	return buildProducer();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileEndpoint#createConsumer(org
+     * .apache.camel.Processor)
+     */
     @Override
     public RemoteFileConsumer<T> createConsumer(Processor processor)
 	    throws Exception {
@@ -137,6 +177,11 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	// ObjectHelper.notEmpty(config.getProtocol(), "protocol");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.component.file.GenericFileEndpoint#getParamsAsMap()
+     */
     @Override
     protected Map<String, Object> getParamsAsMap() {
 	Map<String, Object> map = super.getParamsAsMap();
@@ -173,51 +218,110 @@ public abstract class RemoteFileEndpoint<T> extends GenericFileEndpoint<T> {
 	    throws Exception;
 
     /**
-     * Returns human readable server information for logging purpose
+     * Returns human readable server information for logging purpose.
+     * 
+     * @return the string
      */
     public String remoteServerInformation() {
 	return ((RemoteFileConfiguration) configuration)
 		.getRemoteServerInformation();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileEndpoint#getFileSeparator()
+     */
     @Override
     public char getFileSeparator() {
 	return '/';
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileEndpoint#isAbsolute(java.lang
+     * .String)
+     */
     @Override
     public boolean isAbsolute(String name) {
 	return name.startsWith("/");
     }
 
+    /**
+     * Gets the maximum reconnect attempts.
+     * 
+     * @return the maximum reconnect attempts
+     */
     public int getMaximumReconnectAttempts() {
 	return maximumReconnectAttempts;
     }
 
+    /**
+     * Sets the maximum reconnect attempts.
+     * 
+     * @param maximumReconnectAttempts
+     *            the new maximum reconnect attempts
+     */
     public void setMaximumReconnectAttempts(int maximumReconnectAttempts) {
 	this.maximumReconnectAttempts = maximumReconnectAttempts;
     }
 
+    /**
+     * Gets the reconnect delay.
+     * 
+     * @return the reconnect delay
+     */
     public long getReconnectDelay() {
 	return reconnectDelay;
     }
 
+    /**
+     * Sets the reconnect delay.
+     * 
+     * @param reconnectDelay
+     *            the new reconnect delay
+     */
     public void setReconnectDelay(long reconnectDelay) {
 	this.reconnectDelay = reconnectDelay;
     }
 
+    /**
+     * Checks if is disconnect.
+     * 
+     * @return true, if is disconnect
+     */
     public boolean isDisconnect() {
 	return disconnect;
     }
 
+    /**
+     * Sets the disconnect.
+     * 
+     * @param disconnect
+     *            the new disconnect
+     */
     public void setDisconnect(boolean disconnect) {
 	this.disconnect = disconnect;
     }
 
+    /**
+     * Checks if is fast exists check.
+     * 
+     * @return true, if is fast exists check
+     */
     public boolean isFastExistsCheck() {
 	return fastExistsCheck;
     }
 
+    /**
+     * Sets the fast exists check.
+     * 
+     * @param fastExistsCheck
+     *            the new fast exists check
+     */
     public void setFastExistsCheck(boolean fastExistsCheck) {
 	this.fastExistsCheck = fastExistsCheck;
     }

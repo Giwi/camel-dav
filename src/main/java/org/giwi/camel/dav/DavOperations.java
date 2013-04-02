@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav;
 
@@ -47,17 +46,27 @@ import com.googlecode.sardine.Sardine;
 import com.googlecode.sardine.impl.SardineException;
 
 /**
- * @author Giwi Softwares
+ * The Class DavOperations.
  * 
+ * @author Giwi Softwares
  */
 public class DavOperations implements RemoteFileOperations<DavResource> {
 
-    protected final transient Logger log = LoggerFactory.getLogger(getClass());
+    /** The Constant LOG. */
+    protected static final Logger LOG = LoggerFactory
+	    .getLogger(DavOperations.class);
+
+    /** The client. */
     protected final Sardine client;
+
+    /** The endpoint. */
     protected RemoteFileEndpoint<DavResource> endpoint;
 
     /**
+     * Instantiates a new dav operations.
+     * 
      * @param client
+     *            the Sardine client
      */
     public DavOperations(Sardine client) {
 	this.client = client;
@@ -86,8 +95,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
     public boolean deleteFile(String name)
 	    throws GenericFileOperationFailedException {
 	name = sanitizeWithHost(name);
-	if (log.isInfoEnabled()) {
-	    log.info("deleteFile : " + name);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("deleteFile : " + name);
 	}
 	try {
 	    client.delete(name);
@@ -101,30 +110,45 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
     }
 
     /**
-     * @param name
-     * @return
+     * Sanitize path.
+     * 
+     * @param path
+     *            the path to be sanitized
+     * @return a clean path
      */
-    private String sanitizePath(String name) {
+    private String sanitizePath(String path) {
 	// WTF : INFO deleteFile :
 	// http://localhost:80/webdav/movefile//http:/localhost:80/webdav/movefile/.done/goodday.txt
-	name = name.replaceAll(
-		"http:/" + endpoint.getConfiguration().getHost(), "http://"
+	String sPath = path.replaceAll(endpoint.getConfiguration()
+		.getProtocol() + ":/" + endpoint.getConfiguration().getHost(),
+		endpoint.getConfiguration().getProtocol() + "://"
 			+ endpoint.getConfiguration().getHost());
-	name = name.replaceAll(endpoint.getConfiguration()
+	sPath = sPath.replaceAll(endpoint.getConfiguration()
 		.getRemoteServerInformation(), "");
-	return FileUtil.stripLeadingSeparator(name);
+	sPath = FileUtil.stripLeadingSeparator(sPath);
+
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("sanitize from path " + path + " to " + sPath);
+	}
+	return sPath;
     }
 
     /**
-     * @param name
-     * @return
+     * Sanitize with host.
+     * 
+     * @param path
+     *            the path to be sanitized with the hostname
+     * @return a clean path
      */
-    private String sanitizeWithHost(String name) {
-	name = sanitizePath(name);
-	name = endpoint.getConfiguration().getRemoteServerInformation()
-		+ FileUtil.stripLeadingSeparator(name.replaceFirst(endpoint
+    private String sanitizeWithHost(String path) {
+	String sPath = sanitizePath(path);
+	sPath = endpoint.getConfiguration().getRemoteServerInformation()
+		+ FileUtil.stripLeadingSeparator(path.replaceFirst(endpoint
 			.getConfiguration().getInitialDirectory(), ""));
-	return name;
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("sanitize with host from path " + path + " to " + sPath);
+	}
+	return sPath;
     }
 
     /*
@@ -140,8 +164,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	if (!name.startsWith(endpoint.getConfiguration().getHostPath())) {
 	    name = sanitizeWithHost(name);
 	}
-	if (log.isInfoEnabled()) {
-	    log.info("existsFile : " + name);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("existsFile : " + name);
 	}
 	try {
 	    return client.exists(name);
@@ -154,14 +178,18 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
     }
 
     /**
+     * Exists init dir.
+     * 
      * @param name
-     * @return
+     *            the name
+     * @return true, if successful
      * @throws GenericFileOperationFailedException
+     *             the generic file operation failed exception
      */
     public boolean existsInitDir(String name)
 	    throws GenericFileOperationFailedException {
-	if (log.isInfoEnabled()) {
-	    log.info("existsInitDir : " + name);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("existsInitDir : " + name);
 	}
 	try {
 	    return client.exists(name);
@@ -176,13 +204,22 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	}
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileOperations#renameFile(java
+     * .lang.String, java.lang.String)
+     */
     @Override
     public boolean renameFile(String from, String to)
 	    throws GenericFileOperationFailedException {
 	try {
 	    to = sanitizeWithHost(to);
 	    from = sanitizeWithHost(from);
-	    log.info("renameFile from " + from + " to : " + to);
+	    if (LOG.isTraceEnabled()) {
+		LOG.trace("renameFile from " + from + " to : " + to);
+	    }
 	    client.move(from, to);
 	} catch (SardineException e) {
 	    throw new GenericFileOperationFailedException(e.getStatusCode(),
@@ -194,22 +231,31 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
     }
 
     /**
+     * Inits the component.
+     * 
      * @param path
+     *            the path
      */
     public void initComponent(String path) {
 	String[] dirs = path.split("/");
-	log.info("initComponent : " + Arrays.asList(dirs));
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("initComponent : " + Arrays.asList(dirs));
+	}
 	StringBuilder dirToBuild = new StringBuilder();
 	for (String dir : dirs) {
 	    if (!"".equals(dir.trim())) {
 		dirToBuild.append(dir).append("/");
-		log.info("initComponent dirToBuild : " + dirToBuild);
+		if (LOG.isTraceEnabled()) {
+		    LOG.trace("initComponent dirToBuild : " + dirToBuild);
+		}
 		try {
 		    if (!existsInitDir(endpoint.getConfiguration()
 			    .getHostPath() + dirToBuild.toString())) {
-			log.info("initComponent 3 : "
-				+ endpoint.getConfiguration().getHostPath()
-				+ dirToBuild.toString());
+			if (LOG.isTraceEnabled()) {
+			    LOG.trace("initComponent : "
+				    + endpoint.getConfiguration().getHostPath()
+				    + dirToBuild.toString());
+			}
 			client.createDirectory(endpoint.getConfiguration()
 				.getHostPath() + dirToBuild.toString());
 		    }
@@ -237,7 +283,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	    throws GenericFileOperationFailedException {
 	// WTF ?!? http:/localhost:80/webdav/ in directory
 	directory = sanitizeWithHost(directory);
-	log.info("buildDirectory 1 : " + directory + ", absolute : " + absolute);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("buildDirectory 1 : " + directory + ", absolute : "
+		    + absolute);
+	}
 
 	directory = directory.replaceAll(endpoint.getConfiguration()
 		.getRemoteServerInformation(), "");
@@ -246,12 +295,16 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	for (String dir : dirs) {
 	    if (!"".equals(dir.trim())) {
 		dirToBuild.append(dir).append("/");
-		log.info("buildDirectory : " + dirToBuild);
+		if (LOG.isTraceEnabled()) {
+		    LOG.trace("buildDirectory : " + dirToBuild);
+		}
 		try {
 		    if (!existsFile(endpoint.getConfiguration()
 			    .getRemoteServerInformation()
 			    + dirToBuild.toString())) {
-			log.info("buildDirectory : " + dirToBuild);
+			if (LOG.isTraceEnabled()) {
+			    LOG.trace("buildDirectory : " + dirToBuild);
+			}
 			client.createDirectory(endpoint.getConfiguration()
 				.getRemoteServerInformation()
 				+ dirToBuild.toString());
@@ -279,10 +332,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
     @Override
     public boolean retrieveFile(String name, Exchange exchange)
 	    throws GenericFileOperationFailedException {
-
-	log.info("retrieveFile : " + name);
 	name = sanitizeWithHost(name);
-	log.info("retrieveFile : " + name);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("retrieveFile : " + name);
+	}
 	if (ObjectHelper.isNotEmpty(endpoint.getLocalWorkDirectory())) {
 	    // local work directory is configured so we should store file
 	    // content as files in this local directory
@@ -303,22 +356,30 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
     @Override
     public boolean storeFile(String name, Exchange exchange)
 	    throws GenericFileOperationFailedException {
-	log.trace("storeFile({})", name);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("storeFile({})", name);
+	}
 	String targetName = name;
 	// store the file
 	return doStoreFile(name, targetName, exchange);
     }
 
     /**
+     * Do store file.
+     * 
      * @param name
+     *            the name
      * @param targetName
+     *            the target name
      * @param exchange
-     * @return
+     *            the exchange
+     * @return true, if successful
      * @throws GenericFileOperationFailedException
+     *             the generic file operation failed exception
      */
     private boolean doStoreFile(String name, String targetName,
 	    Exchange exchange) throws GenericFileOperationFailedException {
-	log.info("doStoreFile({})", targetName);
+	LOG.trace("doStoreFile({})", targetName);
 	// if an existing file already exists what should we do?
 	if (endpoint.getFileExist() == GenericFileExist.Ignore
 		|| endpoint.getFileExist() == GenericFileExist.Fail
@@ -326,9 +387,11 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	    boolean existFile = existsFile(targetName);
 	    if (existFile && endpoint.getFileExist() == GenericFileExist.Ignore) {
 		// ignore but indicate that the file was written
-		log.debug(
-			"An existing file already exists: {}. Ignore and do not override it.",
-			name);
+		if (LOG.isDebugEnabled()) {
+		    LOG.debug(
+			    "An existing file already exists: {}. Ignore and do not override it.",
+			    name);
+		}
 		return true;
 	    } else if (existFile
 		    && endpoint.getFileExist() == GenericFileExist.Fail) {
@@ -346,7 +409,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	if (exchange.getIn().getBody() == null) {
 	    // Do an explicit test for a null body and decide what to do
 	    if (endpoint.isAllowNullBody()) {
-		log.debug("Writing empty file.");
+		if (LOG.isDebugEnabled()) {
+		    LOG.debug("Writing empty file.");
+		}
 		is = new ByteArrayInputStream(new byte[] {});
 	    } else {
 		throw new GenericFileOperationFailedException(
@@ -358,7 +423,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 
 	    if (endpoint.getFileExist() == GenericFileExist.Append
 		    && existsFile(name)) {
-		log.trace("Client appendFile: {}", targetName);
+		if (LOG.isTraceEnabled()) {
+		    LOG.trace("Client appendFile: {}", targetName);
+		}
 		File tmp = FileUtil.createTempFile("", "");
 		FileOutputStream os = new FileOutputStream(tmp, true);
 
@@ -369,7 +436,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		IOHelper.copy(
 			exchange.getIn().getMandatoryBody(InputStream.class),
 			os);
-		IOHelper.close(os, "store: " + name, log);
+		IOHelper.close(os, "store: " + name, LOG);
 		is = new FileInputStream(tmp);
 		client.put(endpoint.getConfiguration()
 			.getRemoteServerInformation() + name, is);
@@ -377,7 +444,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		if (is == null) {
 		    is = exchange.getIn().getMandatoryBody(InputStream.class);
 		}
-		log.trace("Client storeFile: {}", targetName);
+		if (LOG.isTraceEnabled()) {
+		    LOG.trace("Client storeFile: {}", targetName);
+		}
 		client.put(endpoint.getConfiguration()
 			.getRemoteServerInformation() + name, is);
 	    }
@@ -392,7 +461,7 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	    throw new GenericFileOperationFailedException("Cannot store file: "
 		    + name, e);
 	} finally {
-	    IOHelper.close(is, "store: " + name, log);
+	    IOHelper.close(is, "store: " + name, LOG);
 	}
     }
 
@@ -400,13 +469,18 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
      * Moves any existing file due fileExists=Move is in use.
      * 
      * @param name
+     *            the name
      * @param targetName
+     *            the target name
      * @throws GenericFileOperationFailedException
+     *             the generic file operation failed exception
      */
     private void doMoveExistingFile(String name, String targetName)
 	    throws GenericFileOperationFailedException {
-	log.info("doMoveExistingFile name=" + name + " targetName="
-		+ targetName);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("doMoveExistingFile name=" + name + " targetName="
+		    + targetName);
+	}
 	// need to evaluate using a dummy and simulate the file first, to have
 	// access to all the file attributes
 	// create a dummy exchange as Exchange is needed for expression
@@ -443,7 +517,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	// deal if there already exists a file
 	if (existsFile(to)) {
 	    if (endpoint.isEagerDeleteTargetFile()) {
-		log.trace("Deleting existing file: {}", to);
+		if (LOG.isTraceEnabled()) {
+		    LOG.trace("Deleting existing file: {}", to);
+		}
 		try {
 		    client.delete(endpoint.getConfiguration()
 			    .getRemoteServerInformation()
@@ -461,44 +537,86 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 				+ to + " as there already exists a file: " + to);
 	    }
 	}
-
-	log.trace("Moving existing file: {} to: {}", name, to);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("Moving existing file: {} to: {}", name, to);
+	}
 	if (!renameFile(targetName, to)) {
 	    throw new GenericFileOperationFailedException(
 		    "Cannot rename file from: " + name + " to: " + to);
 	}
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileOperations#getCurrentDirectory
+     * ()
+     */
     @Override
     public String getCurrentDirectory()
 	    throws GenericFileOperationFailedException {
 	// noop
-	log.info("noop : getCurrentDirectory()");
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("noop : getCurrentDirectory()");
+	}
 	return "***";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileOperations#changeCurrentDirectory
+     * (java.lang.String)
+     */
     @Override
     public void changeCurrentDirectory(String path)
 	    throws GenericFileOperationFailedException {
 	// noop
-	log.info("noop : changeCurrentDirectory(String path)");
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("noop : changeCurrentDirectory(String path)");
+	}
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileOperations#changeToParentDirectory
+     * ()
+     */
     @Override
     public void changeToParentDirectory()
 	    throws GenericFileOperationFailedException {
 	// noop
-	log.info("noop : changeToParentDirectory()");
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("noop : changeToParentDirectory()");
+	}
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.component.file.GenericFileOperations#listFiles()
+     */
     @Override
     public List<DavResource> listFiles()
 	    throws GenericFileOperationFailedException {
 	// noop
-	log.info("noop : listFiles()");
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("noop : listFiles()");
+	}
 	return null;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileOperations#listFiles(java.
+     * lang.String)
+     */
     @Override
     public List<DavResource> listFiles(String path)
 	    throws GenericFileOperationFailedException {
@@ -509,8 +627,12 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		    .getHostPath())) {
 		path = sanitizeWithHost(path);
 	    } else {
-		path = path.replaceAll("http:/"
-			+ endpoint.getConfiguration().getHost(), "http://"
+		path = path.replaceAll(endpoint.getConfiguration()
+			.getProtocol()
+			+ ":/"
+			+ endpoint.getConfiguration().getHost(), endpoint
+			.getConfiguration().getProtocol()
+			+ "://"
 			+ endpoint.getConfiguration().getHost());
 	    }
 	    if (!path.startsWith(endpoint.getConfiguration().getHostPath())) {
@@ -524,7 +646,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 			    + FileUtil.stripLeadingSeparator(path);
 		}
 	    }
-	    log.info("listFiles " + path);
+	    if (LOG.isTraceEnabled()) {
+		LOG.trace("listFiles " + path);
+	    }
 	    List<DavResource> response = new ArrayList<DavResource>();
 	    List<DavResource> resources = client.list(path);
 	    for (DavResource res : resources) {
@@ -548,10 +672,23 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	}
     }
 
+    /**
+     * Retrieve file to stream in body.
+     * 
+     * @param name
+     *            the name
+     * @param exchange
+     *            the exchange
+     * @return true, if successful
+     * @throws GenericFileOperationFailedException
+     *             the generic file operation failed exception
+     */
     @SuppressWarnings("unchecked")
     private boolean retrieveFileToStreamInBody(String name, Exchange exchange)
 	    throws GenericFileOperationFailedException {
-	log.info("retrieveFileToStreamInBody({})", name);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("retrieveFileToStreamInBody({})", name);
+	}
 	OutputStream os = null;
 	boolean result = false;
 	try {
@@ -562,7 +699,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		    + FileComponent.FILE_EXCHANGE_FILE + " set");
 
 	    String remoteName = FileUtil.stripPath(name);
-	    log.info("Client retrieveFile: {}", remoteName);
+	    if (LOG.isTraceEnabled()) {
+		LOG.trace("Client retrieveFile: {}", remoteName);
+	    }
 	    DavResource file = client.list(name).get(0);
 	    String localName = (endpoint.getConfiguration().getHostPath() + FileUtil
 		    .stripLeadingSeparator(file.getPath())).replaceAll(endpoint
@@ -576,8 +715,9 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		InputStream is = client.get(name);
 
 		IOHelper.copyAndCloseInput(is, os);
-		log.info("Client retrieveFile: {}", localName);
-		System.out.println(localName);
+		if (LOG.isTraceEnabled()) {
+		    LOG.trace("Client retrieveFile: {}", localName);
+		}
 		exchange.getIn().setHeader("CamelFileLength",
 			file.getContentLength());
 		exchange.getIn().setHeader(Exchange.FILE_LAST_MODIFIED,
@@ -590,8 +730,6 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		    FileUtil.stripLeadingSeparator(localName));
 	    exchange.getIn().setHeader(Exchange.FILE_NAME_ONLY, file.getName());
 	    exchange.getIn().setHeader(Exchange.FILE_NAME_PRODUCED, localName);
-
-	    System.out.println(exchange.getIn().getHeaders());
 	    result = true;
 	} catch (SardineException e) {
 	    throw new GenericFileOperationFailedException(e.getStatusCode(),
@@ -599,16 +737,29 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	} catch (IOException e) {
 	    throw new GenericFileOperationFailedException(e.getMessage(), e);
 	} finally {
-	    IOHelper.close(os, "retrieve: " + name, log);
+	    IOHelper.close(os, "retrieve: " + name, LOG);
 	}
 
 	return result;
     }
 
+    /**
+     * Retrieve file to file in local work directory.
+     * 
+     * @param name
+     *            the name
+     * @param exchange
+     *            the exchange
+     * @return true, if successful
+     * @throws GenericFileOperationFailedException
+     *             the generic file operation failed exception
+     */
     @SuppressWarnings("unchecked")
     private boolean retrieveFileToFileInLocalWorkDirectory(String name,
 	    Exchange exchange) throws GenericFileOperationFailedException {
-	log.info("retrieveFileToFileInLocalWorkDirectory({})", name);
+	if (LOG.isTraceEnabled()) {
+	    LOG.trace("retrieveFileToFileInLocalWorkDirectory({})", name);
+	}
 	File temp;
 	File local = new File(FileUtil.normalizePath(endpoint
 		.getLocalWorkDirectory()));
@@ -621,10 +772,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		    + FileComponent.FILE_EXCHANGE_FILE + " set");
 	    String relativeName = FileUtil.normalizePath(target
 		    .getRelativeFilePath());
-	    System.out.println(relativeName);
 	    temp = new File(local, relativeName + ".inprogress");
 	    local = new File(local, relativeName);
-	    System.out.println(local.getAbsolutePath());
 	    // create directory to local work file
 	    local.mkdirs();
 
@@ -667,7 +816,10 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		    .getProperty(FileComponent.FILE_EXCHANGE_FILE);
 	    // store the java.io.File handle as the body
 	    target.setBody(local);
-	    log.trace("Client retrieveFileToFileInLocalWorkDirectory: {}", name);
+	    if (LOG.isTraceEnabled()) {
+		LOG.trace("Client retrieveFileToFileInLocalWorkDirectory: {}",
+			name);
+	    }
 	    InputStream is = client.get(name);
 	    DavResource file = client.list(name).get(0);
 	    exchange.getIn().setHeader("CamelFileLength",
@@ -678,7 +830,6 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	    exchange.getIn().setHeader(Exchange.FILE_NAME_ONLY, file.getName());
 	    exchange.getIn().setHeader(Exchange.FILE_NAME_PRODUCED,
 		    endpoint.getConfiguration().getHostPath() + file.getPath());
-	    System.out.println(exchange.getIn().getHeaders());
 	    IOHelper.copyAndCloseInput(is, os);
 	    result = true;
 
@@ -690,14 +841,17 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		    "Cannot create new local work file: " + local);
 	} finally {
 	    // need to close the stream before rename it
-	    IOHelper.close(os, "retrieve: " + name, log);
+	    IOHelper.close(os, "retrieve: " + name, LOG);
+	}
+	if (LOG.isDebugEnabled()) {
+	    LOG.debug("Retrieve file to local work file result: {}", result);
 	}
 
-	log.debug("Retrieve file to local work file result: {}", result);
-
 	if (result) {
-	    log.trace("Renaming local in progress file from: {} to: {}", temp,
-		    local);
+	    if (LOG.isTraceEnabled()) {
+		LOG.trace("Renaming local in progress file from: {} to: {}",
+			temp, local);
+	    }
 	    // operation went okay so rename temp to local after we have
 	    // retrieved the data
 	    try {

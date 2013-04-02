@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav;
 
@@ -26,14 +25,26 @@ import org.apache.camel.util.URISupport;
 import com.googlecode.sardine.DavResource;
 
 /**
- * The Sardine consumer.
+ * The Dav consumer.
  * 
  * @author Giwi Softwares
  * 
  */
 public class DavConsumer extends RemoteFileConsumer<DavResource> {
+
+    /** The endpoint path. */
     protected String endpointPath;
 
+    /**
+     * Instantiates a new dav consumer.
+     * 
+     * @param endpoint
+     *            the endpoint
+     * @param processor
+     *            the processor
+     * @param fileOperations
+     *            the file operations
+     */
     public DavConsumer(RemoteFileEndpoint<DavResource> endpoint,
 	    Processor processor,
 	    RemoteFileOperations<DavResource> fileOperations) {
@@ -67,11 +78,17 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
     }
 
     /**
+     * Poll sub directory.
+     * 
      * @param absolutePath
+     *            the absolute path
      * @param dirName
+     *            the dir name
      * @param fileList
+     *            the file list
      * @param depth
-     * @return
+     *            the depth
+     * @return true, if successful
      */
     protected boolean pollSubDirectory(String absolutePath, String dirName,
 	    List<GenericFile<DavResource>> fileList, int depth) {
@@ -79,11 +96,17 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
     }
 
     /**
+     * Do poll directory.
+     * 
      * @param absolutePath
+     *            the absolute path
      * @param dirName
+     *            the dir name
      * @param fileList
+     *            the file list
      * @param depth
-     * @return
+     *            the depth
+     * @return true, if successful
      */
     protected boolean doPollDirectory(String absolutePath, String dirName,
 	    List<GenericFile<DavResource>> fileList, int depth) {
@@ -95,7 +118,9 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 	// remove trailing /
 	dirName = FileUtil.stripTrailingSeparator(dirName);
 	String dir = absolutePath;
-	log.debug("Polling directory: {} / {}", dir, dirName);
+	if (log.isDebugEnabled()) {
+	    log.debug("Polling directory: {} / {}", dir, dirName);
+	}
 	List<DavResource> files;
 	files = operations.listFiles(dir);
 
@@ -161,7 +186,8 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
     }
 
     /**
-     * Fixes the path separator to be according to the protocol
+     * Fixes the path separator to be according to the protocol.
+     * 
      */
     // protected String normalizePathToProtocol(String path) {
     // if (ObjectHelper.isEmpty(path)) {
@@ -174,8 +200,10 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
 
     /**
      * @param absolutePath
+     *            the absolute path
      * @param file
-     * @return
+     *            the file
+     * @return the remote file
      */
     private RemoteFile<DavResource> asRemoteFile(String absolutePath,
 	    DavResource file) {
@@ -208,8 +236,11 @@ public class DavConsumer extends RemoteFileConsumer<DavResource> {
     }
 
     /**
+     * Gets the relative path.
+     * 
      * @param file
-     * @return
+     *            the file
+     * @return the relative path
      */
     private String getRelativePath(DavResource file) {
 	String relativefileName = FileUtil.stripLeadingSeparator(file.getPath()

@@ -1,18 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Copyright 2013 Giwi Softwares (http://giwi.free.fr)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0 
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.giwi.camel.dav;
 
@@ -23,7 +22,7 @@ import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.ObjectHelper;
 
 /**
- * Configuration of the DAV server
+ * Configuration of the DAV server.
  */
 public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 
@@ -34,36 +33,92 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
      * Use existing path separator in file name
      */
     public enum PathSeparator {
-	UNIX, Windows, Auto
+
+	/** The unix. */
+	UNIX,
+	/** The Windows. */
+	Windows,
+	/** The Auto. */
+	Auto
     };
 
+    /** The protocol. */
     private String protocol;
+
+    /** The username. */
     private String username;
+
+    /** The host. */
     private String host;
+
+    /** The port. */
     private int port;
+
+    /** The password. */
     private String password;
+
+    /** The connect timeout. */
     private int connectTimeout = 10000;
+
+    /** The timeout. */
     private int timeout = 30000;
+
+    /** The so timeout. */
     private int soTimeout;
+
+    /** The throw exception on connect failed. */
     private boolean throwExceptionOnConnectFailed;
+
+    /** The separator. */
     private PathSeparator separator = PathSeparator.Auto;
+
+    /** The remote server information. */
     private String remoteServerInformation;
+
+    /** The initial directory. */
     private String initialDirectory;
+
+    /** The host path. */
     private String hostPath;
+
+    /** The download. */
     private boolean download = true;
 
+    /**
+     * Instantiates a new remote file configuration.
+     */
     public RemoteFileConfiguration() {
     }
 
+    /**
+     * Instantiates a new remote file configuration.
+     * 
+     * @param uri
+     *            the uri
+     */
     public RemoteFileConfiguration(URI uri) {
 	configure(uri);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileConfiguration#needToNormalize
+     * ()
+     */
     @Override
     public boolean needToNormalize() {
 	return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.camel.component.file.GenericFileConfiguration#configure(java
+     * .net.URI)
+     */
     @Override
     public void configure(URI uri) {
 	super.configure(uri);
@@ -96,29 +151,59 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	setDirectory("");
     }
 
+    /**
+     * Sets the default protocol.
+     */
     protected abstract void setDefaultProtocol();
 
     /**
-     * Returns human readable server information for logging purpose
+     * Returns human readable server information for logging purpose.
+     * 
+     * @return the remote server information
      */
     public String getRemoteServerInformation() {
 	return remoteServerInformation;
     }
 
+    /**
+     * Sets the default port.
+     */
     protected abstract void setDefaultPort();
 
+    /**
+     * Gets the host.
+     * 
+     * @return the host
+     */
     public String getHost() {
 	return host;
     }
 
+    /**
+     * Sets the host.
+     * 
+     * @param host
+     *            the new host
+     */
     public void setHost(String host) {
 	this.host = host;
     }
 
+    /**
+     * Gets the port.
+     * 
+     * @return the port
+     */
     public int getPort() {
 	return port;
     }
 
+    /**
+     * Sets the port.
+     * 
+     * @param port
+     *            the new port
+     */
     public void setPort(int port) {
 	// only set port if provided with a positive number
 	if (port > 0) {
@@ -126,30 +211,68 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
 	}
     }
 
+    /**
+     * Gets the password.
+     * 
+     * @return the password
+     */
     public String getPassword() {
 	return password;
     }
 
+    /**
+     * Sets the password.
+     * 
+     * @param password
+     *            the new password
+     */
     public void setPassword(String password) {
 	this.password = password;
     }
 
+    /**
+     * Gets the protocol.
+     * 
+     * @return the protocol
+     */
     public String getProtocol() {
 	return protocol;
     }
 
+    /**
+     * Sets the protocol.
+     * 
+     * @param protocol
+     *            the new protocol
+     */
     public void setProtocol(String protocol) {
 	this.protocol = protocol;
     }
 
+    /**
+     * Gets the username.
+     * 
+     * @return the username
+     */
     public String getUsername() {
 	return username;
     }
 
+    /**
+     * Sets the username.
+     * 
+     * @param username
+     *            the new username
+     */
     public void setUsername(String username) {
 	this.username = username;
     }
 
+    /**
+     * Gets the connect timeout.
+     * 
+     * @return the connect timeout
+     */
     public int getConnectTimeout() {
 	return connectTimeout;
     }
@@ -157,12 +280,20 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     /**
      * Sets the connect timeout for waiting for a connection to be established
      * <p/>
-     * Used by both DAVClient and JSCH
+     * Used by both DAVClient and JSCH.
+     * 
+     * @param connectTimeout
+     *            the new connect timeout
      */
     public void setConnectTimeout(int connectTimeout) {
 	this.connectTimeout = connectTimeout;
     }
 
+    /**
+     * Gets the timeout.
+     * 
+     * @return the timeout
+     */
     public int getTimeout() {
 	return timeout;
     }
@@ -170,12 +301,20 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     /**
      * Sets the data timeout for waiting for reply
      * <p/>
-     * Used only by DAVClient
+     * Used only by DAVClient.
+     * 
+     * @param timeout
+     *            the new timeout
      */
     public void setTimeout(int timeout) {
 	this.timeout = timeout;
     }
 
+    /**
+     * Gets the so timeout.
+     * 
+     * @return the so timeout
+     */
     public int getSoTimeout() {
 	return soTimeout;
     }
@@ -183,12 +322,20 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     /**
      * Sets the so timeout
      * <p/>
-     * Used only by DAVClient
+     * Used only by DAVClient.
+     * 
+     * @param soTimeout
+     *            the new so timeout
      */
     public void setSoTimeout(int soTimeout) {
 	this.soTimeout = soTimeout;
     }
 
+    /**
+     * Checks if is throw exception on connect failed.
+     * 
+     * @return true, if is throw exception on connect failed
+     */
     public boolean isThrowExceptionOnConnectFailed() {
 	return throwExceptionOnConnectFailed;
     }
@@ -200,12 +347,20 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
      * use this to enable exception being thrown and handle the thrown exception
      * from the {@link org.apache.camel.spi.PollingConsumerPollStrategy}
      * rollback method.
+     * 
+     * @param throwExceptionOnConnectFailed
+     *            the new throw exception on connect failed
      */
     public void setThrowExceptionOnConnectFailed(
 	    boolean throwExceptionOnConnectFailed) {
 	this.throwExceptionOnConnectFailed = throwExceptionOnConnectFailed;
     }
 
+    /**
+     * Gets the separator.
+     * 
+     * @return the separator
+     */
     public PathSeparator getSeparator() {
 	return separator;
     }
@@ -215,6 +370,9 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
      * <p/>
      * UNIX = Path separator / is used Windows = Path separator \ is used Auto =
      * (is default) Use existing path separator in file name
+     * 
+     * @param separator
+     *            the new separator
      */
     public void setSeparator(PathSeparator separator) {
 	this.separator = separator;
@@ -223,8 +381,6 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     /**
      * Normalizes the given path according to the configured path separator.
      * 
-     * @param path
-     *            the given path
      * @return the normalized path
      */
     // public String normalizePath(String path) {
@@ -249,6 +405,8 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     }
 
     /**
+     * Sets the initial directory.
+     * 
      * @param initialDirectory
      *            the initialDirectory to set
      */
@@ -257,6 +415,8 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     }
 
     /**
+     * Gets the host path.
+     * 
      * @return the hostPath
      */
     public String getHostPath() {
@@ -264,6 +424,8 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     }
 
     /**
+     * Sets the host path.
+     * 
      * @param hostPath
      *            the hostPath to set
      */
@@ -272,6 +434,8 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     }
 
     /**
+     * Checks if is download.
+     * 
      * @return the download
      */
     public boolean isDownload() {
@@ -279,6 +443,8 @@ public abstract class RemoteFileConfiguration extends GenericFileConfiguration {
     }
 
     /**
+     * Sets the download.
+     * 
      * @param download
      *            the download to set
      */
