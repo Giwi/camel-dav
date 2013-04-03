@@ -31,7 +31,7 @@ public abstract class AbstractDavTest extends CamelTestSupport {
     protected static final String DAV_ROOT_DIR = "/var/www/web1/web";
 
     /** The Constant DAV_URL. */
-    protected static final String DAV_URL = "dav://localhost/webdav";
+    protected static final String DAV_URL = "dav://localhost:80/webdav";
     {
 	for (File f : new File(DAV_ROOT_DIR).listFiles()) {
 	    deleteDirectory(f);
