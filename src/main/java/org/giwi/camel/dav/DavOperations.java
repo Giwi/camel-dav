@@ -127,8 +127,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 		.getRemoteServerInformation(), "");
 	sPath = FileUtil.stripLeadingSeparator(sPath);
 
-	if (LOG.isTraceEnabled()) {
-	    LOG.trace("sanitize from path " + path + " to " + sPath);
+	if (LOG.isDebugEnabled()) {
+	    LOG.debug("sanitize from path " + path + " to " + sPath);
 	}
 	return sPath;
     }
@@ -145,8 +145,8 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
 	sPath = endpoint.getConfiguration().getRemoteServerInformation()
 		+ FileUtil.stripLeadingSeparator(path.replaceFirst(endpoint
 			.getConfiguration().getInitialDirectory(), ""));
-	if (LOG.isTraceEnabled()) {
-	    LOG.trace("sanitize with host from path " + path + " to " + sPath);
+	if (LOG.isDebugEnabled()) {
+	    LOG.debug("sanitize with host from path " + path + " to " + sPath);
 	}
 	return sPath;
     }
@@ -214,11 +214,12 @@ public class DavOperations implements RemoteFileOperations<DavResource> {
     @Override
     public boolean renameFile(String from, String to)
 	    throws GenericFileOperationFailedException {
+	LOG.debug("renameFile from " + from + " to : " + to);
 	try {
 	    to = sanitizeWithHost(to);
 	    from = sanitizeWithHost(from);
-	    if (LOG.isTraceEnabled()) {
-		LOG.trace("renameFile from " + from + " to : " + to);
+	    if (LOG.isDebugEnabled()) {
+		LOG.debug("renameFile from " + from + " to : " + to);
 	    }
 	    client.move(from, to);
 	} catch (SardineException e) {
