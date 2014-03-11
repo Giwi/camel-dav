@@ -15,6 +15,8 @@
  */
 package org.giwi.camel.dav.test;
 
+import static org.apache.camel.language.simple.SimpleLanguage.simple;
+
 import java.io.File;
 
 import org.apache.camel.Exchange;
@@ -27,29 +29,29 @@ import org.apache.camel.test.junit4.CamelTestSupport;
  */
 public abstract class AbstractDavTest extends CamelTestSupport {
 
-    /** The Constant DAV_ROOT_DIR. */
-    protected static final String DAV_ROOT_DIR = "/var/www/web1/web";
+	/** The Constant DAV_ROOT_DIR. */
+	protected static final String DAV_ROOT_DIR = "/var/www/web1/web";
 
-    /** The Constant DAV_URL. */
-    protected static final String DAV_URL = "dav://localhost:80/webdav";
-    {
-	for (File f : new File(DAV_ROOT_DIR).listFiles()) {
-	    deleteDirectory(f);
+	/** The Constant DAV_URL. */
+	protected static final String DAV_URL = "dav://localhost:80/webdav";
+	{
+		for (File f : new File(DAV_ROOT_DIR).listFiles()) {
+			deleteDirectory(f);
+		}
+
 	}
 
-    }
-
-    /**
-     * Send file.
-     * 
-     * @param url
-     *            the url
-     * @param body
-     *            the body
-     * @param fileName
-     *            the file name
-     */
-    public void sendFile(String url, Object body, String fileName) {
-	template.sendBodyAndHeader(url, body, Exchange.FILE_NAME, fileName);
-    }
+	/**
+	 * Send file.
+	 * 
+	 * @param url
+	 *            the url
+	 * @param body
+	 *            the body
+	 * @param fileName
+	 *            the file name
+	 */
+	public void sendFile(String url, Object body, String fileName) {
+		template.sendBodyAndHeader(url, body, Exchange.FILE_NAME, simple(fileName));
+	}
 }
