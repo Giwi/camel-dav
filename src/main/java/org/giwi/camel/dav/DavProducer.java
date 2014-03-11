@@ -15,7 +15,7 @@
  */
 package org.giwi.camel.dav;
 
-import com.googlecode.sardine.DavResource;
+import com.github.sardine.DavResource;
 
 /**
  * The Class DavProducer.
@@ -24,27 +24,25 @@ import com.googlecode.sardine.DavResource;
  */
 public class DavProducer extends RemoteFileProducer<DavResource> {
 
-    /** The endpoint path. */
-    protected String endpointPath;
+	/** The endpoint path. */
+	protected String endpointPath;
 
-    /**
-     * Instantiates a new dav producer.
-     * 
-     * @param endpoint
-     *            the endpoint
-     * @param operations
-     *            the operations
-     */
-    protected DavProducer(RemoteFileEndpoint<DavResource> endpoint,
-	    RemoteFileOperations<DavResource> operations) {
-	super(endpoint, operations);
-	endpointPath = endpoint.getConfiguration().getRemoteServerInformation();
-	if (log.isInfoEnabled()) {
-	    log.info("endpointPath : " + endpointPath);
+	/**
+	 * Instantiates a new dav producer.
+	 * 
+	 * @param endpoint
+	 *            the endpoint
+	 * @param operations
+	 *            the operations
+	 */
+	protected DavProducer(RemoteFileEndpoint<DavResource> endpoint, RemoteFileOperations<DavResource> operations) {
+		super(endpoint, operations);
+		endpointPath = endpoint.getConfiguration().getRemoteServerInformation();
+		if (log.isInfoEnabled()) {
+			log.info("endpointPath : " + endpointPath);
+		}
+		if (endpoint.isAutoCreate()) {
+			((DavOperations) operations).initComponent(endpoint.getConfiguration().getInitialDirectory());
+		}
 	}
-	if (endpoint.isAutoCreate()) {
-	    ((DavOperations) operations).initComponent(endpoint
-		    .getConfiguration().getInitialDirectory());
-	}
-    }
 }

@@ -24,67 +24,67 @@ import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.junit.Test;
 
 /**
- * Unit test for login failure due bad password and login with accepted
- * password.
+ * Unit test for login failure due bad password and login with accepted password.
  */
 public class DavLoginTest extends AbstractDavTest {
 
-    /**
-     * Test bad login.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    @Test
-    public void testBadLogin() throws Exception {
-	try {
-	    uploadFile("dummy", "cantremeber");
-	    fail("Should have thrown a GenericFileOperationFailedException");
-	} catch (GenericFileOperationFailedException e) {
-	    // expected
-	    assertEquals(530, e.getCode());
+	/**
+	 * Test bad login.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	@Test
+	public void testBadLogin() throws Exception {
+		try {
+			uploadFile("dummy", "cantremeber");
+			fail("Should have thrown a GenericFileOperationFailedException");
+		} catch (GenericFileOperationFailedException e) {
+			// expected
+			// assertEquals(530, e.getCode());
+			// Hey WTF, Sardine return a 401 !!
+			assertEquals(401, e.getCode());
+		}
+
+		// assert file NOT created
+		File file = new File(DAV_ROOT_DIR + "/login/report.txt");
+		assertFalse("The file should NOT exists", file.exists());
 	}
 
-	// assert file NOT created
-	File file = new File(DAV_ROOT_DIR + "/login/report.txt");
-	assertFalse("The file should NOT exists", file.exists());
-    }
+	/**
+	 * Test good login.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	@Test
+	public void testGoodLogin() throws Exception {
+		uploadFile("test", "test");
 
-    /**
-     * Test good login.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    @Test
-    public void testGoodLogin() throws Exception {
-	uploadFile("test", "test");
+		// assert file created
+		File file = new File(DAV_ROOT_DIR + "/login/report.txt");
+		assertTrue("The file should exists", file.exists());
+	}
 
-	// assert file created
-	File file = new File(DAV_ROOT_DIR + "/login/report.txt");
-	assertTrue("The file should exists", file.exists());
-    }
+	/**
+	 * Upload file.
+	 * 
+	 * @param username
+	 *            the username
+	 * @param password
+	 *            the password
+	 * @throws Exception
+	 *             the exception
+	 */
+	private void uploadFile(String username, String password) throws Exception {
+		Endpoint endpoint = context.getEndpoint("dav://" + username + ":" + password + "@localhost:80/webdavs/login");
 
-    /**
-     * Upload file.
-     * 
-     * @param username
-     *            the username
-     * @param password
-     *            the password
-     * @throws Exception
-     *             the exception
-     */
-    private void uploadFile(String username, String password) throws Exception {
-	Endpoint endpoint = context.getEndpoint("dav://" + username + ":"
-		+ password + "@localhost:80/webdavs/login");
-
-	Exchange exchange = endpoint.createExchange();
-	exchange.getIn().setBody("Hello World from DAV");
-	exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
-	Producer producer = endpoint.createProducer();
-	producer.start();
-	producer.process(exchange);
-	producer.stop();
-    }
+		Exchange exchange = endpoint.createExchange();
+		exchange.getIn().setBody("Hello World from DAV");
+		exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
+		Producer producer = endpoint.createProducer();
+		producer.start();
+		producer.process(exchange);
+		producer.stop();
+	}
 }

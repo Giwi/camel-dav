@@ -30,70 +30,64 @@ import org.junit.Test;
  */
 public class DavProducerFileExistFailTest extends AbstractDavTest {
 
-    /**
-     * Gets the dav url.
-     * 
-     * @return the dav url
-     */
-    protected String getDavUrl() {
-	return DAV_URL + "/exist?delay=2000&noop=true&fileExist=Fail";
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
-     */
-    @Override
-    @Before
-    public void setUp() throws Exception {
-	super.setUp();
-	deleteDirectory("tmpOut/exist");
-
-	template.sendBodyAndHeader(getDavUrl(), "Hello World",
-		Exchange.FILE_NAME, "hello.txt");
-    }
-
-    /**
-     * Test fail.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    @Test
-    public void testFail() throws Exception {
-	MockEndpoint mock = getMockEndpoint("mock:result");
-	mock.expectedBodiesReceived("Hello World");
-	mock.expectedFileExists(DAV_ROOT_DIR + "/exist/hello.txt",
-		"Hello World");
-
-	try {
-	    template.sendBodyAndHeader(getDavUrl(), "Bye World",
-		    Exchange.FILE_NAME, "hello.txt");
-	    fail("Should have thrown an exception");
-	} catch (CamelExecutionException e) {
-	    GenericFileOperationFailedException cause = assertIsInstanceOf(
-		    GenericFileOperationFailedException.class, e.getCause());
-	    assertEquals(
-		    "File already exist: exist/hello.txt. Cannot write new file.",
-		    cause.getMessage());
+	/**
+	 * Gets the dav url.
+	 * 
+	 * @return the dav url
+	 */
+	protected String getDavUrl() {
+		return DAV_URL + "/exist?delay=2000&noop=true&fileExist=Fail";
 	}
 
-	assertMockEndpointsSatisfied();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
+	 */
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+		deleteDirectory("tmpOut/exist");
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
-     */
-    @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
-	return new RouteBuilder() {
-	    @Override
-	    public void configure() throws Exception {
-		from(getDavUrl()).to("mock:result");
-	    }
-	};
-    }
+		template.sendBodyAndHeader(getDavUrl(), "Hello World", Exchange.FILE_NAME, "hello.txt");
+	}
+
+	/**
+	 * Test fail.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	@Test
+	public void testFail() throws Exception {
+		MockEndpoint mock = getMockEndpoint("mock:result");
+		mock.expectedBodiesReceived("Hello World");
+		mock.expectedFileExists(DAV_ROOT_DIR + "/exist/hello.txt", "Hello World");
+
+		try {
+			template.sendBodyAndHeader(getDavUrl(), "Bye World", Exchange.FILE_NAME, "hello.txt");
+			fail("Should have thrown an exception");
+		} catch (CamelExecutionException e) {
+			GenericFileOperationFailedException cause = assertIsInstanceOf(GenericFileOperationFailedException.class, e.getCause());
+			assertEquals("File already exist: webdav/exist/hello.txt. Cannot write new file.", cause.getMessage());
+		}
+
+		assertMockEndpointsSatisfied();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
+	 */
+	@Override
+	protected RouteBuilder createRouteBuilder() throws Exception {
+		return new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				from(getDavUrl()).to("mock:result");
+			}
+		};
+	}
 }

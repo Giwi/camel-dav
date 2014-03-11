@@ -21,7 +21,7 @@ import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.file.GenericFileEndpoint;
 
-import com.googlecode.sardine.DavResource;
+import com.github.sardine.DavResource;
 
 /**
  * Represents the component that manages {@link DavEndpoint} over https.
@@ -30,73 +30,63 @@ import com.googlecode.sardine.DavResource;
  *            the DavResource
  * @author Giwi Softwares
  */
-public class DavsComponent<T extends DavResource> extends
-	RemoteFileComponent<DavResource> {
+public class DavsComponent<T extends DavResource> extends RemoteFileComponent<DavResource> {
 
-    /**
-     * Instantiates a new dav component.
-     */
-    public DavsComponent() {
-    }
-
-    /**
-     * Instantiates a new dav component.
-     * 
-     * @param context
-     *            the context
-     */
-    public DavsComponent(CamelContext context) {
-	super(context);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.camel.component.file.GenericFileComponent#buildFileEndpoint
-     * (java.lang.String, java.lang.String, java.util.Map)
-     */
-    @Override
-    protected GenericFileEndpoint<DavResource> buildFileEndpoint(String uri,
-	    String remaining, Map<String, Object> parameters) throws Exception {
-	String baseUri = getBaseUri(uri);
-	// lets make sure we create a new configuration as each endpoint can
-	// customize its own version
-	// must pass on baseUri to the configuration (see above)
-	DavsConfiguration config = new DavsConfiguration(new URI(baseUri));
-	DavsEndpoint<DavResource> answer = new DavsEndpoint<DavResource>(uri,
-		this, config);
-	return answer;
-    }
-
-    /**
-     * Get the base uri part before the options as they can be non URI valid
-     * such as the expression using $ chars and the URI constructor will regard
-     * $ as an illegal character and we don't want to enforce end users to to
-     * escape the $ for the expression (file language).
-     * 
-     * @param uri
-     *            the uri
-     * @return the base uri
-     */
-    protected String getBaseUri(String uri) {
-	String baseUri = uri;
-	if (uri.indexOf("?") != -1) {
-	    baseUri = uri.substring(0, uri.indexOf("?"));
+	/**
+	 * Instantiates a new dav component.
+	 */
+	public DavsComponent() {
 	}
-	return baseUri;
-    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.camel.component.file.GenericFileComponent#afterPropertiesSet
-     * (org.apache.camel.component.file.GenericFileEndpoint)
-     */
-    @Override
-    protected void afterPropertiesSet(GenericFileEndpoint<DavResource> endpoint)
-	    throws Exception {
-	// noop
-    }
+	/**
+	 * Instantiates a new dav component.
+	 * 
+	 * @param context
+	 *            the context
+	 */
+	public DavsComponent(CamelContext context) {
+		super(context);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.component.file.GenericFileComponent#buildFileEndpoint (java.lang.String, java.lang.String, java.util.Map)
+	 */
+	@Override
+	protected GenericFileEndpoint<DavResource> buildFileEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
+		String baseUri = getBaseUri(uri);
+		// lets make sure we create a new configuration as each endpoint can
+		// customize its own version
+		// must pass on baseUri to the configuration (see above)
+		DavsConfiguration config = new DavsConfiguration(new URI(baseUri));
+		DavsEndpoint<DavResource> answer = new DavsEndpoint<DavResource>(uri, this, config);
+		return answer;
+	}
+
+	/**
+	 * Get the base uri part before the options as they can be non URI valid such as the expression using $ chars and the URI constructor will regard $ as an illegal character and we don't want to
+	 * enforce end users to to escape the $ for the expression (file language).
+	 * 
+	 * @param uri
+	 *            the uri
+	 * @return the base uri
+	 */
+	protected String getBaseUri(String uri) {
+		String baseUri = uri;
+		if (uri.indexOf("?") != -1) {
+			baseUri = uri.substring(0, uri.indexOf("?"));
+		}
+		return baseUri;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.component.file.GenericFileComponent#afterPropertiesSet (org.apache.camel.component.file.GenericFileEndpoint)
+	 */
+	@Override
+	protected void afterPropertiesSet(GenericFileEndpoint<DavResource> endpoint) throws Exception {
+		// noop
+	}
 }

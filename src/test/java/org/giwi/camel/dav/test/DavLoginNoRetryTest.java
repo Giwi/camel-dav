@@ -27,51 +27,48 @@ import org.junit.Test;
  * Unit test for login failure due bad password and no re connect attempts.
  */
 public class DavLoginNoRetryTest extends AbstractDavTest {
-    // TODO
-    /**
-     * Test bad login.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    @Test
-    public void testBadLogin() throws Exception {
-	try {
-	    uploadFile("dummy", "cantremeber");
-	    fail("Should have thrown a GenericFileOperationFailedException");
-	} catch (GenericFileOperationFailedException e) {
-	    // expected
-	    assertEquals(530, e.getCode());
-	    // Hey WTF, Sardine return a 401 !!
-	    // assertEquals(401, e.getCode());
+	/**
+	 * Test bad login.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	@Test
+	public void testBadLogin() throws Exception {
+		try {
+			uploadFile("dummy", "cantremeber");
+			fail("Should have thrown a GenericFileOperationFailedException");
+		} catch (GenericFileOperationFailedException e) {
+			// expected
+			// assertEquals(530, e.getCode());
+			// Hey WTF, Sardine return a 401 !!
+			assertEquals(401, e.getCode());
+		}
+
+		// assert file NOT created
+		File file = new File(DAV_ROOT_DIR + "login/report.txt");
+		assertFalse("The file should NOT exists", file.exists());
 	}
 
-	// assert file NOT created
-	File file = new File(DAV_ROOT_DIR + "login/report.txt");
-	assertFalse("The file should NOT exists", file.exists());
-    }
+	/**
+	 * Upload file.
+	 * 
+	 * @param username
+	 *            the username
+	 * @param password
+	 *            the password
+	 * @throws Exception
+	 *             the exception
+	 */
+	private void uploadFile(String username, String password) throws Exception {
+		Endpoint endpoint = context.getEndpoint("dav://" + username + ":" + password + "@localhost:80/webdavs/login?maximumReconnectAttempts=0");
 
-    /**
-     * Upload file.
-     * 
-     * @param username
-     *            the username
-     * @param password
-     *            the password
-     * @throws Exception
-     *             the exception
-     */
-    private void uploadFile(String username, String password) throws Exception {
-	Endpoint endpoint = context.getEndpoint("dav://" + username + ":"
-		+ password
-		+ "@localhost:80/webdavs/login?maximumReconnectAttempts=0");
-
-	Exchange exchange = endpoint.createExchange();
-	exchange.getIn().setBody("Hello World from DAV");
-	exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
-	Producer producer = endpoint.createProducer();
-	producer.start();
-	producer.process(exchange);
-	producer.stop();
-    }
+		Exchange exchange = endpoint.createExchange();
+		exchange.getIn().setBody("Hello World from DAV");
+		exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
+		Producer producer = endpoint.createProducer();
+		producer.start();
+		producer.process(exchange);
+		producer.stop();
+	}
 }

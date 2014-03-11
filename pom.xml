@@ -4,7 +4,7 @@
 	<groupId>org.giwi.camel</groupId>
 	<artifactId>camel-dav</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>Camel Dav Component</name>
 	<description>Apache camel component to access WebDav</description>
 	<url>https://github.com/BreizhBeans/camel-dav</url>
@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-core</artifactId>
-			<version>2.10.2</version>
+			<version>2.12.3</version>
 		</dependency>
 		<!-- logging -->
 		<dependency>
@@ -86,9 +86,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.googlecode.sardine</groupId>
+			<groupId>com.github.lookfirst</groupId>
 			<artifactId>sardine</artifactId>
-			<version>314</version>
+			<version>5.1</version>
 		</dependency>
 	</dependencies>
 		<reporting>
@@ -146,4 +146,8 @@
 			</plugin>
 		</plugins>
 	</build>
+	<organization>
+		<name>Giwi Softwares</name>
+		<url>http://giwi.free.fr</url>
+	</organization>
 </project>

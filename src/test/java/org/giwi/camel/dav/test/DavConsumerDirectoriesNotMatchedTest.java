@@ -25,70 +25,69 @@ import org.junit.Test;
  */
 public class DavConsumerDirectoriesNotMatchedTest extends AbstractDavTest {
 
-    /**
-     * Gets the dav url.
-     * 
-     * @return the dav url
-     */
-    private String getDavUrl() {
-	return DAV_URL + "/dirnotmatched/?recursive=true&include=^.*txt$";
-    }
+	/**
+	 * Gets the dav url.
+	 * 
+	 * @return the dav url
+	 */
+	private String getDavUrl() {
+		return DAV_URL + "/dirnotmatched/?recursive=true&include=^.*txt$";
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
-     */
-    @Override
-    @Before
-    public void setUp() throws Exception {
-	super.setUp();
-	prepareDavServer();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
+	 */
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+		prepareDavServer();
+	}
 
-    /**
-     * Test skip directories.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    @Test
-    public void testSkipDirectories() throws Exception {
-	MockEndpoint mock = getMockEndpoint("mock:result");
-	mock.expectedMessageCount(3);
-	mock.assertIsSatisfied();
-    }
+	/**
+	 * Test skip directories.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	@Test
+	public void testSkipDirectories() throws Exception {
+		MockEndpoint mock = getMockEndpoint("mock:result");
+		mock.expectedMessageCount(3);
+		mock.assertIsSatisfied();
+	}
 
-    /**
-     * Prepare dav server.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    private void prepareDavServer() throws Exception {
-	// prepares the DAV Server by creating files on the server that we want
-	// to unit
-	// test that we can pool and store as a local file
+	/**
+	 * Prepare dav server.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	private void prepareDavServer() throws Exception {
+		// prepares the DAV Server by creating files on the server that we want
+		// to unit test that we can pool and store as a local file
 
-	sendFile(getDavUrl(), "This is a dot file", ".skipme");
-	sendFile(getDavUrl(), "This is a web file", "index.html");
-	sendFile(getDavUrl(), "This is a readme file", "readme.txt");
-	sendFile(getDavUrl() + "/2007/", "2007 report", "report2007.txt");
-	sendFile(getDavUrl() + "/2008/", "2008 report", "report2008.txt");
-    }
+		sendFile(getDavUrl(), "This is a dot file", ".skipme");
+		sendFile(getDavUrl(), "This is a web file", "index.html");
+		sendFile(getDavUrl(), "This is a readme file", "readme.txt");
+		sendFile(getDavUrl() + "/2007/", "2007 report", "report2007.txt");
+		sendFile(getDavUrl() + "/2008/", "2008 report", "report2008.txt");
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
-     */
-    @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
-	return new RouteBuilder() {
-	    @Override
-	    public void configure() throws Exception {
-		from(getDavUrl()).to("mock:result");
-	    }
-	};
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
+	 */
+	@Override
+	protected RouteBuilder createRouteBuilder() throws Exception {
+		return new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				from(getDavUrl()).to("mock:result");
+			}
+		};
+	}
 }

@@ -30,93 +30,89 @@ import org.junit.Test;
  */
 public class DavConsumerMoveExpressionTest extends AbstractDavTest {
 
-    /**
-     * Gets the dav url.
-     * 
-     * @return the dav url
-     */
-    private String getDavUrl() {
-	return DAV_URL + "/filelanguage?consumer.delay=5000";
-    }
+	/**
+	 * Gets the dav url.
+	 * 
+	 * @return the dav url
+	 */
+	private String getDavUrl() {
+		return DAV_URL + "/filelanguage?consumer.delay=5000";
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
-     */
-    @Override
-    @Before
-    public void setUp() throws Exception {
-	super.setUp();
-	deleteDirectory("tmpOut/filelanguage");
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
+	 */
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+		deleteDirectory("tmpOut/filelanguage");
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#createRegistry()
-     */
-    @Override
-    protected JndiRegistry createRegistry() throws Exception {
-	JndiRegistry jndi = super.createRegistry();
-	jndi.bind("myguidgenerator", new MyGuidGenerator());
-	return jndi;
-    }
-
-    /**
-     * Test move using expression.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    @Test
-    public void testMoveUsingExpression() throws Exception {
-	MockEndpoint mock = getMockEndpoint("mock:result");
-	mock.expectedBodiesReceived("Reports");
-
-	sendFile(getDavUrl(), "Reports", "report2.txt");
-
-	assertMockEndpointsSatisfied();
-
-	// give time for consumer to rename file
-	Thread.sleep(1000);
-
-	String now = new SimpleDateFormat("yyyyMMdd").format(new Date());
-	File file = new File(DAV_ROOT_DIR + "/filelanguage/backup/" + now
-		+ "/123-report2.bak");
-	assertTrue("File should have been renamed", file.exists());
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
-     */
-    @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
-	return new RouteBuilder() {
-	    @Override
-	    public void configure() throws Exception {
-		from(
-			getDavUrl()
-				+ "&move=backup/${date:now:yyyyMMdd}/${bean:myguidgenerator}"
-				+ "-${file:name.noext}.bak").to("mock:result");
-	    }
-	};
-    }
-
-    /**
-     * The Class MyGuidGenerator.
-     */
-    public class MyGuidGenerator {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#createRegistry()
+	 */
+	@Override
+	protected JndiRegistry createRegistry() throws Exception {
+		JndiRegistry jndi = super.createRegistry();
+		jndi.bind("myguidgenerator", new MyGuidGenerator());
+		return jndi;
+	}
 
 	/**
-	 * Guid.
+	 * Test move using expression.
 	 * 
-	 * @return the string
+	 * @throws Exception
+	 *             the exception
 	 */
-	public String guid() {
-	    return "123";
+	@Test
+	public void testMoveUsingExpression() throws Exception {
+		MockEndpoint mock = getMockEndpoint("mock:result");
+		mock.expectedBodiesReceived("Reports");
+
+		sendFile(getDavUrl(), "Reports", "report2.txt");
+
+		assertMockEndpointsSatisfied();
+
+		// give time for consumer to rename file
+		Thread.sleep(1000);
+
+		String now = new SimpleDateFormat("yyyyMMdd").format(new Date());
+		File file = new File(DAV_ROOT_DIR + "/filelanguage/backup/" + now + "/123-report2.bak");
+		assertTrue("File should have been renamed", file.exists());
 	}
-    }
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
+	 */
+	@Override
+	protected RouteBuilder createRouteBuilder() throws Exception {
+		return new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				from(getDavUrl() + "&move=backup/${date:now:yyyyMMdd}/${bean:myguidgenerator}" + "-${file:name.noext}.bak").to("mock:result");
+			}
+		};
+	}
+
+	/**
+	 * The Class MyGuidGenerator.
+	 */
+	public class MyGuidGenerator {
+
+		/**
+		 * Guid.
+		 * 
+		 * @return the string
+		 */
+		public String guid() {
+			return "123";
+		}
+	}
 }

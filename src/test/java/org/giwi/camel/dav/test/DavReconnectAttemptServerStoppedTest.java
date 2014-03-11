@@ -27,63 +27,61 @@ import org.junit.Test;
  */
 public class DavReconnectAttemptServerStoppedTest extends AbstractDavTest {
 
-    /**
-     * Gets the dav url.
-     * 
-     * @return the dav url
-     */
-    private String getDavUrl() {
-	return DAV_URL
-		+ "/reconnect?password=admin&maximumReconnectAttempts=2&reconnectDelay=500&delete=true";
-    }
+	/**
+	 * Gets the dav url.
+	 * 
+	 * @return the dav url
+	 */
+	private String getDavUrl() {
+		return DAV_URL + "/reconnect?password=admin&maximumReconnectAttempts=2&reconnectDelay=500&delete=true";
+	}
 
-    /**
-     * Test from file to dav.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    @Test
-    public void testFromFileToDav() throws Exception {
-	// suspect serve so we cannot connect
-	// TODO : FIXME ftpServer.suspend();
+	/**
+	 * Test from file to dav.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	@Test
+	public void testFromFileToDav() throws Exception {
+		// suspect serve so we cannot connect
+		// FIXME ftpServer.suspend();
 
-	// put a file in the folder (do not use ftp as we then will connect)
-	template.sendBodyAndHeader("file:" + DAV_ROOT_DIR + "/reconnect",
-		"Hello World", Exchange.FILE_NAME, "hello.txt");
+		// put a file in the folder (do not use ftp as we then will connect)
+		template.sendBodyAndHeader("file:" + DAV_ROOT_DIR + "/reconnect", "Hello World", Exchange.FILE_NAME, "hello.txt");
 
-	MockEndpoint mock = getMockEndpoint("mock:result");
-	mock.expectedMessageCount(0);
+		MockEndpoint mock = getMockEndpoint("mock:result");
+		mock.expectedMessageCount(0);
 
-	// let it run a little
-	Thread.sleep(3000);
+		// let it run a little
+		Thread.sleep(3000);
 
-	assertMockEndpointsSatisfied();
+		assertMockEndpointsSatisfied();
 
-	mock.reset();
-	mock.expectedMessageCount(1);
+		mock.reset();
+		mock.expectedMessageCount(1);
 
-	// resume the server so we can connect
-	// TODO : FIXME ftpServer.resume();
+		// resume the server so we can connect
+		// FIXME ftpServer.resume();
 
-	// wait a bit so that the server resumes properly
-	Thread.sleep(3000);
+		// wait a bit so that the server resumes properly
+		Thread.sleep(3000);
 
-	assertMockEndpointsSatisfied();
-    }
+		assertMockEndpointsSatisfied();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
-     */
-    @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
-	return new RouteBuilder() {
-	    @Override
-	    public void configure() throws Exception {
-		from(getDavUrl()).to("mock:result");
-	    }
-	};
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
+	 */
+	@Override
+	protected RouteBuilder createRouteBuilder() throws Exception {
+		return new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				from(getDavUrl()).to("mock:result");
+			}
+		};
+	}
 }

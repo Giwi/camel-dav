@@ -27,62 +27,60 @@ import org.junit.Test;
  */
 public class DavConsumerDeleteNoWritePermissionTest extends AbstractDavTest {
 
-    /**
-     * Gets the dav url.
-     * 
-     * @return the dav url
-     */
-    private String getDavUrl() {
-	return "dav://dummy@localhost:80/webdavs/deletenoperm?password=foo&delete=true&consumer.delay=5000";
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
-     */
-    @Override
-    @Before
-    public void setUp() throws Exception {
-	super.setUp();
-	prepareDavServer();
-    }
-
-    /**
-     * Test consumer delete no write permission.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    @Test
-    public void testConsumerDeleteNoWritePermission() throws Exception {
-	PollingConsumer consumer = context.getEndpoint(getDavUrl())
-		.createPollingConsumer();
-	consumer.start();
-	Exchange out = consumer.receive(3000);
-	assertNotNull("Should get the file", out);
-
-	try {
-	    // give consumer time to try to delete the file
-	    Thread.sleep(1000);
-	    consumer.stop();
-	} catch (GenericFileOperationFailedException fofe) {
-	    // expected, ignore
+	/**
+	 * Gets the dav url.
+	 * 
+	 * @return the dav url
+	 */
+	private String getDavUrl() {
+		return "dav://dummy@localhost:80/webdavs/deletenoperm?password=foo&autoCreate=false&delete=true&consumer.delay=5000";
 	}
-    }
 
-    /**
-     * Prepare dav server.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    private void prepareDavServer() throws Exception {
-	// prepares the DAV Server by creating files on the server that we want
-	// to unit
-	// test that we can pool and store as a local file
-	String davUrl = DAV_URL + "/deletenoperm/";
-	template.sendBodyAndHeader(davUrl, "Hello World", Exchange.FILE_NAME,
-		"hello.txt");
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#setUp()
+	 */
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+		prepareDavServer();
+	}
+
+	/**
+	 * Test consumer delete no write permission.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	@Test
+	public void testConsumerDeleteNoWritePermission() throws Exception {
+		PollingConsumer consumer = context.getEndpoint(getDavUrl()).createPollingConsumer();
+		consumer.start();
+		Exchange out = consumer.receive(3000);
+		assertNotNull("Should get the file", out);
+
+		try {
+			// give consumer time to try to delete the file
+			Thread.sleep(1000);
+			consumer.stop();
+		} catch (GenericFileOperationFailedException fofe) {
+			// expected, ignore
+		}
+	}
+
+	/**
+	 * Prepare dav server.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	private void prepareDavServer() throws Exception {
+		// prepares the DAV Server by creating files on the server that we want
+		// to unit
+		// test that we can pool and store as a local file
+		String davUrl = DAV_URL + "/deletenoperm/";
+		template.sendBodyAndHeader(davUrl, "Hello World", Exchange.FILE_NAME, "hello.txt");
+	}
 }
