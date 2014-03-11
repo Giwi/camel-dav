@@ -26,44 +26,44 @@ import org.junit.Test;
  */
 public class DavReconnectAttemptUnknownHostTest extends AbstractDavTest {
 
-    /**
-     * Gets the dav url.
-     * 
-     * @return the dav url
-     */
-    private String getDavUrl() {
-	return "dav://admin@doesnotexisthost:80/reconnect";
-    }
+	/**
+	 * Gets the dav url.
+	 * 
+	 * @return the dav url
+	 */
+	private String getDavUrl() {
+		return "dav://admin@doesnotexisthost:80/reconnect?autoCreate=false";
+	}
 
-    /**
-     * Test from file to dav.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    @Test
-    public void testFromFileToDav() throws Exception {
-	MockEndpoint mock = getMockEndpoint("mock:result");
-	mock.expectedMessageCount(0);
+	/**
+	 * Test from file to dav.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	@Test
+	public void testFromFileToDav() throws Exception {
+		MockEndpoint mock = getMockEndpoint("mock:result");
+		mock.expectedMessageCount(0);
 
-	// let it run a little
-	Thread.sleep(3000);
+		// let it run a little
+		Thread.sleep(3000);
 
-	assertMockEndpointsSatisfied();
-    }
+		assertMockEndpointsSatisfied();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
-     */
-    @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
-	return new RouteBuilder() {
-	    @Override
-	    public void configure() throws Exception {
-		from(getDavUrl()).to("mock:result");
-	    }
-	};
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.test.junit4.CamelTestSupport#createRouteBuilder()
+	 */
+	@Override
+	protected RouteBuilder createRouteBuilder() throws Exception {
+		return new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				from(getDavUrl()).to("mock:result");
+			}
+		};
+	}
 }

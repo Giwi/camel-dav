@@ -33,7 +33,7 @@ public class DavConsumerDeleteNoWritePermissionTest extends AbstractDavTest {
 	 * @return the dav url
 	 */
 	private String getDavUrl() {
-		return "dav://dummy@localhost:80/webdavs/deletenoperm?password=foo&autoCreate=false&delete=true&consumer.delay=5000";
+		return "dav://dummy@localhost:80/webdavs2/deletenoperm?password=foo&autoCreate=false&delete=true&consumer.delay=5000";
 	}
 
 	/*

@@ -17,6 +17,7 @@ package org.giwi.camel.dav;
 
 import java.io.IOException;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileConsumer;
 
@@ -28,128 +29,128 @@ import org.apache.camel.component.file.GenericFileConsumer;
  */
 public abstract class RemoteFileConsumer<T> extends GenericFileConsumer<T> {
 
-    /** The logged in. */
-    protected boolean loggedIn = true;
+	/** The logged in. */
+	protected boolean loggedIn = true;
 
-    /**
-     * Instantiates a new remote file consumer.
-     * 
-     * @param endpoint
-     *            the endpoint
-     * @param processor
-     *            the processor
-     * @param operations
-     *            the operations
-     */
-    public RemoteFileConsumer(RemoteFileEndpoint<T> endpoint,
-	    Processor processor, RemoteFileOperations<T> operations) {
-	super(endpoint, processor, operations);
-	setPollStrategy(new RemoteFilePollingConsumerPollStrategy());
-    }
+	/**
+	 * Instantiates a new remote file consumer.
+	 * 
+	 * @param endpoint
+	 *            the endpoint
+	 * @param processor
+	 *            the processor
+	 * @param operations
+	 *            the operations
+	 */
+	public RemoteFileConsumer(RemoteFileEndpoint<T> endpoint, Processor processor, RemoteFileOperations<T> operations) {
+		super(endpoint, processor, operations);
+		setPollStrategy(new RemoteFilePollingConsumerPollStrategy());
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.impl.DefaultConsumer#getEndpoint()
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public RemoteFileEndpoint<T> getEndpoint() {
-	return (RemoteFileEndpoint<T>) super.getEndpoint();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.impl.DefaultConsumer#getEndpoint()
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public RemoteFileEndpoint<T> getEndpoint() {
+		return (RemoteFileEndpoint<T>) super.getEndpoint();
+	}
 
-    /**
-     * Gets the operations.
-     * 
-     * @return the operations
-     */
-    protected RemoteFileOperations<T> getOperations() {
-	return (RemoteFileOperations<T>) operations;
-    }
+	/**
+	 * Gets the operations.
+	 * 
+	 * @return the operations
+	 */
+	protected RemoteFileOperations<T> getOperations() {
+		return (RemoteFileOperations<T>) operations;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.component.file.GenericFileConsumer#prePollCheck()
-     */
-    @Override
-    protected boolean prePollCheck() throws Exception {
-	// noop
-	return true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.component.file.GenericFileConsumer#prePollCheck()
+	 */
+	@Override
+	protected boolean prePollCheck() throws Exception {
+		// noop
+		return true;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.component.file.GenericFileConsumer#postPollCheck()
-     */
-    @Override
-    protected void postPollCheck() {
-	// noop
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.component.file.GenericFileConsumer#postPollCheck()
+	 */
+	@Override
+	protected void postPollCheck() {
+		// noop
+	}
 
-    // @Override
-    // protected void processExchange(Exchange exchange) {
-    // // mark the exchange to be processed synchronously as the dav client is
-    // not thread safe
-    // // and we must execute the callbacks in the same thread as this consumer
-    // exchange.setProperty(Exchange.UNIT_OF_WORK_PROCESS_SYNC, Boolean.TRUE);
-    // super.processExchange(exchange);
-    // }
+	@Override
+	protected boolean processExchange(Exchange exchange) {
+		// mark the exchange to be processed synchronously as the dav client is not thread safe
+		// and we must execute the callbacks in the same thread as this consumer
+		exchange.setProperty(Exchange.UNIT_OF_WORK_PROCESS_SYNC, Boolean.TRUE);
+		return super.processExchange(exchange);
 
-    /**
-     * Checks if is retrieve file.
-     * 
-     * @return true, if is retrieve file
-     */
-    protected boolean isRetrieveFile() {
-	return getEndpoint().getConfiguration().isDownload();
-    }
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.impl.ScheduledPollConsumer#doStop()
-     */
-    @Override
-    protected void doStop() throws Exception {
-	super.doStop();
-    }
+	/**
+	 * Checks if is retrieve file.
+	 * 
+	 * @return true, if is retrieve file
+	 */
+	@Override
+	protected boolean isRetrieveFile() {
+		return getEndpoint().getConfiguration().isDownload();
+	}
 
-    /**
-     * Disconnect.
-     */
-    protected void disconnect() {
-	// noop
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.camel.impl.ScheduledPollConsumer#doStop()
+	 */
+	@Override
+	protected void doStop() throws Exception {
+		super.doStop();
+	}
 
-    /**
-     * Recoverable connect if necessary.
-     * 
-     * @throws Exception
-     *             the exception
-     */
-    protected void recoverableConnectIfNecessary() throws Exception {
-	// noop
-    }
+	/**
+	 * Disconnect.
+	 */
+	protected void disconnect() {
+		// noop
+	}
 
-    /**
-     * Connect if necessary.
-     * 
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     */
-    protected void connectIfNecessary() throws IOException {
-	// noop
-    }
+	/**
+	 * Recoverable connect if necessary.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 */
+	protected void recoverableConnectIfNecessary() throws Exception {
+		// noop
+	}
 
-    /**
-     * Returns human readable server information for logging purpose.
-     * 
-     * @return the string
-     */
-    protected String remoteServer() {
-	return ((RemoteFileEndpoint<?>) endpoint).remoteServerInformation();
-    }
+	/**
+	 * Connect if necessary.
+	 * 
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	protected void connectIfNecessary() throws IOException {
+		// noop
+	}
+
+	/**
+	 * Returns human readable server information for logging purpose.
+	 * 
+	 * @return the string
+	 */
+	protected String remoteServer() {
+		return ((RemoteFileEndpoint<?>) endpoint).remoteServerInformation();
+	}
 
 }

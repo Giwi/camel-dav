@@ -18,6 +18,7 @@ package org.giwi.camel.dav.test;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -43,11 +44,12 @@ public class DavReconnectAttemptServerStoppedTest extends AbstractDavTest {
 	 *             the exception
 	 */
 	@Test
+	@Ignore
 	public void testFromFileToDav() throws Exception {
 		// suspect serve so we cannot connect
-		// FIXME ftpServer.suspend();
+		// FIXME davServer.suspend();
 
-		// put a file in the folder (do not use ftp as we then will connect)
+		// put a file in the folder (do not use dav as we then will connect)
 		template.sendBodyAndHeader("file:" + DAV_ROOT_DIR + "/reconnect", "Hello World", Exchange.FILE_NAME, "hello.txt");
 
 		MockEndpoint mock = getMockEndpoint("mock:result");
@@ -62,7 +64,7 @@ public class DavReconnectAttemptServerStoppedTest extends AbstractDavTest {
 		mock.expectedMessageCount(1);
 
 		// resume the server so we can connect
-		// FIXME ftpServer.resume();
+		// FIXME davServer.resume();
 
 		// wait a bit so that the server resumes properly
 		Thread.sleep(3000);

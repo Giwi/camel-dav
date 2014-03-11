@@ -62,7 +62,7 @@ public class DavThrowExceptionOnConnectionFailedTest extends AbstractDavTest {
 	 *             the exception
 	 */
 	private void uploadFile(String username, String password) throws Exception {
-		Endpoint endpoint = context.getEndpoint("dav://" + username + "@localhost:80/login?password=" + password + "&maximumReconnectAttempts=0&throwExceptionOnConnectFailed=true");
+		Endpoint endpoint = context.getEndpoint("dav://" + username + "@localhost:80/webdavs2/login?password=" + password + "&maximumReconnectAttempts=0&throwExceptionOnConnectFailed=true");
 
 		Exchange exchange = endpoint.createExchange();
 		exchange.getIn().setBody("Hello World from FTPServer");
