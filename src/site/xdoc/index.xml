@@ -4,18 +4,16 @@
 		<author>Giwi Softwares</author>
 		<title>Description</title>
 	</properties>
-	<meta name="keyword" content="camel, dav, apache, java" />
+	<meta name="keyword" content="camel, dav, apache, java"/>
 	<body>
-	    <section name="Camel-dav">
-		<subsection name="Introduction">
-			<p>
-				This is a Dav client based on <a href="https://code.google.com/p/sardine/" target="_blank">Sardine</a>  and largely inspired by camel-ftp.
-			</p>
-		</subsection>
-		<!-- <subsection name="Downloads">
-			<p>
-				<a href="https://github.com/BreizhBeans/camel-kafka/blob/1e84168647f19769e1b2938ecfccc9be65c4f4f8/target/camel-kafka-0.0.3-RC1.jar?raw=true" target="_blank">Release cadidate 1</a>
-			</p>
-		</subsection> --></section>
+		<section name="Camel-dav">
+			<subsection name="Introduction">
+				<p>
+					This is a Dav client based on
+					<a href="https://github.com/lookfirst/sardine" target="_blank">Sardine</a>
+					and largely inspired by camel-ftp.
+				</p>
+			</subsection>
+		</section>
 	</body>
 </document>
